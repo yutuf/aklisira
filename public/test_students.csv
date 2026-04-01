@@ -1,0 +1,24 @@
+Name,Academic Level,Movement Needs,Behavior Type,Special Needs,Friends,Avoid Students
+Ahmet Yılmaz,high,moderate,leader,none,Selin Demir,Mehmet Kaya
+Selin Demir,above_average,low,quiet,anxiety,Ahmet Yılmaz,
+Mehmet Kaya,average,high,disruptive,adhd,,Ahmet Yılmaz
+Zeynep Arslan,high,very_low,quiet,vision,Elif Özkan,
+Elif Özkan,above_average,moderate,active,none,Zeynep Arslan,Can Yıldız
+Can Yıldız,below_average,high,disruptive,none,,Elif Özkan
+Deniz Kaya,struggling,moderate,follower,hearing,,
+Buse Şahin,average,low,quiet,none,Deniz Kaya,
+Emre Demir,above_average,moderate,leader,none,Buse Şahin,
+Merve Yıldız,high,very_low,quiet,anxiety,,
+Kaan Özkan,average,high,active,adhd,Emre Demir,
+Ayşe Demir,below_average,low,follower,vision,,
+Ozan Şahin,struggling,moderate,disruptive,none,,
+Sude Arslan,above_average,very_low,quiet,none,Merve Yıldız,
+Berk Yılmaz,average,moderate,active,none,Ozan Şahin,
+Ece Kaya,high,low,leader,none,Sude Arslan,
+Mert Özkan,above_average,moderate,follower,hearing,,
+Naz Demir,average,high,disruptive,adhd,,
+Yusuf Şahin,below_average,low,quiet,none,Ece Kaya,
+Elif Yıldız,struggling,moderate,active,anxiety,,
+Cem Arslan,high,very_low,leader,none,,
+Aylin Kaya,above_average,moderate,follower,vision,,
+Deniz Özkan,average,high,quiet,none,Cem Arslan,

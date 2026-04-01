@@ -1,0 +1,518 @@
+@import "tailwindcss";
+
+/* ===========================
+   AkılSıra Design System
+   Warm, Education-Focused
+   ========================= */
+
+:root {
+  /* Primary — Warm Teal (school chalkboard inspired) */
+  --primary: #0f766e;
+  --primary-light: #14b8a6;
+  --primary-pale: #ccfbf1;
+  --primary-dark: #0a5c55;
+
+  /* Accent — Warm Amber */
+  --accent: #d97706;
+  --accent-light: #fbbf24;
+  --accent-pale: #fef3c7;
+
+  /* Neutrals — Warm grays, not cold */
+  --bg: #faf8f5;
+  --bg-card: #ffffff;
+  --bg-muted: #f5f0eb;
+  --border: #e8e0d8;
+  --border-light: #f0ebe5;
+
+  /* Text — Deep warm tones */
+  --text: #1c1917;
+  --text-secondary: #57534e;
+  --text-muted: #a8a29e;
+
+  /* Semantic */
+  --success: #15803d;
+  --success-pale: #dcfce7;
+  --danger: #b91c1c;
+  --danger-pale: #fee2e2;
+  --info: #0369a1;
+  --info-pale: #e0f2fe;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(28, 25, 23, 0.06), 0 1px 2px rgba(28, 25, 23, 0.04);
+  --shadow-md: 0 4px 12px rgba(28, 25, 23, 0.08);
+  --shadow-lg: 0 10px 30px rgba(28, 25, 23, 0.1);
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
+  --font-sans: var(--font-nunito);
+}
+
+/* ===========================
+   Base
+   ========================= */
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-nunito), 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===========================
+   Card System
+   ========================= */
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ===========================
+   Buttons
+   ========================= */
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: var(--bg-muted);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.btn-secondary:hover {
+  background: var(--border);
+}
+
+.btn-accent {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.btn-accent:hover {
+  background: #b45309;
+  transform: translateY(-1px);
+}
+
+/* ===========================
+   Toggle Switcher
+   ========================= */
+
+.toggle-group {
+  display: flex;
+  background: var(--bg-muted);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  border: 1px solid var(--border-light);
+}
+
+.toggle-btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+}
+
+.toggle-btn.active {
+  background: white;
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ===========================
+   Form Elements
+   ========================= */
+
+.form-textarea {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--bg-card);
+  resize: vertical;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+}
+
+.form-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+input[type="file"] {
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+input[type="file"]::file-selector-button {
+  background: var(--primary-pale);
+  color: var(--primary);
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  margin-right: 12px;
+  font-family: inherit;
+  transition: background 0.2s;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background: var(--primary-light);
+  color: white;
+}
+
+/* ===========================
+   Metrics Bar
+   ========================= */
+
+.metric-bar-track {
+  width: 100%;
+  height: 8px;
+  background: var(--bg-muted);
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.metric-bar-fill {
+  height: 100%;
+  border-radius: 100px;
+  background: var(--primary);
+  transition: width 0.5s ease;
+}
+
+/* ===========================
+   Seating Grid
+   ========================= */
+
+.seat-cell {
+  aspect-ratio: 1;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+  min-height: 80px;
+}
+
+.seat-cell.occupied {
+  background: var(--primary-pale);
+  border-color: var(--primary-light);
+}
+
+.seat-cell.occupied:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.seat-cell.empty {
+  background: var(--bg-muted);
+  border-style: dashed;
+  border-color: var(--border);
+}
+
+.seat-name {
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--text);
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.seat-badge {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.seat-row-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.teacher-desk {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 10px;
+  background: var(--accent-pale);
+  border: 2px solid var(--accent);
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+/* ===========================
+   AI Analysis Box
+   ========================= */
+
+.ai-box {
+  background: var(--accent-pale);
+  border: 1px solid #fde68a;
+  border-radius: var(--radius-md);
+  padding: 20px;
+}
+
+.ai-box h3 {
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.ai-box p {
+  font-size: 0.85rem;
+  color: #92400e;
+  line-height: 1.6;
+}
+
+/* ===========================
+   Student List
+   ========================= */
+
+.student-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 0.8rem;
+}
+
+.student-list-item:last-child {
+  border-bottom: none;
+}
+
+/* ===========================
+   Voice Button
+   ========================= */
+
+.voice-btn {
+  background: var(--primary-pale);
+  color: var(--primary);
+  border: none;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.voice-btn:hover {
+  background: var(--primary-light);
+  color: white;
+}
+
+.voice-btn.listening {
+  background: var(--danger);
+  color: white;
+  animation: pulse-voice 1.5s infinite;
+}
+
+@keyframes pulse-voice {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ===========================
+   Empty State
+   ========================= */
+
+.empty-state {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  color: var(--text-muted);
+  text-align: center;
+  min-height: 400px;
+}
+
+.empty-state .icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+}
+
+.empty-state p {
+  font-size: 0.9rem;
+  max-width: 280px;
+  line-height: 1.5;
+}
+
+/* ===========================
+   Animations
+   ========================= */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* ===========================
+   Voice Recording Indicator
+   ========================= */
+
+.voice-btn {
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--border);
+  background: var(--bg-muted);
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+}
+
+.voice-btn:hover {
+  border-color: var(--primary-light);
+  background: var(--primary-pale);
+}
+
+.voice-btn.listening {
+  border-color: #dc2626;
+  background: #fef2f2;
+  animation: pulse-glow 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+  50% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+}
+
+.recording-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #fee2e2, #fef2f2);
+  border: 2px solid #fca5a5;
+  border-radius: var(--radius-md);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.recording-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #dc2626;
+  animation: pulse-dot 1s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
+}
+
+.recording-text {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #dc2626;
+  letter-spacing: 0.3px;
+}
+
+/* ===========================
+   Responsive
+   ========================= */
+
+@media (max-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
