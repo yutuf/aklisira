@@ -10,6 +10,22 @@ import { SeatingGrid } from '../components/SeatingGrid';
 import { generateLayoutExplanation } from '../utils/ai-explanation-service';
 import { calculateMetrics } from '../utils/scoring-utils';
 
+// ─── Visitor Log ───
+function logVisitorAction(action: string, data: Record<string, any> = {}) {
+  try {
+    const logs = JSON.parse(localStorage.getItem('aklisira_logs') || '[]');
+    logs.push({ action, ...data, timestamp: new Date().toISOString() });
+    localStorage.setItem('aklisira_logs', JSON.stringify(logs));
+  } catch {}
+}
+
+function getVisitorCount(): number {
+  try {
+    const logs = JSON.parse(localStorage.getItem('aklisira_logs') || '[]');
+    return logs.filter((l: any) => l.action === 'optimize_complete').length;
+  } catch { return 0; }
+}
+
 export default function Dashboard() {
   const [students, setStudents] = useState<Student[]>([]);
   const [layout, setLayout] = useState<ClassroomLayout>({ rows: 5, cols: 6, seats: [] });
@@ -18,11 +34,17 @@ export default function Dashboard() {
   const [generation, setGeneration] = useState(0);
   const [currentMetrics, setCurrentMetrics] = useState<any>(null);
   const [aiExplanation, setAiExplanation] = useState("");
+  const [optimizationDone, setOptimizationDone] = useState(false);
+  const [demoCount, setDemoCount] = useState(0);
 
   // Input state
   const [inputMode, setInputMode] = useState<'csv' | 'smart'>('smart');
   const [smartText, setSmartText] = useState("");
   const { isListening, transcript, startListening, isSupported, setTranscript } = useVoiceInput();
+
+  useEffect(() => {
+    setDemoCount(getVisitorCount());
+  }, []);
 
   // Voice → text
   useEffect(() => {
@@ -40,6 +62,7 @@ export default function Dashboard() {
     const total = students.length + parsed.length;
     const rows = Math.ceil(total / 6);
     setLayout(prev => ({ ...prev, rows: Math.max(rows, 4) }));
+    logVisitorAction('text_parse', { studentCount: parsed.length });
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,6 +76,7 @@ export default function Dashboard() {
           setStudents(parsed);
           const rows = Math.ceil(parsed.length / 6);
           setLayout(prev => ({ ...prev, rows: Math.max(rows, 4) }));
+          logVisitorAction('csv_upload', { studentCount: parsed.length });
         } catch {
           alert("CSV dosyası okunamadı. Lütfen formatı kontrol edin.");
         }
@@ -66,19 +90,32 @@ export default function Dashboard() {
     setIsOptimizing(true);
     setGeneration(0);
     setAiExplanation("");
+    setOptimizationDone(false);
 
     const solver = new GeneticSolver(students, layout);
     solver.initialize();
 
     let gen = 0;
     const maxGens = 50;
+    const startTime = Date.now();
 
     const interval = setInterval(() => {
       if (gen >= maxGens) {
         clearInterval(interval);
         setIsOptimizing(false);
-        const finalMetrics = calculateMetrics(solver.evolve(0).assignments);
-        setAiExplanation(generateLayoutExplanation(finalMetrics, solver.evolve(0).assignments));
+        setOptimizationDone(true);
+        const finalResult = solver.evolve(0);
+        const finalMetrics = calculateMetrics(finalResult.assignments);
+        setAiExplanation(generateLayoutExplanation(finalMetrics, finalResult.assignments));
+        
+        // Log completion
+        const duration = Date.now() - startTime;
+        logVisitorAction('optimize_complete', {
+          studentCount: students.length,
+          score: finalMetrics.overallScore,
+          duration: Math.round(duration / 1000),
+        });
+        setDemoCount(prev => prev + 1);
         return;
       }
 
@@ -93,24 +130,19 @@ export default function Dashboard() {
   const exportResults = () => {
     const data = {
       project: "AklıSıra",
+      version: "1.0",
       timestamp: new Date().toISOString(),
       students: students.map(s => ({
-        name: s.name,
-        academicLevel: s.academicLevel,
-        behaviorType: s.behaviorType,
-        movementNeeds: s.movementNeeds,
+        name: s.name, academicLevel: s.academicLevel,
+        behaviorType: s.behaviorType, movementNeeds: s.movementNeeds,
         specialNeeds: s.specialNeeds,
       })),
       seatingOrder: assignments.map(a => ({
-        name: a.student.name,
-        row: a.row,
-        col: a.col,
-        seatIndex: a.seatIndex,
+        name: a.student.name, row: a.row, col: a.col, seatIndex: a.seatIndex,
       })),
       metrics: currentMetrics,
       aiAnalysis: aiExplanation,
     };
-
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -118,6 +150,7 @@ export default function Dashboard() {
     a.download = 'aklisira-sonuc.json';
     a.click();
     URL.revokeObjectURL(url);
+    logVisitorAction('export');
   };
 
   const clearStudents = () => {
@@ -126,6 +159,7 @@ export default function Dashboard() {
     setCurrentMetrics(null);
     setAiExplanation("");
     setGeneration(0);
+    setOptimizationDone(false);
   };
 
   const loadDemoData = () => {
@@ -151,243 +185,249 @@ export default function Dashboard() {
     setCurrentMetrics(null);
     setAiExplanation("");
     setGeneration(0);
+    setOptimizationDone(false);
     setLayout({ rows: 5, cols: 6, seats: [] });
+    logVisitorAction('demo_load');
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg)', padding: '32px 24px' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
 
-      {/* ─── Header ─── */}
-      <header style={{ marginBottom: '24px' }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--primary)' }}>
-            AklıSıra
-          </h1>
-          <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.5px' }}>
-            Sınıf Düzeni Önerici
-          </span>
-        </div>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '4px' }}>
-          Öğrenci verilerini girin, yapay zeka ile en uygun oturma düzenini oluşturun.
-        </p>
-      </header>
-
-      {/* ─── Main Grid: Sidebar | Content ─── */}
-      <div className="dashboard-grid" style={{
-        display: 'grid',
-        gridTemplateColumns: '340px 1fr',
-        gap: '24px',
-        maxWidth: '1200px',
-        alignItems: 'start',
-      }}>
-
-        {/* ═══ Left Sidebar — INPUTS ONLY ═══ */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', position: 'sticky', top: '24px' }}>
-
-          {/* ── Student Input Card ── */}
-          <div className="card animate-fade-in">
-            <div className="card-header">
-              <span>👩‍🎓 Öğrenci Ekle</span>
-              <div className="toggle-group">
-                <button
-                  onClick={() => setInputMode('smart')}
-                  className={`toggle-btn ${inputMode === 'smart' ? 'active' : ''}`}
-                >
-                  Akıllı
-                </button>
-                <button
-                  onClick={() => setInputMode('csv')}
-                  className={`toggle-btn ${inputMode === 'csv' ? 'active' : ''}`}
-                >
-                  CSV
-                </button>
-              </div>
+      {/* ─── Premium Header ─── */}
+      <div className="app-header" style={{ padding: '32px 24px' }}>
+        <div className="header-content" style={{ maxWidth: '1200px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+            <div>
+              <h1 className="app-title">AklıSıra</h1>
+              <p className="app-subtitle">Yapay Zeka Destekli Sınıf Oturma Düzeni Önerici</p>
+              <div className="summit-badge">🏆 III. Eğitimde Yapay Zekâ Zirvesi 2026</div>
             </div>
-
-            {inputMode === 'csv' ? (
-              <div className="animate-fade-in">
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                  Dosya Yükle
-                </label>
-                <input
-                  type="file"
-                  accept=".csv"
-                  onChange={handleFileUpload}
-                />
+            {demoCount > 0 && (
+              <div className="visitor-counter" style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.9)' }}>
+                <div className="visitor-dot" style={{ background: '#4ade80' }} />
+                {demoCount} optimizasyon tamamlandı
               </div>
-            ) : (
-              <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {isListening && (
-                  <div className="recording-banner">
-                    <div className="recording-dot" />
-                    <span className="recording-text">🎤 Kayıt yapılıyor... Konuşun</span>
-                  </div>
-                )}
-                <textarea
-                  className="form-textarea"
-                  rows={3}
-                  placeholder={"Öğrenci bilgilerini yazın veya sesle anlatın...\nÖrn: \"Ali gürültücü. Elif sessiz, 95 puan. Mehmet lider.\""}
-                  value={smartText}
-                  onChange={(e) => setSmartText(e.target.value)}
-                />
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button onClick={handleSmartParse} className="btn-primary" style={{ flex: 1 }}>
-                    Metin Ekle
-                  </button>
-                  {isSupported && (
-                    <button
-                      onClick={startListening}
-                      className={`voice-btn ${isListening ? 'listening' : ''}`}
-                      title="Sesli Giriş"
-                      disabled={isListening}
-                    >
-                      {isListening ? '⏹️' : '🎤'}
-                    </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ─── Main Content ─── */}
+      <div style={{ padding: '0 24px 32px' }}>
+        <div className="dashboard-grid" style={{
+          display: 'grid',
+          gridTemplateColumns: '340px 1fr',
+          gap: '24px',
+          maxWidth: '1200px',
+          alignItems: 'start',
+        }}>
+
+          {/* ═══ Left Sidebar ═══ */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', position: 'sticky', top: '16px' }}>
+
+            {/* Student Input Card */}
+            <div className="card animate-fade-in">
+              <div className="card-header">
+                <span>👩‍🎓 Öğrenci Ekle</span>
+                <div className="toggle-group">
+                  <button onClick={() => setInputMode('smart')} className={`toggle-btn ${inputMode === 'smart' ? 'active' : ''}`}>Akıllı</button>
+                  <button onClick={() => setInputMode('csv')} className={`toggle-btn ${inputMode === 'csv' ? 'active' : ''}`}>CSV</button>
+                </div>
+              </div>
+
+              {inputMode === 'csv' ? (
+                <div className="animate-fade-in">
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Dosya Yükle</label>
+                  <input type="file" accept=".csv" onChange={handleFileUpload} />
+                </div>
+              ) : (
+                <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {isListening && (
+                    <div className="recording-banner">
+                      <div className="recording-dot" />
+                      <span className="recording-text">🎤 Kayıt yapılıyor... Konuşun</span>
+                    </div>
                   )}
+                  <textarea
+                    className="form-textarea"
+                    rows={3}
+                    placeholder={"Öğrenci bilgilerini yazın veya sesle anlatın...\nÖrn: \"Ali gürültücü. Elif sessiz, 95 puan.\""}
+                    value={smartText}
+                    onChange={(e) => setSmartText(e.target.value)}
+                  />
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button onClick={handleSmartParse} className="btn-primary" style={{ flex: 1 }}>Metin Ekle</button>
+                    {isSupported && (
+                      <button
+                        onClick={startListening}
+                        className={`voice-btn ${isListening ? 'listening' : ''}`}
+                        title="Sesli Giriş"
+                        disabled={isListening}
+                      >
+                        {isListening ? '⏹️' : '🎤'}
+                      </button>
+                    )}
+                  </div>
                 </div>
+              )}
+
+              {/* Student count & list */}
+              <div style={{
+                marginTop: '12px', paddingTop: '10px',
+                borderTop: '1px solid var(--border-light)',
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                fontSize: '0.82rem', color: 'var(--text-secondary)',
+              }}>
+                <span>Sınıf Mevcudu:</span>
+                <span style={{ fontWeight: 700, color: 'var(--primary)' }}>{students.length} öğrenci</span>
               </div>
-            )}
 
-            {/* Student count & list */}
-            <div style={{
-              marginTop: '12px',
-              paddingTop: '10px',
-              borderTop: '1px solid var(--border-light)',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              fontSize: '0.85rem',
-              color: 'var(--text-secondary)',
-            }}>
-              <span>Sınıf Mevcudu:</span>
-              <span style={{ fontWeight: 700, color: 'var(--primary)' }}>{students.length} öğrenci</span>
-            </div>
-
-            {students.length > 0 && (
-              <>
-                <div style={{
-                  marginTop: '6px',
-                  maxHeight: '110px',
-                  overflowY: 'auto',
-                  border: '1px solid var(--border-light)',
-                  borderRadius: 'var(--radius-sm)',
-                  padding: '6px 8px',
-                  background: 'var(--bg-muted)',
-                }}>
-                  {students.map(s => (
-                    <div key={s.id} className="student-list-item">
-                      <span style={{ fontWeight: 600, color: 'var(--text)' }}>{s.name}</span>
-                      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
-                        {s.academicLevel === 'high' ? '▲' : s.academicLevel === 'struggling' ? '▽' : '—'} / {s.behaviorType === 'disruptive' ? 'Dd' : s.behaviorType === 'leader' ? 'Ld' : s.behaviorType === 'quiet' ? 'Ss' : s.behaviorType === 'active' ? 'Ak' : 'Tk'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                <button onClick={clearStudents} className="btn-secondary" style={{ marginTop: '6px', width: '100%', fontSize: '0.8rem' }}>
-                  Listeyi Temizle
-                </button>
-              </>
-            )}
-          </div>
-
-          {/* ── Optimize Card ── */}
-          <div className="card animate-fade-in">
-            <button
-              onClick={startOptimization}
-              disabled={isOptimizing || students.length === 0}
-              className="btn-primary"
-              style={{ width: '100%', padding: '14px', fontSize: '1rem' }}
-            >
-              {isOptimizing ? `Optimize Ediliyor (Nesil ${generation}/50)...` : '✨ Düzeni Oluştur'}
-            </button>
-            {students.length === 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '10px' }}>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center' }}>
-                  Önce öğrenci ekleyin veya demo verisi yükleyin
-                </p>
-                <button onClick={loadDemoData} className="btn-accent" style={{ width: '100%', fontSize: '0.85rem' }}>
-                  🎓 Demo Sınıf Yükle (15 öğrenci)
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* ═══ Right Panel — GRID + RESULTS ═══ */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-
-          {/* Seating Grid */}
-          {assignments.length > 0 ? (
-            <SeatingGrid layout={layout} assignments={assignments} />
-          ) : (
-            <div className="empty-state">
-              <div className="icon">🏫</div>
-              <p>
-                Öğrenci bilgilerini girin ve <strong>Düzeni Oluştur</strong> butonuna tıklayarak yapay zeka destekli oturma planını görün.
-              </p>
-            </div>
-          )}
-
-          {/* Results row — Metrics + AI Analysis side by side */}
-          {currentMetrics && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }} className="animate-fade-in">
-
-              {/* Metrics */}
-              <div className="card" style={{ borderTop: '3px solid var(--primary)' }}>
-                <div className="card-header">
-                  <span>📊 Sonuçlar</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontWeight: 700 }}>Genel Uyum</span>
-                    <span style={{ fontWeight: 800, color: 'var(--primary)', fontSize: '1.3rem' }}>%{currentMetrics.overallScore}</span>
+              {students.length > 0 && (
+                <>
+                  <div style={{
+                    marginTop: '6px', maxHeight: '120px', overflowY: 'auto',
+                    border: '1px solid var(--border-light)', borderRadius: 'var(--radius-sm)',
+                    padding: '6px 8px', background: 'var(--bg-muted)',
+                  }}>
+                    {students.map(s => (
+                      <div key={s.id} className="student-list-item">
+                        <span style={{ fontWeight: 600, color: 'var(--text)' }}>{s.name}</span>
+                        <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+                          {s.academicLevel === 'high' ? '▲' : s.academicLevel === 'struggling' ? '▽' : '—'} / {s.behaviorType === 'disruptive' ? 'Dd' : s.behaviorType === 'leader' ? 'Ld' : s.behaviorType === 'quiet' ? 'Ss' : s.behaviorType === 'active' ? 'Ak' : 'Tk'}
+                        </span>
+                      </div>
+                    ))}
                   </div>
-                  <div className="metric-bar-track">
-                    <div className="metric-bar-fill" style={{ width: `${currentMetrics.overallScore}%` }} />
-                  </div>
-
-                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>Akademik Denge</span>
-                      <span style={{ fontWeight: 700 }}>%{currentMetrics.academicBalance}</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>Sosyal Uyum</span>
-                      <span style={{ fontWeight: 700 }}>%{currentMetrics.socialCompatibility}</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>Davranış Uyumu</span>
-                      <span style={{ fontWeight: 700 }}>%{currentMetrics.behavioralHarmony}</span>
-                    </div>
-                  </div>
-
-                  <button onClick={exportResults} className="btn-accent" style={{ width: '100%', marginTop: '8px' }}>
-                    📥 Sonuçları Dışa Aktar
+                  <button onClick={clearStudents} className="btn-secondary" style={{ marginTop: '6px', width: '100%', fontSize: '0.78rem' }}>
+                    Listeyi Temizle
                   </button>
-                </div>
-              </div>
+                </>
+              )}
+            </div>
 
-              {/* AI Analysis */}
-              {aiExplanation && (
-                <div className="ai-box" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-                  <h3>💡 Yapay Zeka Analizi</h3>
-                  <p>{aiExplanation}</p>
+            {/* Optimize Card */}
+            <div className="card animate-fade-in">
+              {/* Live optimization progress */}
+              {isOptimizing && (
+                <div className="opt-progress" style={{ marginBottom: '12px' }}>
+                  <div className="opt-gen">{generation}</div>
+                  <div className="opt-gen-label">Nesil / 50</div>
+                  <div className="opt-bar">
+                    <div className="opt-bar-fill" style={{ width: `${(generation / 50) * 100}%` }} />
+                  </div>
+                </div>
+              )}
+
+              <button
+                onClick={startOptimization}
+                disabled={isOptimizing || students.length === 0}
+                className="btn-primary"
+                style={{ width: '100%', padding: '14px', fontSize: '1rem' }}
+              >
+                {isOptimizing ? '⚡ Optimize Ediliyor...' : '✨ Düzeni Oluştur'}
+              </button>
+
+              {students.length === 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '10px' }}>
+                  <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textAlign: 'center' }}>
+                    Önce öğrenci ekleyin veya demo verisi yükleyin
+                  </p>
+                  <button onClick={loadDemoData} className="btn-demo" style={{ width: '100%' }}>
+                    🎓 Demo Sınıf Yükle (15 öğrenci)
+                  </button>
                 </div>
               )}
             </div>
-          )}
+          </div>
+
+          {/* ═══ Right Panel ═══ */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+            {/* Seating Grid */}
+            {assignments.length > 0 ? (
+              <div className={optimizationDone ? 'success-flash' : ''}>
+                <SeatingGrid layout={layout} assignments={assignments} />
+              </div>
+            ) : (
+              <div className="empty-state">
+                <div className="icon">🏫</div>
+                <p>Öğrenci bilgilerini girin ve <strong>Düzeni Oluştur</strong> butonuna tıklayarak yapay zeka destekli oturma planını görün.</p>
+              </div>
+            )}
+
+            {/* Results */}
+            {currentMetrics && (
+              <div className="results-grid animate-slide-up" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+
+                {/* Metrics Card */}
+                <div className="card" style={{ borderTop: '3px solid var(--primary)' }}>
+                  <div className="card-header">
+                    <span>📊 Sonuçlar</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ textAlign: 'center', padding: '8px 0 12px' }}>
+                      <div className="score-big">%{currentMetrics.overallScore}</div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600, marginTop: '2px' }}>Genel Uyum Puanı</div>
+                    </div>
+
+                    <div className="metric-bar-track">
+                      <div className="metric-bar-fill" style={{ width: `${currentMetrics.overallScore}%` }} />
+                    </div>
+
+                    <div style={{ marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <div className="metric-row">
+                        <span className="metric-label">Akademik Denge</span>
+                        <span className="metric-value">%{currentMetrics.academicBalance}</span>
+                      </div>
+                      <div className="metric-row">
+                        <span className="metric-label">Sosyal Uyum</span>
+                        <span className="metric-value">%{currentMetrics.socialCompatibility}</span>
+                      </div>
+                      <div className="metric-row">
+                        <span className="metric-label">Davranış Uyumu</span>
+                        <span className="metric-value">%{currentMetrics.behavioralHarmony}</span>
+                      </div>
+                    </div>
+
+                    <button onClick={exportResults} className="btn-accent" style={{ width: '100%', marginTop: '8px' }}>
+                      📥 Sonuçları Dışa Aktar
+                    </button>
+                  </div>
+                </div>
+
+                {/* AI Analysis */}
+                {aiExplanation && (
+                  <div className="ai-box animate-slide-up">
+                    <h3>💡 Yapay Zeka Analizi</h3>
+                    <p>{aiExplanation}</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* ─── Footer ─── */}
       <footer style={{
-        marginTop: '48px',
-        textAlign: 'center',
-        fontSize: '0.75rem',
-        color: 'var(--text-muted)',
-        paddingBottom: '20px',
+        textAlign: 'center', fontSize: '0.72rem',
+        color: 'var(--text-muted)', padding: '16px 24px 24px',
+        borderTop: '1px solid var(--border-light)',
       }}>
-        AklıSıra · Eğitimde Yapay Zekâ Zirvesi 2026
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <span>AklıSıra · Baykar Fen Lisesi</span>
+          <span style={{ opacity: 0.4 }}>|</span>
+          <span>III. Eğitimde Yapay Zekâ Zirvesi 2026</span>
+          {demoCount > 0 && (
+            <>
+              <span style={{ opacity: 0.4 }}>|</span>
+              <span className="visitor-counter">
+                <div className="visitor-dot" />
+                {demoCount} demo
+              </span>
+            </>
+          )}
+        </div>
       </footer>
     </div>
   );
