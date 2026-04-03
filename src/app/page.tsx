@@ -60,8 +60,8 @@ export default function Dashboard() {
     setStudents(prev => [...prev, ...parsed]);
     setSmartText("");
     const total = students.length + parsed.length;
-    const rows = Math.ceil(total / 6);
-    setLayout(prev => ({ ...prev, rows: Math.max(rows, 4) }));
+    const rows = Math.ceil(total / layout.cols);
+    setLayout(prev => ({ ...prev, rows: Math.max(rows, prev.rows) }));
     logVisitorAction('text_parse', { studentCount: parsed.length });
   };
 
@@ -74,8 +74,10 @@ export default function Dashboard() {
         try {
           const parsed = parseStudentsCSV(text);
           setStudents(parsed);
-          const rows = Math.ceil(parsed.length / 6);
-          setLayout(prev => ({ ...prev, rows: Math.max(rows, 4) }));
+          setLayout(prev => {
+            const rows = Math.ceil(parsed.length / prev.cols);
+            return { ...prev, rows: Math.max(rows, 3) };
+          });
           logVisitorAction('csv_upload', { studentCount: parsed.length });
         } catch {
           alert("CSV dosyası okunamadı. Lütfen formatı kontrol edin.");
@@ -223,7 +225,7 @@ export default function Dashboard() {
         }}>
 
           {/* ═══ Left Sidebar ═══ */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', position: 'sticky', top: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
             {/* Student Input Card */}
             <div className="card animate-fade-in">
@@ -303,6 +305,35 @@ export default function Dashboard() {
                   </button>
                 </>
               )}
+            </div>
+
+            {/* Layout Config Card */}
+            <div className="card animate-fade-in">
+              <div className="card-header">
+                <span>📐 Sınıf Düzeni</span>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 400 }}>{layout.rows}×{layout.cols}</span>
+              </div>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Sıra Sayısı</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <button className="btn-stepper" onClick={() => setLayout(p => ({ ...p, rows: Math.max(2, p.rows - 1) }))} disabled={layout.rows <= 2}>−</button>
+                    <span style={{ fontWeight: 700, fontSize: '1.1rem', minWidth: '28px', textAlign: 'center' }}>{layout.rows}</span>
+                    <button className="btn-stepper" onClick={() => setLayout(p => ({ ...p, rows: Math.min(10, p.rows + 1) }))}>+</button>
+                  </div>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Sütun Sayısı</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <button className="btn-stepper" onClick={() => setLayout(p => ({ ...p, cols: Math.max(2, p.cols - 1) }))} disabled={layout.cols <= 2}>−</button>
+                    <span style={{ fontWeight: 700, fontSize: '1.1rem', minWidth: '28px', textAlign: 'center' }}>{layout.cols}</span>
+                    <button className="btn-stepper" onClick={() => setLayout(p => ({ ...p, cols: Math.min(10, p.cols + 1) }))}>+</button>
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginTop: '8px', fontSize: '0.68rem', color: 'var(--text-muted)', textAlign: 'center' }}>
+                Toplam kapasite: {layout.rows * layout.cols} koltuk
+              </div>
             </div>
 
             {/* Optimize Card */}
