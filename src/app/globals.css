@@ -230,6 +230,35 @@ body {
   cursor: not-allowed;
 }
 
+.layout-preset-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 10px 8px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-secondary);
+  font-family: inherit;
+}
+
+.layout-preset-btn:hover {
+  border-color: var(--primary-light);
+  color: var(--primary);
+  background: var(--primary-pale);
+}
+
+.layout-preset-btn.active {
+  border-color: var(--primary);
+  background: var(--primary-pale);
+  color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(13, 110, 100, 0.15);
+}
+
 .btn-secondary {
   background: var(--bg-muted);
   color: var(--text-secondary);

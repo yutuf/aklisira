@@ -36,6 +36,7 @@ export default function Dashboard() {
   const [aiExplanation, setAiExplanation] = useState("");
   const [optimizationDone, setOptimizationDone] = useState(false);
   const [demoCount, setDemoCount] = useState(0);
+  const [layoutType, setLayoutType] = useState<string>('grid');
 
   // Input state
   const [inputMode, setInputMode] = useState<'csv' | 'smart'>('smart');
@@ -310,29 +311,49 @@ export default function Dashboard() {
             {/* Layout Config Card */}
             <div className="card animate-fade-in">
               <div className="card-header">
-                <span>📐 Sınıf Düzeni</span>
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 400 }}>{layout.rows}×{layout.cols}</span>
+                <span>📐 Düzen Tipi</span>
               </div>
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <div style={{ flex: 1 }}>
-                  <label style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Sıra Sayısı</label>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <button className="btn-stepper" onClick={() => setLayout(p => ({ ...p, rows: Math.max(2, p.rows - 1) }))} disabled={layout.rows <= 2}>−</button>
-                    <span style={{ fontWeight: 700, fontSize: '1.1rem', minWidth: '28px', textAlign: 'center' }}>{layout.rows}</span>
-                    <button className="btn-stepper" onClick={() => setLayout(p => ({ ...p, rows: Math.min(10, p.rows + 1) }))}>+</button>
+              {/* Layout presets */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '12px' }}>
+                {[
+                  { id: 'grid', icon: '▦', label: 'Düz Sıra' },
+                  { id: 'u-shape', icon: '⊔', label: 'U-Düzen' },
+                  { id: 'cluster', icon: '⊞', label: 'Küme' },
+                  { id: 'chevron', icon: '⟨⟩', label: 'Chevron' },
+                ].map(lt => (
+                  <button
+                    key={lt.id}
+                    onClick={() => setLayoutType(lt.id)}
+                    className={`layout-preset-btn ${layoutType === lt.id ? 'active' : ''}`}
+                  >
+                    <span style={{ fontSize: '1rem' }}>{lt.icon}</span>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 600 }}>{lt.label}</span>
+                  </button>
+                ))}
+              </div>
+              {/* Row/Col Config */}
+              <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '10px' }}>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '3px' }}>Sıra</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                      <button className="btn-stepper" onClick={() => setLayout(p => ({ ...p, rows: Math.max(2, p.rows - 1) }))} disabled={layout.rows <= 2}>−</button>
+                      <span style={{ fontWeight: 700, fontSize: '1rem', minWidth: '24px', textAlign: 'center' }}>{layout.rows}</span>
+                      <button className="btn-stepper" onClick={() => setLayout(p => ({ ...p, rows: Math.min(10, p.rows + 1) }))}>+</button>
+                    </div>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '3px' }}>Sütun</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                      <button className="btn-stepper" onClick={() => setLayout(p => ({ ...p, cols: Math.max(2, p.cols - 1) }))} disabled={layout.cols <= 2}>−</button>
+                      <span style={{ fontWeight: 700, fontSize: '1rem', minWidth: '24px', textAlign: 'center' }}>{layout.cols}</span>
+                      <button className="btn-stepper" onClick={() => setLayout(p => ({ ...p, cols: Math.min(10, p.cols + 1) }))}>+</button>
+                    </div>
                   </div>
                 </div>
-                <div style={{ flex: 1 }}>
-                  <label style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Sütun Sayısı</label>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <button className="btn-stepper" onClick={() => setLayout(p => ({ ...p, cols: Math.max(2, p.cols - 1) }))} disabled={layout.cols <= 2}>−</button>
-                    <span style={{ fontWeight: 700, fontSize: '1.1rem', minWidth: '28px', textAlign: 'center' }}>{layout.cols}</span>
-                    <button className="btn-stepper" onClick={() => setLayout(p => ({ ...p, cols: Math.min(10, p.cols + 1) }))}>+</button>
-                  </div>
+                <div style={{ marginTop: '6px', fontSize: '0.65rem', color: 'var(--text-muted)', textAlign: 'center' }}>
+                  {layout.rows}×{layout.cols} = {layout.rows * layout.cols} koltuk
                 </div>
-              </div>
-              <div style={{ marginTop: '8px', fontSize: '0.68rem', color: 'var(--text-muted)', textAlign: 'center' }}>
-                Toplam kapasite: {layout.rows * layout.cols} koltuk
               </div>
             </div>
 
@@ -377,7 +398,7 @@ export default function Dashboard() {
             {/* Seating Grid */}
             {assignments.length > 0 ? (
               <div className={optimizationDone ? 'success-flash' : ''}>
-                <SeatingGrid layout={layout} assignments={assignments} />
+                <SeatingGrid layout={layout} assignments={assignments} layoutType={layoutType} />
               </div>
             ) : (
               <div className="empty-state">
