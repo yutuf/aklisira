@@ -340,62 +340,105 @@ export const SeatingGrid: React.FC<SeatingGridProps> = ({ layout, assignments, l
         );
     };
 
-    // ─── Butterfly (Kelebek) Layout ───
+    // ─── Kelebek (Exam Anti-Cheat Checkerboard A/B) ───
     const renderButterfly = () => {
-        const rowCount = Math.ceil(studentList.length / layout.cols);
-        let idx = 0;
-        const rows: any[][] = [];
-        for (let r = 0; r < rowCount; r++) {
-            const row = studentList.slice(idx, idx + layout.cols);
-            rows.push(row);
-            idx += layout.cols;
-        }
         return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', alignItems: 'center' }}>
-                {rows.map((row, rIdx) => {
-                    const pairs: any[][] = [];
-                    for (let p = 0; p < row.length; p += 2) {
-                        pairs.push(row.slice(p, p + 2));
-                    }
-                    return (
-                        <div key={rIdx} style={{ display: 'flex', gap: '24px', justifyContent: 'center' }}>
-                            {pairs.map((pair, pIdx) => (
-                                <div key={pIdx} style={{
-                                    display: 'flex', gap: '0px',
-                                    position: 'relative',
-                                }}>
-                                    <div style={{
-                                        transform: 'rotate(-8deg)',
-                                        width: '85px',
-                                        border: '2px solid var(--primary-light)',
-                                        borderRadius: 'var(--radius-sm)',
-                                        borderRight: '1px dashed var(--border)',
-                                        padding: '3px',
-                                        background: 'var(--bg-muted)',
-                                    }}>
-                                        {pair[0] && renderCell(pair[0], rIdx, pIdx * 2)}
+            <div>
+                <div style={{
+                    display: 'flex', gap: '12px', justifyContent: 'center',
+                    marginBottom: '12px', fontSize: '0.72rem', fontWeight: 600,
+                }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span style={{ width: '14px', height: '14px', borderRadius: '3px', background: '#dbeafe', border: '1.5px solid #3b82f6', display: 'inline-block' }} />
+                        Sınav A
+                    </span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span style={{ width: '14px', height: '14px', borderRadius: '3px', background: '#ffedd5', border: '1.5px solid #f97316', display: 'inline-block' }} />
+                        Sınav B
+                    </span>
+                </div>
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: `repeat(${layout.cols}, minmax(80px, 1fr))`,
+                    gap: '8px',
+                }}>
+                    {grid.map((row, rIndex) =>
+                        row.map((student: any, cIndex: number) => {
+                            const isGroupA = (rIndex + cIndex) % 2 === 0;
+                            const colorStyle = isGroupA
+                                ? { border: '2px solid #3b82f6', background: '#dbeafe' }
+                                : { border: '2px solid #f97316', background: '#ffedd5' };
+                            if (!student) {
+                                return (
+                                    <div key={`${rIndex}-${cIndex}`} className="seat-cell empty" style={{ opacity: 0.2, minHeight: '60px', ...colorStyle }}>
+                                        <span style={{ fontSize: '0.55rem', fontWeight: 700, color: isGroupA ? '#3b82f6' : '#f97316' }}>
+                                            {isGroupA ? 'A' : 'B'}
+                                        </span>
                                     </div>
-                                    {pair[1] && (
+                                );
+                            }
+                            return (
+                                <div
+                                    key={`${rIndex}-${cIndex}`}
+                                    className="seat-cell occupied"
+                                    onMouseEnter={() => setHoveredStudent(student.id)}
+                                    onMouseLeave={() => setHoveredStudent(null)}
+                                    style={{ position: 'relative', ...colorStyle }}
+                                >
+                                    <div style={{
+                                        position: 'absolute', top: '3px', right: '5px',
+                                        fontSize: '0.6rem', fontWeight: 800,
+                                        color: isGroupA ? '#2563eb' : '#ea580c',
+                                    }}>
+                                        {isGroupA ? 'A' : 'B'}
+                                    </div>
+                                    <div className="seat-row-label">
+                                        {rIndex === 0 ? "Ön" : `${rIndex + 1}.`}
+                                    </div>
+                                    <div style={{ textAlign: 'center', marginTop: '2px' }}>
+                                        <span className="seat-name" title={student.name}>{student.name}</span>
+                                        <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '4px', alignItems: 'center' }}>
+                                            <span style={{
+                                                fontSize: '0.55rem', fontWeight: 700, color: 'white',
+                                                background: getBehaviorLabel(student.behaviorType).color,
+                                                padding: '1px 4px', borderRadius: '3px',
+                                            }}>
+                                                {getBehaviorLabel(student.behaviorType).label}
+                                            </span>
+                                            <span style={{
+                                                fontSize: '0.65rem', color: getAcademicLabel(student.academicLevel).color, fontWeight: 700,
+                                            }}>
+                                                {getAcademicLabel(student.academicLevel).label}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {hoveredStudent === student.id && (
                                         <div style={{
-                                            transform: 'rotate(8deg)',
-                                            width: '85px',
-                                            border: '2px solid var(--primary-light)',
-                                            borderRadius: 'var(--radius-sm)',
-                                            borderLeft: '1px dashed var(--border)',
-                                            padding: '3px',
-                                            background: 'var(--bg-muted)',
+                                            position: 'absolute', bottom: 'calc(100% + 8px)', left: '50%',
+                                            transform: 'translateX(-50%)', background: 'white',
+                                            border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)',
+                                            padding: '10px 14px', boxShadow: 'var(--shadow-lg)', zIndex: 100,
+                                            minWidth: '155px', textAlign: 'left', fontSize: '0.72rem',
+                                            color: 'var(--text)', animation: 'fadeIn 0.15s ease-out',
                                         }}>
-                                            {renderCell(pair[1], rIdx, pIdx * 2 + 1)}
+                                            <div style={{ fontWeight: 800, fontSize: '0.85rem', marginBottom: '5px', color: isGroupA ? '#2563eb' : '#ea580c' }}>
+                                                {student.name} — Sınav {isGroupA ? 'A' : 'B'}
+                                            </div>
+                                            <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+                                                Komşu öğrenciler farklı sınav alır
+                                            </div>
                                         </div>
                                     )}
                                 </div>
-                            ))}
-                        </div>
-                    );
-                })}
+                            );
+                        })
+                    )}
+                </div>
             </div>
         );
     };
+
 
     const renderLayout = () => {
         switch (layoutType) {
