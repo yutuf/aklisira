@@ -52,9 +52,37 @@ const getMovementLabel = (m: string) => {
 
 const layoutLabels: Record<string, string> = {
     'grid': 'Düz Sıra',
+    'paired': 'İkili Sıra',
     'u-shape': 'U-Düzen',
     'cluster': 'Küme (Grup)',
     'chevron': 'Chevron (V)',
+    'butterfly': 'Kelebek',
+};
+
+const getHeightLabel = (h?: string) => {
+    switch (h) {
+        case 'short': return 'Kısa';
+        case 'tall': return 'Uzun';
+        default: return null;
+    }
+};
+
+const getVisionLabel = (v?: string) => {
+    switch (v) {
+        case 'glasses': return 'Gözlüklü';
+        case 'front_required': return 'Ön Sıra Gerekli';
+        default: return null;
+    }
+};
+
+const getLearningLabel = (l?: string) => {
+    switch (l) {
+        case 'visual': return 'Görsel';
+        case 'auditory': return 'İşitsel';
+        case 'kinesthetic': return 'Kinestetik';
+        case 'readwrite': return 'Okuma-Yazma';
+        default: return null;
+    }
 };
 
 export const SeatingGrid: React.FC<SeatingGridProps> = ({ layout, assignments, layoutType = 'grid' }) => {
@@ -130,6 +158,15 @@ export const SeatingGrid: React.FC<SeatingGridProps> = ({ layout, assignments, l
                             <div><span style={{ color: 'var(--text-muted)' }}>Akademik:</span> <strong>{getAcademicLabel(student.academicLevel).text}</strong></div>
                             <div><span style={{ color: 'var(--text-muted)' }}>Davranış:</span> <strong>{getBehaviorLabel(student.behaviorType).text}</strong></div>
                             <div><span style={{ color: 'var(--text-muted)' }}>Hareket:</span> <strong>{getMovementLabel(student.movementNeeds)}</strong></div>
+                            {getLearningLabel(student.learningStyle) && (
+                                <div><span style={{ color: 'var(--text-muted)' }}>Öğrenme:</span> <strong>{getLearningLabel(student.learningStyle)}</strong></div>
+                            )}
+                            {getHeightLabel(student.height) && (
+                                <div><span style={{ color: 'var(--text-muted)' }}>Boy:</span> <strong>{getHeightLabel(student.height)}</strong></div>
+                            )}
+                            {getVisionLabel(student.visionNeeds) && (
+                                <div><span style={{ color: 'var(--text-muted)' }}>Görme:</span> <strong style={{ color: '#0369a1' }}>{getVisionLabel(student.visionNeeds)}</strong></div>
+                            )}
                             {getSpecialLabel(student.specialNeeds) && (
                                 <div><span style={{ color: 'var(--text-muted)' }}>Özel:</span> <strong style={{ color: '#dc2626' }}>{getSpecialLabel(student.specialNeeds)}</strong></div>
                             )}
@@ -261,11 +298,112 @@ export const SeatingGrid: React.FC<SeatingGridProps> = ({ layout, assignments, l
         );
     };
 
+    // ─── Paired Desks (İkili Sıra) ───
+    const renderPaired = () => {
+        const pairsPerRow = Math.ceil(layout.cols / 2);
+        const rowCount = Math.ceil(studentList.length / layout.cols);
+        let idx = 0;
+        const rows: any[][] = [];
+        for (let r = 0; r < rowCount; r++) {
+            const row = studentList.slice(idx, idx + layout.cols);
+            rows.push(row);
+            idx += layout.cols;
+        }
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', alignItems: 'center' }}>
+                {rows.map((row, rIdx) => {
+                    const pairs: any[][] = [];
+                    for (let p = 0; p < row.length; p += 2) {
+                        pairs.push(row.slice(p, p + 2));
+                    }
+                    return (
+                        <div key={rIdx} style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
+                            {pairs.map((pair, pIdx) => (
+                                <div key={pIdx} style={{
+                                    display: 'flex', gap: '2px',
+                                    border: '2px solid var(--border)',
+                                    borderRadius: 'var(--radius-md)',
+                                    padding: '4px',
+                                    background: 'var(--bg-muted)',
+                                }}>
+                                    {pair.map((s, i) => (
+                                        <div key={i} style={{ width: '85px' }}>
+                                            {renderCell(s, rIdx, pIdx * 2 + i)}
+                                        </div>
+                                    ))}
+                                </div>
+                            ))}
+                        </div>
+                    );
+                })}
+            </div>
+        );
+    };
+
+    // ─── Butterfly (Kelebek) Layout ───
+    const renderButterfly = () => {
+        const rowCount = Math.ceil(studentList.length / layout.cols);
+        let idx = 0;
+        const rows: any[][] = [];
+        for (let r = 0; r < rowCount; r++) {
+            const row = studentList.slice(idx, idx + layout.cols);
+            rows.push(row);
+            idx += layout.cols;
+        }
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', alignItems: 'center' }}>
+                {rows.map((row, rIdx) => {
+                    const pairs: any[][] = [];
+                    for (let p = 0; p < row.length; p += 2) {
+                        pairs.push(row.slice(p, p + 2));
+                    }
+                    return (
+                        <div key={rIdx} style={{ display: 'flex', gap: '24px', justifyContent: 'center' }}>
+                            {pairs.map((pair, pIdx) => (
+                                <div key={pIdx} style={{
+                                    display: 'flex', gap: '0px',
+                                    position: 'relative',
+                                }}>
+                                    <div style={{
+                                        transform: 'rotate(-8deg)',
+                                        width: '85px',
+                                        border: '2px solid var(--primary-light)',
+                                        borderRadius: 'var(--radius-sm)',
+                                        borderRight: '1px dashed var(--border)',
+                                        padding: '3px',
+                                        background: 'var(--bg-muted)',
+                                    }}>
+                                        {pair[0] && renderCell(pair[0], rIdx, pIdx * 2)}
+                                    </div>
+                                    {pair[1] && (
+                                        <div style={{
+                                            transform: 'rotate(8deg)',
+                                            width: '85px',
+                                            border: '2px solid var(--primary-light)',
+                                            borderRadius: 'var(--radius-sm)',
+                                            borderLeft: '1px dashed var(--border)',
+                                            padding: '3px',
+                                            background: 'var(--bg-muted)',
+                                        }}>
+                                            {renderCell(pair[1], rIdx, pIdx * 2 + 1)}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    );
+                })}
+            </div>
+        );
+    };
+
     const renderLayout = () => {
         switch (layoutType) {
+            case 'paired': return renderPaired();
             case 'u-shape': return renderUShape();
             case 'cluster': return renderCluster();
             case 'chevron': return renderChevron();
+            case 'butterfly': return renderButterfly();
             default: return renderGrid();
         }
     };

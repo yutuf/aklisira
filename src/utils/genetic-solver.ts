@@ -10,7 +10,7 @@ export class GeneticSolver {
     private students: Student[];
     private layout: ClassroomLayout;
     private populationSize: number = 50;
-    private mutationRate: number = 0.1;
+    private mutationRate: number = 0.15;
     private population: Genome[] = [];
 
     constructor(students: Student[], layout: ClassroomLayout) {
@@ -18,26 +18,53 @@ export class GeneticSolver {
         this.layout = layout;
     }
 
-    // Initialize random population
     initialize(): void {
         this.population = [];
         for (let i = 0; i < this.populationSize; i++) {
-            this.population.push(this.createRandomGenome());
+            this.population.push(this.createSmartGenome());
         }
     }
 
-    private createRandomGenome(): Genome {
-        // Shuffle students
-        const shuffled = [...this.students].sort(() => Math.random() - 0.5);
-        const assignments: SeatingAssignment[] = [];
+    // Smart genome creation that respects physical constraints from the start
+    private createSmartGenome(): Genome {
+        const shuffled = [...this.students];
 
-        // Assign to seats
+        // Separate students with hard front-row constraints
+        const frontRequired: Student[] = [];
+        const shortStudents: Student[] = [];
+        const tallStudents: Student[] = [];
+        const rest: Student[] = [];
+
+        shuffled.forEach(s => {
+            if (s.visionNeeds === 'front_required' || s.hearingNeeds === 'front_required' ||
+                s.specialNeeds === 'vision' || s.specialNeeds === 'hearing') {
+                frontRequired.push(s);
+            } else if (s.height === 'short') {
+                shortStudents.push(s);
+            } else if (s.height === 'tall') {
+                tallStudents.push(s);
+            } else {
+                rest.push(s);
+            }
+        });
+
+        // Shuffle within groups for randomness
+        const shuffle = (arr: Student[]) => arr.sort(() => Math.random() - 0.5);
+        shuffle(frontRequired);
+        shuffle(shortStudents);
+        shuffle(rest);
+        shuffle(tallStudents);
+
+        // Build ordered list: front-required → short → rest → tall
+        const ordered = [...frontRequired, ...shortStudents, ...rest, ...tallStudents];
+
+        const assignments: SeatingAssignment[] = [];
         let studentIdx = 0;
         for (let r = 0; r < this.layout.rows; r++) {
             for (let c = 0; c < this.layout.cols; c++) {
-                if (studentIdx < shuffled.length) {
+                if (studentIdx < ordered.length) {
                     assignments.push({
-                        student: shuffled[studentIdx],
+                        student: ordered[studentIdx],
                         seatIndex: r * this.layout.cols + c,
                         row: r,
                         col: c
@@ -56,29 +83,24 @@ export class GeneticSolver {
     nextGeneration(): Genome {
         const newPopulation: Genome[] = [];
 
-        // Elite preservation (keep top 2)
         this.population.sort((a, b) => b.fitness - a.fitness);
         if (this.population.length > 0) {
             newPopulation.push(this.population[0]);
             if (this.population.length > 1) newPopulation.push(this.population[1]);
         } else {
-            // Safety if population somehow empty
             return { assignments: [], fitness: 0 };
         }
 
-        // Fill rest
         while (newPopulation.length < this.populationSize) {
             const p1 = this.tournamentSelect();
             const p2 = this.tournamentSelect();
             const child = this.crossover(p1, p2);
             this.mutate(child);
-            // Recalculate fitness
             child.fitness = calculateMetrics(child.assignments).overallScore;
             newPopulation.push(child);
         }
         this.population = newPopulation;
 
-        // Return best of this generation
         this.population.sort((a, b) => b.fitness - a.fitness);
         return this.population[0];
     }
@@ -101,17 +123,13 @@ export class GeneticSolver {
     }
 
     private crossover(p1: Genome, p2: Genome): Genome {
-        // Extract student order from assignments (sorted by seat index to get linearized genome)
-        const students1 = p1.assignments.sort((a, b) => a.seatIndex - b.seatIndex).map(a => a.student);
-
+        const students1 = [...p1.assignments].sort((a, b) => a.seatIndex - b.seatIndex).map(a => a.student);
         const cut = Math.floor(Math.random() * students1.length);
-        const childStudents = Array(students1.length).fill(null);
+        const childStudents: (Student | null)[] = Array(students1.length).fill(null);
 
-        // Copy first part from P1
         for (let i = 0; i < cut; i++) childStudents[i] = students1[i];
 
-        // Fill rest from P2 (preserving P2's relative order for those not yet in child)
-        const students2 = p2.assignments.sort((a, b) => a.seatIndex - b.seatIndex).map(a => a.student);
+        const students2 = [...p2.assignments].sort((a, b) => a.seatIndex - b.seatIndex).map(a => a.student);
         let currentPos = cut;
         for (const s of students2) {
             if (!childStudents.includes(s)) {
@@ -122,14 +140,13 @@ export class GeneticSolver {
             }
         }
 
-        // Reconstruct assignments
         const newAssignments: SeatingAssignment[] = [];
         let studentIdx = 0;
         for (let r = 0; r < this.layout.rows; r++) {
             for (let c = 0; c < this.layout.cols; c++) {
                 if (studentIdx < childStudents.length && childStudents[studentIdx]) {
                     newAssignments.push({
-                        student: childStudents[studentIdx],
+                        student: childStudents[studentIdx]!,
                         seatIndex: r * this.layout.cols + c,
                         row: r,
                         col: c
@@ -144,13 +161,25 @@ export class GeneticSolver {
 
     private mutate(genome: Genome): void {
         if (Math.random() < this.mutationRate) {
-            // Swap two random students
             const idx1 = Math.floor(Math.random() * genome.assignments.length);
             const idx2 = Math.floor(Math.random() * genome.assignments.length);
 
-            const tempStudent = genome.assignments[idx1].student;
-            genome.assignments[idx1].student = genome.assignments[idx2].student;
-            genome.assignments[idx2].student = tempStudent;
+            // Check if swap violates hard constraints
+            const s1 = genome.assignments[idx1].student;
+            const s2 = genome.assignments[idx2].student;
+            const r1 = genome.assignments[idx1].row;
+            const r2 = genome.assignments[idx2].row;
+
+            const needsFront = (s: Student) =>
+                s.visionNeeds === 'front_required' || s.hearingNeeds === 'front_required' ||
+                s.specialNeeds === 'vision' || s.specialNeeds === 'hearing';
+
+            // Don't swap front-required students to back rows
+            if (needsFront(s1) && r2 > 1) return;
+            if (needsFront(s2) && r1 > 1) return;
+
+            genome.assignments[idx1].student = s2;
+            genome.assignments[idx2].student = s1;
         }
     }
 }

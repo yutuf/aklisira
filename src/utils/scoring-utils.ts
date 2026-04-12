@@ -5,6 +5,7 @@ export interface LayoutMetrics {
     academicBalance: number;
     socialCompatibility: number;
     behavioralHarmony: number;
+    physicalAccessibility: number;
     overallScore: number;
 }
 
@@ -12,42 +13,29 @@ export const calculateMetrics = (assignments: SeatingAssignment[]): LayoutMetric
     let academicBalance = 0;
     let socialCompatibility = 0;
     let behavioralHarmony = 0;
+    let physicalAccessibility = 0;
 
     // --- 1. Academic Balance ---
     const academicScores = assignments.map(a => getAcademicScore(a.student.academicLevel));
     const academicMean = academicScores.reduce((a, b) => a + b, 0) / (academicScores.length || 1);
     const academicVariance = academicScores.reduce((sum, score) => sum + Math.pow(score - academicMean, 2), 0) / (academicScores.length || 1);
 
-    // Base balance
     let baseBalance = Math.max(0, 100 - academicVariance * 10);
-
-    // Bonus (strategic distribution)
     let academicStrategicBonus = 0;
+
     assignments.forEach((a1, i) => {
         assignments.forEach((a2, j) => {
             if (i === j) return;
             const dist = Math.sqrt(Math.pow(a1.row - a2.row, 2) + Math.pow(a1.col - a2.col, 2));
             if (dist <= 1.5) {
                 const diff = Math.abs(getAcademicScore(a1.student.academicLevel) - getAcademicScore(a2.student.academicLevel));
-                if (diff === 2) academicStrategicBonus += 5; // Mentoring
-                else if (diff === 1) academicStrategicBonus += 3; // Peer support
+                if (diff === 2) academicStrategicBonus += 5;
+                else if (diff === 1) academicStrategicBonus += 3;
             }
         });
     });
-    // Normalize/Clamp bonus? Legacy didn't divide by N, so score can grow huge?
-    // Legacy: academicBalance = Math.min(100, baseBalance + academicStrategicBonus);
-    // If N=30, pairs are many. Bonus could be huge. 
-    // Wait, legacy code loop is nested. 30*29 pairs. 
-    // Maybe valid pairs are few.
-    // I will trust the legacy logic for now, but maybe clamp it. 
 
-    academicBalance = Math.min(100, baseBalance + (academicStrategicBonus / (assignments.length || 1) * 2)); // normalizing a bit? 
-    // Actually, let's stick to legacy exact logic if possible or try to be reasonable.
-    // Legacy: academicBalance = Math.min(100, baseBalance + academicStrategicBonus);
-    // If academicStrategicBonus is raw sum, satisfied pairs add 5 points.
-    // 10 pairs = 50 points. Easy to reach 100.
     academicBalance = Math.min(100, baseBalance + academicStrategicBonus);
-
 
     // --- 2. Social Compatibility ---
     let totalCompatibility = 0;
@@ -62,13 +50,6 @@ export const calculateMetrics = (assignments: SeatingAssignment[]): LayoutMetric
                 const comp = calculateCompatibility(a1.student, a2.student);
                 totalCompatibility += comp;
                 compatibilityCount++;
-
-                // Potential max
-                const maxComp = Math.max(comp, calculateCompatibility(a2.student, a1.student)); // symmetric mostly, but calculateCompatibility uses A->B logic?
-                // calculateCompatibility is A->B?
-                // Logic: needsA vs behaviorB. Yes it is directional!
-                // So legacy code check both directions for max potential? 
-                // Legacy: Math.max(assignment.student.getCompatibilityScore(other), other.student.getCompatibilityScore(assignment))
                 maxPossibleScore += Math.max(
                     calculateCompatibility(a1.student, a2.student),
                     calculateCompatibility(a2.student, a1.student)
@@ -78,21 +59,15 @@ export const calculateMetrics = (assignments: SeatingAssignment[]): LayoutMetric
     });
 
     const currentAvg = compatibilityCount > 0 ? totalCompatibility / compatibilityCount : 0;
-    // maxPossibleScore was sum of maxes. potentialAvg should be sum / count.
     const potentialAvg = compatibilityCount > 0 ? maxPossibleScore / compatibilityCount : 0;
-
-    // Legacy: cost optimizationEfficiency = currentAvg / potentialAvg
     const efficiency = potentialAvg > 0 ? currentAvg / potentialAvg : 1;
-    socialCompatibility = currentAvg + (efficiency * 20);
-    socialCompatibility = Math.min(100, socialCompatibility);
-
+    socialCompatibility = Math.min(100, currentAvg + (efficiency * 20));
 
     // --- 3. Behavioral Harmony ---
     const behavioralScores = assignments.map(a => getBehaviorScore(a.student.behaviorType));
     const behavioralMean = behavioralScores.reduce((a, b) => a + b, 0) / (behavioralScores.length || 1);
 
     let baseHarmony = Math.max(0, 100 - Math.abs(behavioralMean - 3) * 20);
-
     let diversityBonus = 0;
     let behavioralStrategicBonus = 0;
 
@@ -113,12 +88,61 @@ export const calculateMetrics = (assignments: SeatingAssignment[]): LayoutMetric
 
     behavioralHarmony = Math.min(100, baseHarmony + diversityBonus + behavioralStrategicBonus);
 
-    const overall = (academicBalance + socialCompatibility + behavioralHarmony) / 3;
+    // --- 4. Physical Accessibility (NEW) ---
+    let physicalTotal = 0;
+    let physicalChecks = 0;
+
+    assignments.forEach(a => {
+        const s = a.student;
+
+        // Vision: front_required must be in row 0 or 1
+        if (s.visionNeeds === 'front_required') {
+            physicalChecks++;
+            physicalTotal += a.row <= 1 ? 100 : Math.max(0, 50 - (a.row - 1) * 25);
+        }
+
+        // Hearing: front_required must be in row 0 or 1
+        if (s.hearingNeeds === 'front_required') {
+            physicalChecks++;
+            physicalTotal += a.row <= 1 ? 100 : Math.max(0, 50 - (a.row - 1) * 25);
+        }
+
+        // Legacy special needs vision/hearing check
+        if (s.specialNeeds === 'vision' && !s.visionNeeds) {
+            physicalChecks++;
+            physicalTotal += a.row <= 1 ? 100 : 40;
+        }
+        if (s.specialNeeds === 'hearing' && !s.hearingNeeds) {
+            physicalChecks++;
+            physicalTotal += a.row <= 1 ? 100 : 40;
+        }
+
+        // Height: shorter students should be closer to front
+        if (s.height === 'tall') {
+            physicalChecks++;
+            const maxRow = Math.max(...assignments.map(x => x.row), 0);
+            // Tall students should be in later rows
+            physicalTotal += a.row >= maxRow / 2 ? 100 : 50;
+        }
+        if (s.height === 'short') {
+            physicalChecks++;
+            // Short students should be in earlier rows
+            physicalTotal += a.row <= 1 ? 100 : 60;
+        }
+    });
+
+    physicalAccessibility = physicalChecks > 0 ? Math.round(physicalTotal / physicalChecks) : 100;
+
+    // --- Overall ---
+    const overall = physicalChecks > 0
+        ? (academicBalance + socialCompatibility + behavioralHarmony + physicalAccessibility) / 4
+        : (academicBalance + socialCompatibility + behavioralHarmony) / 3;
 
     return {
         academicBalance: Math.round(academicBalance),
         socialCompatibility: Math.round(socialCompatibility),
         behavioralHarmony: Math.round(behavioralHarmony),
+        physicalAccessibility: Math.round(physicalAccessibility),
         overallScore: Math.round(overall)
     };
 };
