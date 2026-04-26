@@ -37,6 +37,8 @@ export interface ClassroomLayout {
   rows: number;
   cols: number;
   seats: Seat[];
+  windowSide?: 'left' | 'right' | 'both' | 'none';
+  doorPosition?: 'front-left' | 'front-right' | 'back' | 'none';
 }
 
 export interface SeatingAssignment {
@@ -46,4 +48,4 @@ export interface SeatingAssignment {
   col: number;
 }
 
-export type LayoutType = 'grid' | 'paired' | 'u-shape' | 'cluster' | 'chevron' | 'butterfly';
+export type LayoutType = 'grid' | 'paired' | 'u-shape' | 'cluster' | 'chevron';

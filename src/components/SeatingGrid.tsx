@@ -56,7 +56,6 @@ const layoutLabels: Record<string, string> = {
     'u-shape': 'U-Düzen',
     'cluster': 'Küme (Grup)',
     'chevron': 'Chevron (V)',
-    'butterfly': 'Kelebek',
 };
 
 const getHeightLabel = (h?: string) => {
@@ -340,105 +339,6 @@ export const SeatingGrid: React.FC<SeatingGridProps> = ({ layout, assignments, l
         );
     };
 
-    // ─── Kelebek (Exam Anti-Cheat Checkerboard A/B) ───
-    const renderButterfly = () => {
-        return (
-            <div>
-                <div style={{
-                    display: 'flex', gap: '12px', justifyContent: 'center',
-                    marginBottom: '12px', fontSize: '0.72rem', fontWeight: 600,
-                }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <span style={{ width: '14px', height: '14px', borderRadius: '3px', background: '#dbeafe', border: '1.5px solid #3b82f6', display: 'inline-block' }} />
-                        Sınav A
-                    </span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <span style={{ width: '14px', height: '14px', borderRadius: '3px', background: '#ffedd5', border: '1.5px solid #f97316', display: 'inline-block' }} />
-                        Sınav B
-                    </span>
-                </div>
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: `repeat(${layout.cols}, minmax(80px, 1fr))`,
-                    gap: '8px',
-                }}>
-                    {grid.map((row, rIndex) =>
-                        row.map((student: any, cIndex: number) => {
-                            const isGroupA = (rIndex + cIndex) % 2 === 0;
-                            const colorStyle = isGroupA
-                                ? { border: '2px solid #3b82f6', background: '#dbeafe' }
-                                : { border: '2px solid #f97316', background: '#ffedd5' };
-                            if (!student) {
-                                return (
-                                    <div key={`${rIndex}-${cIndex}`} className="seat-cell empty" style={{ opacity: 0.2, minHeight: '60px', ...colorStyle }}>
-                                        <span style={{ fontSize: '0.55rem', fontWeight: 700, color: isGroupA ? '#3b82f6' : '#f97316' }}>
-                                            {isGroupA ? 'A' : 'B'}
-                                        </span>
-                                    </div>
-                                );
-                            }
-                            return (
-                                <div
-                                    key={`${rIndex}-${cIndex}`}
-                                    className="seat-cell occupied"
-                                    onMouseEnter={() => setHoveredStudent(student.id)}
-                                    onMouseLeave={() => setHoveredStudent(null)}
-                                    style={{ position: 'relative', ...colorStyle }}
-                                >
-                                    <div style={{
-                                        position: 'absolute', top: '3px', right: '5px',
-                                        fontSize: '0.6rem', fontWeight: 800,
-                                        color: isGroupA ? '#2563eb' : '#ea580c',
-                                    }}>
-                                        {isGroupA ? 'A' : 'B'}
-                                    </div>
-                                    <div className="seat-row-label">
-                                        {rIndex === 0 ? "Ön" : `${rIndex + 1}.`}
-                                    </div>
-                                    <div style={{ textAlign: 'center', marginTop: '2px' }}>
-                                        <span className="seat-name" title={student.name}>{student.name}</span>
-                                        <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '4px', alignItems: 'center' }}>
-                                            <span style={{
-                                                fontSize: '0.55rem', fontWeight: 700, color: 'white',
-                                                background: getBehaviorLabel(student.behaviorType).color,
-                                                padding: '1px 4px', borderRadius: '3px',
-                                            }}>
-                                                {getBehaviorLabel(student.behaviorType).label}
-                                            </span>
-                                            <span style={{
-                                                fontSize: '0.65rem', color: getAcademicLabel(student.academicLevel).color, fontWeight: 700,
-                                            }}>
-                                                {getAcademicLabel(student.academicLevel).label}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    {hoveredStudent === student.id && (
-                                        <div style={{
-                                            position: 'absolute', bottom: 'calc(100% + 8px)', left: '50%',
-                                            transform: 'translateX(-50%)', background: 'white',
-                                            border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)',
-                                            padding: '10px 14px', boxShadow: 'var(--shadow-lg)', zIndex: 100,
-                                            minWidth: '155px', textAlign: 'left', fontSize: '0.72rem',
-                                            color: 'var(--text)', animation: 'fadeIn 0.15s ease-out',
-                                        }}>
-                                            <div style={{ fontWeight: 800, fontSize: '0.85rem', marginBottom: '5px', color: isGroupA ? '#2563eb' : '#ea580c' }}>
-                                                {student.name} — Sınav {isGroupA ? 'A' : 'B'}
-                                            </div>
-                                            <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
-                                                Komşu öğrenciler farklı sınav alır
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })
-                    )}
-                </div>
-            </div>
-        );
-    };
-
 
     const renderLayout = () => {
         switch (layoutType) {
@@ -446,10 +346,10 @@ export const SeatingGrid: React.FC<SeatingGridProps> = ({ layout, assignments, l
             case 'u-shape': return renderUShape();
             case 'cluster': return renderCluster();
             case 'chevron': return renderChevron();
-            case 'butterfly': return renderButterfly();
             default: return renderGrid();
         }
     };
+
 
     return (
         <div className="card" style={{ padding: '24px' }}>

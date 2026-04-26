@@ -1,4 +1,4 @@
-import { Student, AcademicLevel, BehaviorType } from '../types';
+import { Student, AcademicLevel, BehaviorType, HeightCategory, VisionNeeds, LearningStyle } from '../types';
 
 export const parseNaturalLanguage = (text: string): Student[] => {
     const students: Student[] = [];
@@ -75,6 +75,20 @@ export const parseNaturalLanguage = (text: string): Student[] => {
         else if (lower.includes('hareketsiz') || lower.includes('durgun'))
             movement = 'very_low';
 
+        // ─── Physical & Learning Detection (v2) ───
+        let height: HeightCategory | undefined = undefined;
+        let vision: VisionNeeds | undefined = undefined;
+        let learning: LearningStyle | undefined = undefined;
+
+        if (lower.includes('uzun')) height = 'tall';
+        else if (lower.includes('kısa')) height = 'short';
+
+        if (lower.includes('gözlük') || lower.includes('tahtayı göremiyor') || lower.includes('ön')) vision = 'front_required';
+
+        if (lower.includes('görsel')) learning = 'visual';
+        else if (lower.includes('işitsel')) learning = 'auditory';
+        else if (lower.includes('kinestetik') || lower.includes('dokunsal')) learning = 'kinesthetic';
+
         students.push({
             id: `nlp-${Date.now()}-${idx}`,
             name: name.charAt(0).toUpperCase() + name.slice(1),
@@ -83,7 +97,10 @@ export const parseNaturalLanguage = (text: string): Student[] => {
             movementNeeds: movement,
             specialNeeds: 'none',
             friends: [],
-            avoidStudents: []
+            avoidStudents: [],
+            height,
+            visionNeeds: vision,
+            learningStyle: learning,
         });
     });
 
