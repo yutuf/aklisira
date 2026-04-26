@@ -88,7 +88,8 @@ export default function LandingPage() {
         display: "flex", justifyContent: "space-between", alignItems: "center",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <span style={{ fontSize: "1.6rem", fontWeight: 900, background: "linear-gradient(135deg, #0d6e64, #14b8a6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+          <img src="/logo.png" alt="AklıSıra" style={{ height: "36px", width: "36px", objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+          <span style={{ fontSize: "1.4rem", fontWeight: 900, background: "linear-gradient(135deg, #0d6e64, #14b8a6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
             AklıSıra
           </span>
           <span style={{ fontSize: "0.65rem", background: "#14b8a6", color: "white", padding: "2px 8px", borderRadius: "20px", fontWeight: 700 }}>BETA</span>
@@ -96,6 +97,7 @@ export default function LandingPage() {
         <div style={{ display: "flex", gap: "24px", alignItems: "center" }}>
           <a href="#features" style={{ textDecoration: "none", color: "#57534e", fontWeight: 600, fontSize: "0.85rem" }}>Özellikler</a>
           <a href="#pricing" style={{ textDecoration: "none", color: "#57534e", fontWeight: 600, fontSize: "0.85rem" }}>Fiyat</a>
+          <a href="#contact" style={{ textDecoration: "none", color: "#57534e", fontWeight: 600, fontSize: "0.85rem" }}>İletişim</a>
           <Link href="/app" style={{
             textDecoration: "none",
             background: "linear-gradient(135deg, #0d6e64, #14b8a6)",
@@ -353,6 +355,79 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ─── CONTACT ─── */}
+      <section id="contact" style={{ padding: "80px 24px", maxWidth: "900px", margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: "48px" }}>
+          <h2 style={{ fontSize: "clamp(1.8rem, 4vw, 2.4rem)", fontWeight: 900, marginBottom: "16px", letterSpacing: "-0.02em" }}>
+            İletişime geç
+          </h2>
+          <p style={{ color: "#57534e", fontSize: "1rem", maxWidth: "500px", margin: "0 auto" }}>
+            Okul veya kurum olarak pilot kullanım, iş birliği ya da demo talebi için ulaşın.
+          </p>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "20px" }}>
+          {[
+            {
+              icon: "✉️",
+              title: "E-posta",
+              value: "info@aklisira.com",
+              href: "mailto:info@aklisira.com",
+              desc: "Sorular, demo talepleri ve iş birlikleri için"
+            },
+            {
+              icon: "🌐",
+              title: "Web",
+              value: "aklisira.com",
+              href: "https://aklisira.com",
+              desc: "Uygulamayı hemen ücretsiz deneyin"
+            },
+            {
+              icon: "🏫",
+              title: "Kurum",
+              value: "Baykar Fen Lisesi",
+              href: "#",
+              desc: "İstanbul — Eğitimde Yapay Zekâ Zirvesi mezunu"
+            },
+          ].map((c, i) => (
+            <a key={i} href={c.href} style={{ textDecoration: "none" }}>
+              <div style={{
+                background: "white", padding: "28px", borderRadius: "16px",
+                border: "1.5px solid #e0d8d0", transition: "all 0.2s ease",
+                cursor: "pointer",
+              }}>
+                <div style={{ fontSize: "2rem", marginBottom: "14px" }}>{c.icon}</div>
+                <div style={{ fontSize: "0.7rem", fontWeight: 800, color: "#14b8a6", marginBottom: "6px", letterSpacing: "0.08em" }}>{c.title}</div>
+                <div style={{ fontWeight: 800, fontSize: "0.95rem", color: "#0d6e64", marginBottom: "8px" }}>{c.value}</div>
+                <div style={{ color: "#57534e", fontSize: "0.8rem", lineHeight: 1.5 }}>{c.desc}</div>
+              </div>
+            </a>
+          ))}
+        </div>
+
+        {/* Simple email CTA */}
+        <div style={{
+          marginTop: "32px", padding: "28px 32px",
+          background: "linear-gradient(135deg, #f0ece7, #fff)",
+          borderRadius: "16px", border: "1.5px solid #e0d8d0",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          flexWrap: "wrap", gap: "16px",
+        }}>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: "1rem", marginBottom: "4px" }}>Okulunuz için pilot kurmak ister misiniz?</div>
+            <div style={{ color: "#57534e", fontSize: "0.85rem" }}>Okul yönetimleri ve zümre başkanları için özel demo randevusu.</div>
+          </div>
+          <a href="mailto:info@aklisira.com?subject=Pilot%20Demo%20Talebi" style={{
+            textDecoration: "none",
+            background: "linear-gradient(135deg, #0d6e64, #14b8a6)",
+            color: "white", padding: "12px 28px", borderRadius: "50px",
+            fontWeight: 800, fontSize: "0.9rem", whiteSpace: "nowrap",
+          }}>
+            📩 Demo Talep Et
+          </a>
+        </div>
+      </section>
+
       {/* ─── FINAL CTA ─── */}
       <section style={{
         padding: "80px 24px", textAlign: "center",
@@ -376,16 +451,23 @@ export default function LandingPage() {
       </section>
 
       {/* ─── FOOTER ─── */}
-      <footer style={{ padding: "32px 24px", textAlign: "center", background: "#1a1715", color: "rgba(255,255,255,0.4)", fontSize: "0.8rem" }}>
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "16px", flexWrap: "wrap" }}>
-          <span style={{ fontWeight: 800, color: "rgba(255,255,255,0.7)" }}>AklıSıra</span>
+      <footer style={{ padding: "40px 24px", textAlign: "center", background: "#1a1715", color: "rgba(255,255,255,0.4)", fontSize: "0.8rem" }}>
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "6px", marginBottom: "16px" }}>
+          <img src="/logo.png" alt="AklıSıra" style={{ height: "28px", width: "28px", objectFit: "contain", filter: "brightness(0) invert(1)", opacity: 0.7 }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+          <span style={{ fontWeight: 900, color: "rgba(255,255,255,0.8)", fontSize: "1rem" }}>AklıSıra</span>
+        </div>
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "16px", flexWrap: "wrap", marginBottom: "12px" }}>
+          <a href="#features" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Özellikler</a>
           <span>·</span>
-          <span>Baykar Fen Lisesi</span>
+          <a href="#pricing" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Fiyat</a>
+          <span>·</span>
+          <a href="#contact" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>İletişim</a>
           <span>·</span>
           <a href="/app" style={{ color: "#5eead4", textDecoration: "none" }}>Uygulamayı Aç</a>
           <span>·</span>
-          <span>© 2026</span>
+          <a href="mailto:info@aklisira.com" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>info@aklisira.com</a>
         </div>
+        <div>Baykar Fen Lisesi · III. Eğitimde Yapay Zekâ Zirvesi 2026 · © 2026</div>
       </footer>
     </div>
   );
