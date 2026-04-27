@@ -5,6 +5,31 @@ import { useState, useEffect } from "react";
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [activeFeature, setActiveFeature] = useState(0);
+  const [waitlistEmail, setWaitlistEmail] = useState("");
+  const [waitlistName, setWaitlistName] = useState("");
+  const [waitlistStatus, setWaitlistStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+  const handleWaitlist = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!waitlistEmail) return;
+    setWaitlistStatus('loading');
+    try {
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: waitlistEmail, name: waitlistName }),
+      });
+      if (res.ok) {
+        setWaitlistStatus('success');
+        setWaitlistEmail('');
+        setWaitlistName('');
+      } else {
+        setWaitlistStatus('error');
+      }
+    } catch {
+      setWaitlistStatus('error');
+    }
+  };
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
@@ -176,6 +201,92 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ─── WAITLIST ─── */}
+      <section id="waitlist" style={{
+        padding: "72px 24px",
+        background: "linear-gradient(135deg, #fef3c7 0%, #fff 60%)",
+        borderTop: "1.5px solid #e0d8d0",
+        borderBottom: "1.5px solid #e0d8d0",
+      }}>
+        <div style={{ maxWidth: "600px", margin: "0 auto", textAlign: "center" }}>
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: "8px",
+            background: "#fef3c7", border: "1px solid #fbbf24",
+            padding: "5px 14px", borderRadius: "50px", marginBottom: "20px",
+            color: "#92400e", fontSize: "0.78rem", fontWeight: 700,
+          }}>
+            ⏳ Erken Erişim Listesi — Sınırlı Beta Konuşma
+          </div>
+
+          <h2 style={{ fontSize: "clamp(1.6rem, 4vw, 2.2rem)", fontWeight: 900, marginBottom: "12px", letterSpacing: "-0.02em" }}>
+            Pro özellikleri ilk deneyin
+          </h2>
+          <p style={{ color: "#57534e", fontSize: "0.95rem", lineHeight: 1.7, marginBottom: "32px", maxWidth: "460px", margin: "0 auto 32px" }}>
+            Auth sistemi, öğrenci profil kayıtı, dönem takibi ve AI analiz raporu özellikleri hazır olunca sizi ilk haberdar edeceğiz.
+            <strong style={{ color: "#0d6e64" }}> İlk 50. kullanıcıya %50 indirim.</strong>
+          </p>
+
+          {waitlistStatus === 'success' ? (
+            <div style={{
+              padding: "24px", background: "#dcfce7", borderRadius: "16px",
+              border: "1.5px solid #86efac", color: "#15803d",
+              fontWeight: 800, fontSize: "1rem",
+            }}>
+              ✅ Listeye eklendiniz! Haberdar edeceğiz.
+            </div>
+          ) : (
+            <form onSubmit={handleWaitlist} style={{ display: "flex", flexDirection: "column", gap: "12px", maxWidth: "440px", margin: "0 auto" }}>
+              <input
+                type="text"
+                placeholder="Adınız (isteğe bağlı)"
+                value={waitlistName}
+                onChange={e => setWaitlistName(e.target.value)}
+                style={{
+                  padding: "14px 18px", borderRadius: "12px", border: "1.5px solid #e0d8d0",
+                  fontSize: "0.95rem", fontFamily: "inherit", outline: "none",
+                  background: "white",
+                }}
+              />
+              <div style={{ display: "flex", gap: "10px" }}>
+                <input
+                  type="email"
+                  placeholder="E-posta adresiniz"
+                  value={waitlistEmail}
+                  onChange={e => setWaitlistEmail(e.target.value)}
+                  required
+                  style={{
+                    flex: 1, padding: "14px 18px", borderRadius: "12px",
+                    border: "1.5px solid #e0d8d0", fontSize: "0.95rem",
+                    fontFamily: "inherit", outline: "none", background: "white",
+                  }}
+                />
+                <button
+                  type="submit"
+                  disabled={waitlistStatus === 'loading'}
+                  style={{
+                    padding: "14px 22px", borderRadius: "12px",
+                    background: "linear-gradient(135deg, #0d6e64, #14b8a6)",
+                    color: "white", border: "none", fontWeight: 800,
+                    fontSize: "0.9rem", cursor: "pointer", fontFamily: "inherit",
+                    whiteSpace: "nowrap", minWidth: "120px",
+                  }}
+                >
+                  {waitlistStatus === 'loading' ? '⏳...' : 'Listeye Katıl →'}
+                </button>
+              </div>
+              {waitlistStatus === 'error' && (
+                <p style={{ color: "#dc2626", fontSize: "0.82rem", margin: 0 }}>
+                  Bir hata oluştu. Lütfen tekrar deneyin.
+                </p>
+              )}
+              <p style={{ color: "#a8a29e", fontSize: "0.75rem", margin: 0 }}>
+                Spam yok. İstediğiniz zaman çıkabilirsiniz.
+              </p>
+            </form>
+          )}
         </div>
       </section>
 
