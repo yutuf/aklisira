@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Student, ClassroomLayout, SeatingAssignment } from '../../types';
 import { parseStudentsCSV } from '../../utils/csv-parser';
 import { parseNaturalLanguage } from '../../utils/nlp-parser';
 import { useVoiceInput } from '../../hooks/useVoiceInput';
+import { useClassrooms } from '../../hooks/useClassrooms';
 import { GeneticSolver } from '../../utils/genetic-solver';
 import { SeatingGrid } from '../../components/SeatingGrid';
 import { ExamMode } from '../../components/ExamMode';
@@ -29,9 +30,14 @@ function getVisitorCount(): number {
 }
 
 export default function Dashboard() {
+  const {
+    classes, activeClass, activeClassId,
+    setActiveClassId, createClass, updateClass, deleteClass, duplicateClass, loaded,
+  } = useClassrooms();
+
   const [students, setStudents] = useState<Student[]>([]);
-  const [layout, setLayout] = useState<ClassroomLayout>({ 
-    rows: 5, cols: 6, seats: [], windowSide: 'left', doorPosition: 'front-right' 
+  const [layout, setLayout] = useState<ClassroomLayout>({
+    rows: 5, cols: 6, seats: [], windowSide: 'left', doorPosition: 'front-right'
   });
   const [assignments, setAssignments] = useState<SeatingAssignment[]>([]);
   const [isOptimizing, setIsOptimizing] = useState(false);
@@ -42,11 +48,56 @@ export default function Dashboard() {
   const [demoCount, setDemoCount] = useState(0);
   const [layoutType, setLayoutType] = useState<string>('grid');
   const [activeTab, setActiveTab] = useState<'classroom' | 'exam' | 'teams'>('classroom');
+  const [showNewClassModal, setShowNewClassModal] = useState(false);
+  const [newClassName, setNewClassName] = useState('');
+  const [newClassGrade, setNewClassGrade] = useState('');
+  const syncPending = useRef(false);
 
   // Input state
   const [inputMode, setInputMode] = useState<'csv' | 'smart'>('smart');
   const [smartText, setSmartText] = useState("");
   const { isListening, transcript, startListening, isSupported, setTranscript } = useVoiceInput();
+
+  // Load active class into local state when it changes
+  useEffect(() => {
+    if (!loaded) return;
+    if (activeClass) {
+      setStudents(activeClass.students);
+      setLayout(activeClass.layout);
+      setAssignments(activeClass.assignments);
+      setLayoutType(activeClass.layoutType);
+      setCurrentMetrics(null);
+      setAiExplanation('');
+      setOptimizationDone(false);
+    } else {
+      setStudents([]);
+      setAssignments([]);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeClassId, loaded]);
+
+  // Auto-save: sync local state back to active class
+  useEffect(() => {
+    if (!activeClassId || !loaded) return;
+    syncPending.current = true;
+    const t = setTimeout(() => {
+      updateClass(activeClassId, { students, layout, assignments, layoutType });
+      syncPending.current = false;
+    }, 800);
+    return () => clearTimeout(t);
+  }, [students, layout, assignments, layoutType]);
+
+  const handleCreateClass = () => {
+    const name = newClassName.trim() || 'Yeni Sınıf';
+    createClass(name, undefined, newClassGrade.trim() || undefined);
+    setNewClassName('');
+    setNewClassGrade('');
+    setShowNewClassModal(false);
+    setStudents([]);
+    setAssignments([]);
+    setCurrentMetrics(null);
+    setAiExplanation('');
+  };
 
   useEffect(() => {
     setDemoCount(getVisitorCount());
@@ -220,8 +271,40 @@ export default function Dashboard() {
         </div>
       </div>
 
+
+      {/* ─── Class Selector Bar ─── */}
+      <div style={{ background: 'var(--primary-dark)', padding: '8px 24px', display: 'flex', alignItems: 'center', gap: '8px', overflowX: 'auto' }}>
+        <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.72rem', fontWeight: 700, whiteSpace: 'nowrap' }}>SINIFLARIM:</span>
+        {classes.length === 0 && <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.78rem' }}>Henüz sınıf yok</span>}
+        {classes.map(cls => (
+          <button key={cls.id} onClick={() => setActiveClassId(cls.id)} style={{ padding: '5px 14px', borderRadius: '50px', border: 'none', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', background: cls.id === activeClassId ? 'white' : 'rgba(255,255,255,0.12)', color: cls.id === activeClassId ? 'var(--primary-dark)' : 'rgba(255,255,255,0.8)', transition: 'all 0.15s' }}>
+            {cls.name}{cls.grade ? ` · ${cls.grade}` : ''}
+          </button>
+        ))}
+        <button onClick={() => setShowNewClassModal(true)} style={{ padding: '5px 12px', borderRadius: '50px', border: '1.5px dashed rgba(255,255,255,0.3)', background: 'transparent', color: 'rgba(255,255,255,0.6)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+          + Yeni Sınıf
+        </button>
+      </div>
+
+      {showNewClassModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '16px' }}>
+          <div style={{ background: 'white', borderRadius: '20px', padding: '32px', width: '100%', maxWidth: '420px', boxShadow: 'var(--shadow-lg)' }}>
+            <h3 style={{ margin: '0 0 20px', fontWeight: 900 }}>Yeni Sınıf Oluştur</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <input autoFocus type="text" placeholder="Sınıf adı (örn: 9-A Matematik)" value={newClassName} onChange={e => setNewClassName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleCreateClass()} style={{ padding: '12px 16px', borderRadius: '10px', border: '1.5px solid var(--border)', fontSize: '0.95rem', fontFamily: 'inherit', outline: 'none' }} />
+              <input type="text" placeholder="Şube (isteğe bağlı)" value={newClassGrade} onChange={e => setNewClassGrade(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleCreateClass()} style={{ padding: '12px 16px', borderRadius: '10px', border: '1.5px solid var(--border)', fontSize: '0.95rem', fontFamily: 'inherit', outline: 'none' }} />
+              <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                <button onClick={() => setShowNewClassModal(false)} style={{ flex: 1, padding: '12px', borderRadius: '10px', border: '1.5px solid var(--border)', background: 'transparent', fontSize: '0.9rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>İptal</button>
+                <button onClick={handleCreateClass} style={{ flex: 2, padding: '12px', borderRadius: '10px', background: 'var(--primary-gradient)', color: 'white', border: 'none', fontSize: '0.9rem', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>Oluştur ✓</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ─── Tab Switcher ─── */}
       <div style={{ padding: '0 24px', maxWidth: '1200px', margin: '0 auto' }}>
+
         <div style={{
           display: 'flex', gap: '0', marginBottom: '0',
           borderBottom: '2px solid var(--border-light)',
