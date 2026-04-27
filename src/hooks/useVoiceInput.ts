@@ -11,7 +11,7 @@ export const useVoiceInput = () => {
     const audioChunksRef = useRef<Blob[]>([]);
 
     useEffect(() => {
-        if (typeof window !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        if (typeof window !== 'undefined' && navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function') {
             setIsSupported(true);
         }
     }, []);
