@@ -66,7 +66,11 @@ export async function POST(req: NextRequest) {
     console.error('[TRANSCRIBE ERROR]', err);
     if (err.body) {
       console.error('[TRANSCRIBE ERROR BODY]', JSON.stringify(err.body, null, 2));
+      return NextResponse.json({ 
+        error: 'Ses işlenirken bir hata oluştu.', 
+        details: err.body 
+      }, { status: 500 });
     }
-    return NextResponse.json({ error: 'Ses işlenirken bir hata oluştu.' }, { status: 500 });
+    return NextResponse.json({ error: 'Ses işlenirken bir hata oluştu.', details: err.message }, { status: 500 });
   }
 }

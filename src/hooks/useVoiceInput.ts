@@ -60,7 +60,9 @@ export const useVoiceInput = () => {
                         const data = await response.json();
 
                         if (!response.ok) {
-                            throw new Error(data.error || 'Ses işlenemedi.');
+                            console.error('Backend returned error:', data);
+                            const detailedMessage = data.details ? JSON.stringify(data.details) : '';
+                            throw new Error(data.error + ' ' + detailedMessage);
                         }
 
                         setTranscript(data.text);
