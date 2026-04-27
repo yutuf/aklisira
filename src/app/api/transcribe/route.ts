@@ -26,9 +26,12 @@ export async function POST(req: NextRequest) {
 
     console.log('[TRANSCRIBE] Sending to fal-ai/whisper...');
 
+    // In JS client, fal.storage.upload returns an object { url: string }
+    const finalAudioUrl = typeof uploadedUrl === 'string' ? uploadedUrl : uploadedUrl.url;
+
     const result = await fal.subscribe('fal-ai/whisper', {
       input: {
-        audio_url: uploadedUrl,
+        audio_url: finalAudioUrl,
         task: 'transcribe',
         language: 'tr',
         chunk_level: 'none'
@@ -42,8 +45,11 @@ export async function POST(req: NextRequest) {
     console.log('[TRANSCRIBE] Success. Text length:', result.data.text.length);
 
     return NextResponse.json({ text: result.data.text });
-  } catch (err) {
+  } catch (err: any) {
     console.error('[TRANSCRIBE ERROR]', err);
+    if (err.body) {
+      console.error('[TRANSCRIBE ERROR BODY]', JSON.stringify(err.body, null, 2));
+    }
     return NextResponse.json({ error: 'Ses işlenirken bir hata oluştu.' }, { status: 500 });
   }
 }
