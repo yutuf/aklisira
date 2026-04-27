@@ -26,8 +26,22 @@ export async function POST(req: NextRequest) {
     });
 
     console.log('[TRANSCRIBE] Uploading audio to fal storage...');
-    const audioBlob = await (await fetch(audioData)).blob();
-    const uploadedUrl = await fal.storage.upload(audioBlob);
+    
+    // Parse the Data URI
+    const match = audioData.match(/^data:(.*?);base64,(.*)$/);
+    if (!match) {
+      throw new Error('Geçersiz ses formatı.');
+    }
+    const contentType = match[1];
+    const base64Str = match[2];
+    const buffer = Buffer.from(base64Str, 'base64');
+
+    // Upload with explicit filename and content type so Whisper recognizes it as audio
+    const uploadedUrl = await fal.storage.upload(buffer, {
+      contentType: contentType,
+      fileName: 'audio.webm'
+    });
+    
     console.log('[TRANSCRIBE] Uploaded to:', uploadedUrl);
 
     console.log('[TRANSCRIBE] Sending to fal-ai/whisper...');
