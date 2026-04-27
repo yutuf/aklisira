@@ -14,6 +14,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Sunucu yapılandırma hatası (FAL_KEY eksik).' }, { status: 500 });
     }
 
+    console.log('[TRANSCRIBE] Received audioData of length:', audioData.length);
+    if (audioData.length < 100) {
+      console.error('[TRANSCRIBE] Audio data is too small or empty!');
+      return NextResponse.json({ error: 'Geçersiz veya boş ses verisi.' }, { status: 400 });
+    }
+
     // Configure fal client with the API key from env
     fal.config({
       credentials: process.env.FAL_KEY,
@@ -31,10 +37,7 @@ export async function POST(req: NextRequest) {
 
     const result = await fal.subscribe('fal-ai/whisper', {
       input: {
-        audio_url: finalAudioUrl,
-        task: 'transcribe',
-        language: 'tr',
-        chunk_level: 'none'
+        audio_url: finalAudioUrl
       },
     });
 
