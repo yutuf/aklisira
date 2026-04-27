@@ -1,1 +1,12 @@
-{}
+{
+  "env": {
+    "NEXT_PUBLIC_SUPABASE_URL": "https://elumzkgrgpldnuxpskgz.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_-I_KscRjNOt_6yu3wWzD2g_Tt6S6IGt"
+  },
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_SUPABASE_URL": "https://elumzkgrgpldnuxpskgz.supabase.co",
+      "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_-I_KscRjNOt_6yu3wWzD2g_Tt6S6IGt"
+    }
+  }
+}
