@@ -19,14 +19,19 @@ export async function POST(req: NextRequest) {
       credentials: process.env.FAL_KEY,
     });
 
-    console.log('[TRANSCRIBE] Sending audio to fal-ai/whisper...');
+    console.log('[TRANSCRIBE] Uploading audio to fal storage...');
+    const audioBlob = await (await fetch(audioData)).blob();
+    const uploadedUrl = await fal.storage.upload(audioBlob);
+    console.log('[TRANSCRIBE] Uploaded to:', uploadedUrl);
+
+    console.log('[TRANSCRIBE] Sending to fal-ai/whisper...');
 
     const result = await fal.subscribe('fal-ai/whisper', {
       input: {
-        audio_url: audioData,
+        audio_url: uploadedUrl,
         task: 'transcribe',
         language: 'tr',
-        chunk_level: 'none' // optimize for speed and full text
+        chunk_level: 'none'
       },
     });
 
