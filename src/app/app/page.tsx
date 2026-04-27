@@ -12,6 +12,7 @@ import { ExamMode } from '../../components/ExamMode';
 import { TeamBuilder } from '../../components/TeamBuilder';
 import { generateLayoutExplanation } from '../../utils/ai-explanation-service';
 import { calculateMetrics } from '../../utils/scoring-utils';
+import { createBrowserClient } from '@supabase/ssr';
 
 // ─── Visitor Log ───
 function logVisitorAction(action: string, data: Record<string, any> = {}) {
@@ -52,6 +53,7 @@ export default function Dashboard() {
   const [newClassName, setNewClassName] = useState('');
   const [newClassGrade, setNewClassGrade] = useState('');
   const syncPending = useRef(false);
+  const [user, setUser] = useState<any>(null);
 
   // Input state
   const [inputMode, setInputMode] = useState<'csv' | 'smart'>('smart');
@@ -101,7 +103,27 @@ export default function Dashboard() {
 
   useEffect(() => {
     setDemoCount(getVisitorCount());
+    
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
+    );
+    
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) {
+        setUser(data.user);
+      }
+    });
   }, []);
+
+  const handleLogout = async () => {
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
+    );
+    await supabase.auth.signOut();
+    window.location.href = '/login';
+  };
 
   // Voice → text
   useEffect(() => {
@@ -261,12 +283,32 @@ export default function Dashboard() {
               <p className="app-subtitle">Yapay Zeka Destekli Sınıf Oturma Düzeni Önerici</p>
               <div className="summit-badge">🏆 III. Eğitimde Yapay Zekâ Zirvesi 2026</div>
             </div>
-            {demoCount > 0 && (
-              <div className="visitor-counter" style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.9)' }}>
-                <div className="visitor-dot" style={{ background: '#4ade80' }} />
-                {demoCount} optimizasyon tamamlandı
-              </div>
-            )}
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              {demoCount > 0 && (
+                <div className="visitor-counter" style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.9)' }}>
+                  <div className="visitor-dot" style={{ background: '#4ade80' }} />
+                  {demoCount} optimizasyon tamamlandı
+                </div>
+              )}
+              
+              {user && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(255,255,255,0.1)', padding: '6px 12px', borderRadius: '50px', border: '1px solid rgba(255,255,255,0.2)' }}>
+                  {user.user_metadata?.avatar_url && (
+                    <img src={user.user_metadata.avatar_url} alt="Profil" style={{ width: '28px', height: '28px', borderRadius: '50%' }} />
+                  )}
+                  <span style={{ color: 'white', fontSize: '0.85rem', fontWeight: 600 }}>
+                    {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                  </span>
+                  <button 
+                    onClick={handleLogout}
+                    style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', cursor: 'pointer', padding: '4px 10px', borderRadius: '50px', fontSize: '0.75rem', fontWeight: 700, marginLeft: '4px' }}
+                  >
+                    Çıkış
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
