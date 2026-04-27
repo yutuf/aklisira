@@ -1,0 +1,44 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { fal } from '@fal-ai/client';
+
+export async function POST(req: NextRequest) {
+  try {
+    const { audioData } = await req.json();
+
+    if (!audioData) {
+      return NextResponse.json({ error: 'Ses verisi bulunamadı.' }, { status: 400 });
+    }
+
+    if (!process.env.FAL_KEY) {
+      console.error('[TRANSCRIBE] FAL_KEY is missing from environment variables.');
+      return NextResponse.json({ error: 'Sunucu yapılandırma hatası (FAL_KEY eksik).' }, { status: 500 });
+    }
+
+    // Configure fal client with the API key from env
+    fal.config({
+      credentials: process.env.FAL_KEY,
+    });
+
+    console.log('[TRANSCRIBE] Sending audio to fal-ai/whisper...');
+
+    const result = await fal.subscribe('fal-ai/whisper', {
+      input: {
+        audio_url: audioData,
+        task: 'transcribe',
+        language: 'tr',
+        chunk_level: 'none' // optimize for speed and full text
+      },
+    });
+
+    if (!result.data || !result.data.text) {
+      throw new Error('Geçerli bir metin alınamadı.');
+    }
+
+    console.log('[TRANSCRIBE] Success. Text length:', result.data.text.length);
+
+    return NextResponse.json({ text: result.data.text });
+  } catch (err) {
+    console.error('[TRANSCRIBE ERROR]', err);
+    return NextResponse.json({ error: 'Ses işlenirken bir hata oluştu.' }, { status: 500 });
+  }
+}

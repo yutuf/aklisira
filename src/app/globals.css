@@ -647,6 +647,27 @@ input[type="file"]::file-selector-button:hover {
   letter-spacing: 0.3px;
 }
 
+.recording-banner.processing {
+  background: linear-gradient(135deg, #fef3c7, #fffbeb);
+  border-color: #fcd34d;
+}
+
+.recording-banner.processing .recording-text {
+  color: #d97706;
+}
+
+.spinner-dot {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(217, 119, 6, 0.3);
+  border-top-color: #d97706;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 /* ===========================
    Empty State
    ========================= */

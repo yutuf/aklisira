@@ -56,7 +56,7 @@ export default function Dashboard() {
   // Input state
   const [inputMode, setInputMode] = useState<'csv' | 'smart'>('smart');
   const [smartText, setSmartText] = useState("");
-  const { isListening, transcript, startListening, isSupported, setTranscript } = useVoiceInput();
+  const { isListening, isProcessing, transcript, startListening, stopListening, isSupported, setTranscript } = useVoiceInput();
 
   // Load active class into local state when it changes
   useEffect(() => {
@@ -401,7 +401,13 @@ export default function Dashboard() {
                   {isListening && (
                     <div className="recording-banner">
                       <div className="recording-dot" />
-                      <span className="recording-text">🎤 Kayıt yapılıyor... Konuşun</span>
+                      <span className="recording-text">🎤 Kayıt yapılıyor... Bitirmek için mikrofona tekrar tıklayın</span>
+                    </div>
+                  )}
+                  {isProcessing && (
+                    <div className="recording-banner processing">
+                      <div className="spinner-dot" />
+                      <span className="recording-text">⏳ Sesiniz yazıya dökülüyor (Yapay Zeka)...</span>
                     </div>
                   )}
                   <textarea
@@ -415,12 +421,12 @@ export default function Dashboard() {
                     <button onClick={handleSmartParse} className="btn-primary" style={{ flex: 1 }}>Metin Ekle</button>
                     {isSupported && (
                       <button
-                        onClick={startListening}
-                        className={`voice-btn ${isListening ? 'listening' : ''}`}
-                        title="Sesli Giriş"
-                        disabled={isListening}
+                        onClick={isListening ? stopListening : startListening}
+                        className={`voice-btn ${isListening ? 'listening' : ''} ${isProcessing ? 'processing' : ''}`}
+                        title={isListening ? "Kaydı Bitir" : "Sesli Giriş"}
+                        disabled={isProcessing}
                       >
-                        {isListening ? '⏹️' : '🎤'}
+                        {isProcessing ? '⏳' : isListening ? '⏹️' : '🎤'}
                       </button>
                     )}
                   </div>
