@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '../../../utils/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 
 const SHEETS_URL = 'https://script.google.com/macros/s/AKfycby9cd-x2fHd2ByHLdPOq9AhJPjp_3w1IdLx4gF9GnNBkfc_l1GD19qn0A7nYmgM-ZEy/exec';
 
@@ -12,7 +12,15 @@ export async function POST(req: NextRequest) {
     }
 
     const timestamp = new Date().toISOString();
-    const supabase = await createClient();
+    
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('[WAITLIST] Missing Supabase Env Vars:', { hasUrl: !!supabaseUrl, hasKey: !!supabaseKey });
+    }
+
+    const supabase = createClient(supabaseUrl || '', supabaseKey || '');
 
     // ── 1. Supabase (primary) ──
     const { error: dbError } = await supabase
