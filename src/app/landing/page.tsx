@@ -138,7 +138,9 @@ export default function LandingPage() {
         .nav-link { transition: color 0.15s; }
         .orb1 { animation: float 7s ease-in-out infinite; }
         .orb2 { animation: float 9s ease-in-out infinite 1s; }
+        .orb3 { animation: float 11s ease-in-out infinite 2s; }
         .badge-anim { animation: fadeInDown 0.7s ease both; }
+        .glass-panel { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; box-shadow: 0 30px 60px rgba(0,0,0,0.4); }
         .shimmer-text {
           background: linear-gradient(90deg, #14b8a6 0%, #fbbf24 30%, #f97316 60%, #14b8a6 100%);
           background-size: 200% auto;
@@ -174,15 +176,19 @@ export default function LandingPage() {
               </a>
             );
           })}
-          <a href="#waitlist" style={{
+          <Link href="/app" className="nav-link" style={{ textDecoration: "none", color: scrolled ? "#57534e" : "rgba(255,255,255,0.75)", fontWeight: 700, fontSize: "0.85rem" }}>
+            Demo
+          </Link>
+          <Link href="/login" style={{
             textDecoration: "none",
             background: "linear-gradient(135deg, #0d6e64, #14b8a6)",
             color: "white", padding: "8px 20px", borderRadius: "50px",
             fontWeight: 800, fontSize: "0.85rem",
             boxShadow: "0 4px 16px rgba(13,110,100,0.25)",
+            transition: "all 0.2s"
           }}>
-            Erken Erişim →
-          </a>
+            Giriş Yap →
+          </Link>
         </div>
       </nav>
 
@@ -190,12 +196,38 @@ export default function LandingPage() {
       <section style={{
         minHeight: "100vh", display: "flex", flexDirection: "column",
         justifyContent: "center", alignItems: "center", textAlign: "center",
-        padding: "120px 24px 80px",
+        padding: "160px 24px 100px",
         background: "linear-gradient(160deg, #0d6e64 0%, #094f47 35%, #1a1715 100%)",
         position: "relative", overflow: "hidden",
       }}>
-        <div className="orb1" style={{ position: "absolute", top: "10%", left: "5%", width: "420px", height: "420px", borderRadius: "50%", background: "radial-gradient(circle, rgba(20,184,166,0.2) 0%, transparent 70%)", pointerEvents: "none" }} />
-        <div className="orb2" style={{ position: "absolute", bottom: "5%", right: "5%", width: "320px", height: "320px", borderRadius: "50%", background: "radial-gradient(circle, rgba(217,119,6,0.15) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <div className="orb1" style={{ position: "absolute", top: "10%", left: "5%", width: "420px", height: "420px", borderRadius: "50%", background: "radial-gradient(circle, rgba(20,184,166,0.25) 0%, transparent 70%)", pointerEvents: "none", filter: "blur(40px)" }} />
+        <div className="orb2" style={{ position: "absolute", bottom: "5%", right: "5%", width: "320px", height: "320px", borderRadius: "50%", background: "radial-gradient(circle, rgba(217,119,6,0.2) 0%, transparent 70%)", pointerEvents: "none", filter: "blur(40px)" }} />
+        <div className="orb3" style={{ position: "absolute", top: "40%", right: "20%", width: "250px", height: "250px", borderRadius: "50%", background: "radial-gradient(circle, rgba(236,72,153,0.15) 0%, transparent 70%)", pointerEvents: "none", filter: "blur(40px)" }} />
+
+        {/* Floating Glass Panels */}
+        <div className="orb1 glass-panel" style={{ position: "absolute", top: "15%", right: "10%", width: "180px", height: "220px", transform: "rotate(12deg)", zIndex: 0 }}>
+          <div style={{ padding: "20px" }}>
+            <div style={{ width: "100%", height: "8px", background: "rgba(255,255,255,0.2)", borderRadius: "4px", marginBottom: "12px" }}></div>
+            <div style={{ width: "80%", height: "8px", background: "rgba(255,255,255,0.2)", borderRadius: "4px", marginBottom: "24px" }}></div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+              {[1,2,3,4,5,6].map(i => <div key={i} style={{ width: "100%", height: "24px", background: "rgba(255,255,255,0.1)", borderRadius: "6px" }}></div>)}
+            </div>
+          </div>
+        </div>
+        <div className="orb2 glass-panel" style={{ position: "absolute", bottom: "25%", left: "8%", width: "200px", height: "140px", transform: "rotate(-8deg)", zIndex: 0 }}>
+          <div style={{ padding: "20px", display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "rgba(255,255,255,0.15)" }}></div>
+            <div style={{ flex: 1 }}>
+              <div style={{ width: "100%", height: "6px", background: "rgba(255,255,255,0.3)", borderRadius: "4px", marginBottom: "8px" }}></div>
+              <div style={{ width: "60%", height: "6px", background: "rgba(255,255,255,0.15)", borderRadius: "4px" }}></div>
+            </div>
+          </div>
+          <div style={{ margin: "0 20px", height: "1px", background: "rgba(255,255,255,0.1)" }}></div>
+          <div style={{ padding: "16px 20px" }}>
+            <div style={{ width: "40%", height: "12px", background: "#5eead4", borderRadius: "4px", marginBottom: "6px" }}></div>
+            <div style={{ width: "70%", height: "6px", background: "rgba(255,255,255,0.2)", borderRadius: "4px" }}></div>
+          </div>
+        </div>
 
         <div style={{ position: "relative", zIndex: 1, maxWidth: "820px" }}>
           <div className="badge-anim" style={{
@@ -220,15 +252,15 @@ export default function LandingPage() {
           </p>
 
           <div style={{ display: "flex", gap: "14px", justifyContent: "center", flexWrap: "wrap", marginBottom: "64px" }}>
-            <a href="#waitlist" className="hero-btn" style={{
+            <Link href="/login" className="hero-btn" style={{
               textDecoration: "none",
               background: "linear-gradient(135deg, #14b8a6, #0d6e64)",
               color: "white", padding: "17px 40px", borderRadius: "50px",
               fontWeight: 900, fontSize: "1.05rem",
               boxShadow: "0 8px 32px rgba(20,184,166,0.35)",
             }}>
-              ✨ Erken Erişim Al
-            </a>
+              ✨ Ücretsiz Başla
+            </Link>
             <Link href="/app" className="ghost-btn" style={{
               textDecoration: "none",
               background: "rgba(255,255,255,0.08)",
@@ -236,7 +268,7 @@ export default function LandingPage() {
               color: "white", padding: "17px 40px", borderRadius: "50px",
               fontWeight: 700, fontSize: "1.05rem",
             }}>
-              Demo'yu Aç →
+              Kayıtsız Dene →
             </Link>
           </div>
 
@@ -493,11 +525,11 @@ export default function LandingPage() {
             Kredi kartı gerekmez. 2 dakikada kurulum. Türkiye'deki öğretmenler için.
           </p>
           <div style={{ display: "flex", gap: "14px", justifyContent: "center", flexWrap: "wrap" }}>
-            <a href="#waitlist" className="hero-btn" style={{ textDecoration: "none", display: "inline-block", background: "white", color: "#0d6e64", padding: "18px 48px", borderRadius: "50px", fontWeight: 900, fontSize: "1.1rem", boxShadow: "0 12px 40px rgba(0,0,0,0.25)" }}>
-              ✨ Erken Erişim Al
-            </a>
+            <Link href="/login" className="hero-btn" style={{ textDecoration: "none", display: "inline-block", background: "white", color: "#0d6e64", padding: "18px 48px", borderRadius: "50px", fontWeight: 900, fontSize: "1.1rem", boxShadow: "0 12px 40px rgba(0,0,0,0.25)" }}>
+              ✨ Ücretsiz Başla
+            </Link>
             <Link href="/app" className="ghost-btn" style={{ textDecoration: "none", display: "inline-block", border: "2px solid rgba(255,255,255,0.35)", color: "white", padding: "18px 48px", borderRadius: "50px", fontWeight: 700, fontSize: "1.1rem" }}>
-              Demo'yu Aç
+              Kayıtsız Dene
             </Link>
           </div>
         </Reveal>

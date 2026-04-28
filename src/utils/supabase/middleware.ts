@@ -38,12 +38,8 @@ export async function updateSession(request: NextRequest) {
   const isAuthRoute = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/auth')
   const isProtectedPath = request.nextUrl.pathname.startsWith('/app')
 
-  if (!user && isProtectedPath) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    return NextResponse.redirect(url)
-  }
-
+  // allow unauthenticated users to use the /app demo locally.
+  // We only redirect if they are on /login and ALREADY logged in.
   if (user && request.nextUrl.pathname === '/login') {
     const url = request.nextUrl.clone()
     url.pathname = '/app'
