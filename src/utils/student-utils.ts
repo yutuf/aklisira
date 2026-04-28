@@ -67,11 +67,12 @@ export const calculateCompatibility = (studentA: Student, studentB: Student): nu
     // It seems like a general boost to ensure they get *some* good neighbor, or maybe a copy-paste quirk. I'll keep it.
 
     // 5. Friend Preferences
-    // studentA.friends is list of names.
-    if (studentA.friends.includes(studentB.name)) score += 35;
+    // studentA.friends is list of names. We want to strongly encourage this.
+    if (studentA.friends.includes(studentB.name)) score += 100;
 
     // 6. Avoid Preferences
-    if (studentA.avoidStudents.includes(studentB.name)) score -= 60;
+    // If they must avoid each other, we severely penalize it so the genetic algorithm never chooses it.
+    if (studentA.avoidStudents.includes(studentB.name)) score -= 100;
 
     // Clamp 0-100
     return Math.max(0, Math.min(100, score));

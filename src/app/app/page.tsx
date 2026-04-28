@@ -58,6 +58,7 @@ export default function Dashboard() {
   // Input state
   const [inputMode, setInputMode] = useState<'csv' | 'smart'>('smart');
   const [smartText, setSmartText] = useState("");
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const { isListening, isProcessing, transcript, startListening, stopListening, isSupported, setTranscript } = useVoiceInput();
 
   // Load active class into local state when it changes
@@ -133,15 +134,47 @@ export default function Dashboard() {
     }
   }, [transcript, setTranscript]);
 
-  const handleSmartParse = () => {
+  const handleSmartParse = async () => {
     if (!smartText.trim()) return;
-    const parsed = parseNaturalLanguage(smartText);
-    setStudents(prev => [...prev, ...parsed]);
-    setSmartText("");
-    const total = students.length + parsed.length;
-    const rows = Math.ceil(total / layout.cols);
-    setLayout(prev => ({ ...prev, rows: Math.max(rows, prev.rows) }));
-    logVisitorAction('text_parse', { studentCount: parsed.length });
+    setIsOptimizing(true); // Re-using this for loading state
+    
+    try {
+      const response = await fetch('/api/parse-students', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: smartText })
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        // Fallback to local parser if API fails or no key
+        console.warn("API failed, falling back to local parser", data.error);
+        const parsed = parseNaturalLanguage(smartText);
+        setStudents(prev => [...prev, ...parsed]);
+        const total = students.length + parsed.length;
+        const rows = Math.ceil(total / layout.cols);
+        setLayout(prev => ({ ...prev, rows: Math.max(rows, prev.rows) }));
+        logVisitorAction('text_parse_fallback', { studentCount: parsed.length });
+      } else if (data.students) {
+        setStudents(prev => [...prev, ...data.students]);
+        const total = students.length + data.students.length;
+        const rows = Math.ceil(total / layout.cols);
+        setLayout(prev => ({ ...prev, rows: Math.max(rows, prev.rows) }));
+        logVisitorAction('text_parse_gemini', { studentCount: data.students.length });
+      }
+      setSmartText("");
+    } catch (err) {
+      console.error(err);
+      alert("Çözümleme sırasında bir hata oluştu.");
+    } finally {
+      setIsOptimizing(false);
+    }
+  };
+
+  const handleUpdateStudent = (updatedStudent: Student) => {
+    setStudents(prev => prev.map(s => s.id === updatedStudent.id ? updatedStudent : s));
+    setSelectedStudent(null);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -460,7 +493,9 @@ export default function Dashboard() {
                     onChange={(e) => setSmartText(e.target.value)}
                   />
                   <div style={{ display: 'flex', gap: '8px' }}>
-                    <button onClick={handleSmartParse} className="btn-primary" style={{ flex: 1 }}>Metin Ekle</button>
+                    <button onClick={handleSmartParse} disabled={isOptimizing} className="btn-primary" style={{ flex: 1 }}>
+                      {isOptimizing ? '⏳ Çözümleniyor...' : 'Metin Ekle'}
+                    </button>
                     {isSupported && (
                       <button
                         onClick={isListening ? stopListening : startListening}
@@ -494,7 +529,14 @@ export default function Dashboard() {
                     padding: '6px 8px', background: 'var(--bg-muted)',
                   }}>
                     {students.map(s => (
-                      <div key={s.id} className="student-list-item">
+                      <div 
+                        key={s.id} 
+                        className="student-list-item" 
+                        onClick={() => setSelectedStudent(s)}
+                        style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', padding: '4px', borderRadius: '4px' }}
+                        onMouseOver={e => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'}
+                        onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+                      >
                         <span style={{ fontWeight: 600, color: 'var(--text)' }}>{s.name}</span>
                         <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
                           {s.academicLevel === 'high' ? '▲' : s.academicLevel === 'struggling' ? '▽' : '—'} / {s.behaviorType === 'disruptive' ? 'Dd' : s.behaviorType === 'leader' ? 'Ld' : s.behaviorType === 'quiet' ? 'Ss' : s.behaviorType === 'active' ? 'Ak' : 'Tk'}
@@ -724,6 +766,90 @@ export default function Dashboard() {
           )}
         </div>
       </footer>
+
+      {/* ─── Student Profile Modal (Personalized Notebook) ─── */}
+      {selectedStudent && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 300, padding: '16px' }}>
+          <div style={{ background: 'white', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '480px', boxShadow: 'var(--shadow-lg)', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 900 }}>{selectedStudent.name} - Öğrenci Defteri</h2>
+              <button onClick={() => setSelectedStudent(null)} style={{ background: 'transparent', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}>×</button>
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Akademik Seviye</label>
+                <select 
+                  value={selectedStudent.academicLevel}
+                  onChange={e => setSelectedStudent({...selectedStudent, academicLevel: e.target.value as any})}
+                  style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid var(--border)' }}
+                >
+                  <option value="high">Yüksek (Başarılı)</option>
+                  <option value="above_average">Ortalama Üstü</option>
+                  <option value="average">Ortalama</option>
+                  <option value="below_average">Ortalama Altı</option>
+                  <option value="struggling">Zorlanan (Zayıf)</option>
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Davranış</label>
+                <select 
+                  value={selectedStudent.behaviorType}
+                  onChange={e => setSelectedStudent({...selectedStudent, behaviorType: e.target.value as any})}
+                  style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid var(--border)' }}
+                >
+                  <option value="quiet">Sessiz / Sakin</option>
+                  <option value="follower">Uyumlu / Takipçi</option>
+                  <option value="active">Aktif / Katılımcı</option>
+                  <option value="leader">Lider / Dominant</option>
+                  <option value="disruptive">Gürültücü / Haylaz</option>
+                </select>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Yanına Oturmak İstediği</label>
+                <input 
+                  type="text" 
+                  value={selectedStudent.friends.join(', ')} 
+                  onChange={e => setSelectedStudent({...selectedStudent, friends: e.target.value.split(',').map(s=>s.trim()).filter(Boolean)})}
+                  placeholder="İsimleri virgülle ayırın"
+                  style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid var(--border)' }}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Uzak Durması Gereken (Kavgalı)</label>
+                <input 
+                  type="text" 
+                  value={selectedStudent.avoidStudents.join(', ')} 
+                  onChange={e => setSelectedStudent({...selectedStudent, avoidStudents: e.target.value.split(',').map(s=>s.trim()).filter(Boolean)})}
+                  placeholder="İsimleri virgülle ayırın"
+                  style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid var(--border)' }}
+                />
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Dönem Notları (AI için Ek Bilgiler)</label>
+              <textarea 
+                rows={4}
+                value={selectedStudent.notes || ''}
+                onChange={e => setSelectedStudent({...selectedStudent, notes: e.target.value})}
+                placeholder="Öğrenci hakkında gözlemler, veli aramaları veya sınıf içi davranış kayıtları..."
+                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border)', resize: 'vertical', fontFamily: 'inherit' }}
+              />
+            </div>
+
+            <button 
+              onClick={() => handleUpdateStudent(selectedStudent)}
+              style={{ width: '100%', padding: '12px', background: 'var(--primary-dark)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 800, cursor: 'pointer' }}
+            >
+              Kaydet
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
