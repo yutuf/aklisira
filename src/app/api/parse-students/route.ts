@@ -26,7 +26,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Lütfen geçerli bir metin girin.' }, { status: 400 });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY || "AIzaSyBv9lt6KyNKn2NBdTYqCxt5p3m4f8KdWCc";
 
     if (!apiKey) {
       return NextResponse.json(
