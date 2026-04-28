@@ -55,10 +55,14 @@ export default function Dashboard() {
   const syncPending = useRef(false);
   const [user, setUser] = useState<any>(null);
 
-  // Input state
   const [inputMode, setInputMode] = useState<'csv' | 'smart'>('smart');
   const [smartText, setSmartText] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  
+  // AI Rate Limit State
+  const [aiUsage, setAiUsage] = useState(0);
+  const [showLimitModal, setShowLimitModal] = useState(false);
+  const aiLimit = user ? 10 : 3;
   const { isListening, isProcessing, transcript, startListening, stopListening, isSupported, setTranscript } = useVoiceInput();
 
   // Load active class into local state when it changes
@@ -115,6 +119,17 @@ export default function Dashboard() {
         setUser(data.user);
       }
     });
+
+    // Initialize AI Usage
+    try {
+      const today = new Date().toDateString();
+      const usageData = JSON.parse(localStorage.getItem('aklisira_ai_usage') || '{}');
+      if (usageData.date === today) {
+        setAiUsage(usageData.count || 0);
+      } else {
+        localStorage.setItem('aklisira_ai_usage', JSON.stringify({ date: today, count: 0 }));
+      }
+    } catch {}
   }, []);
 
   const handleLogout = async () => {
@@ -136,6 +151,12 @@ export default function Dashboard() {
 
   const handleSmartParse = async () => {
     if (!smartText.trim()) return;
+    
+    if (aiUsage >= aiLimit) {
+      setShowLimitModal(true);
+      return;
+    }
+
     setIsOptimizing(true); // Re-using this for loading state
     
     try {
@@ -162,6 +183,11 @@ export default function Dashboard() {
         const rows = Math.ceil(total / layout.cols);
         setLayout(prev => ({ ...prev, rows: Math.max(rows, prev.rows) }));
         logVisitorAction('text_parse_gemini', { studentCount: data.students.length });
+        
+        // Increment usage
+        const newUsage = aiUsage + 1;
+        setAiUsage(newUsage);
+        localStorage.setItem('aklisira_ai_usage', JSON.stringify({ date: new Date().toDateString(), count: newUsage }));
       }
       setSmartText("");
     } catch (err) {
@@ -473,6 +499,12 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Yapay Zeka Asistanı</span>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 800, color: aiUsage >= aiLimit ? 'var(--danger)' : 'var(--primary)', background: aiUsage >= aiLimit ? 'rgba(239,68,68,0.1)' : 'rgba(74,222,128,0.1)', padding: '2px 8px', borderRadius: '50px' }}>
+                      ⚡ {Math.max(0, aiLimit - aiUsage)} / {aiLimit} Hak
+                    </span>
+                  </div>
                   {isListening && (
                     <div className="recording-banner">
                       <div className="recording-dot" />
@@ -847,6 +879,39 @@ export default function Dashboard() {
             >
               Kaydet
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* ─── AI Limit Reached Modal ─── */}
+      {showLimitModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 400, padding: '16px' }}>
+          <div className="animate-slide-up" style={{ background: 'white', borderRadius: '24px', padding: '32px', width: '100%', maxWidth: '420px', boxShadow: 'var(--shadow-xl)', textAlign: 'center' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '16px' }}>⚡</div>
+            <h2 style={{ margin: '0 0 12px', fontWeight: 900, color: 'var(--text-dark)', fontSize: '1.4rem' }}>
+              Yapay Zeka Hakkınız Doldu
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.5, marginBottom: '24px' }}>
+              {!user 
+                ? "Misafir kullanıcılar için günlük 3 olan yapay zeka analiz hakkınızı doldurdunuz. Sınırsız özellikler ve günlük 10 hak için hemen ücretsiz kayıt olun!"
+                : "Günlük 10 olan ücretsiz yapay zeka analiz hakkınızı doldurdunuz. Sınırsız kullanım için çok yakında Pro pakete geçebileceksiniz!"}
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {!user && (
+                <button 
+                  onClick={() => window.location.href = '/login'}
+                  style={{ width: '100%', padding: '14px', background: 'var(--primary-gradient)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', boxShadow: '0 4px 12px rgba(74, 222, 128, 0.3)' }}
+                >
+                  Ücretsiz Kayıt Ol
+                </button>
+              )}
+              <button 
+                onClick={() => setShowLimitModal(false)}
+                style={{ width: '100%', padding: '14px', background: 'transparent', color: 'var(--text-muted)', border: '2px solid var(--border-light)', borderRadius: '12px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}
+              >
+                Kapat
+              </button>
+            </div>
           </div>
         </div>
       )}

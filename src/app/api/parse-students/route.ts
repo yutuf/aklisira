@@ -2,8 +2,24 @@ import { NextResponse } from 'next/server';
 
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
+// Basit Memory-based IP Rate Limiter (Spam Koruması)
+const ipCache = new Map<string, { count: number, resetAt: number }>();
+
 export async function POST(req: Request) {
   try {
+    const ip = req.headers.get('x-forwarded-for') || 'unknown';
+    const now = Date.now();
+    const rateData = ipCache.get(ip);
+    
+    if (rateData && now < rateData.resetAt) {
+      if (rateData.count >= 15) { // 15 istek / dakika sınırı
+        return NextResponse.json({ error: 'Çok fazla istek gönderdiniz. Lütfen 1 dakika bekleyin.' }, { status: 429 });
+      }
+      rateData.count++;
+    } else {
+      ipCache.set(ip, { count: 1, resetAt: now + 60000 }); // 1 minute window
+    }
+
     const { text } = await req.json();
 
     if (!text || text.trim().length < 5) {
