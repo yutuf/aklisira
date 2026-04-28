@@ -62,7 +62,7 @@ export default function Dashboard() {
   // AI Rate Limit State
   const [aiUsage, setAiUsage] = useState(0);
   const [showLimitModal, setShowLimitModal] = useState(false);
-  const aiLimit = user ? 10 : 3;
+  const aiLimit = user ? 50 : 10;
   const { isListening, isProcessing, transcript, startListening, stopListening, isSupported, setTranscript } = useVoiceInput();
 
   // Load active class into local state when it changes
@@ -170,7 +170,8 @@ export default function Dashboard() {
       
       if (!response.ok) {
         // Fallback to local parser if API fails or no key
-        console.warn("API failed, falling back to local parser", data.error);
+        console.warn("API failed, falling back to local parser", data);
+        alert(`Yapay zeka servisi meşgul (Hata ${response.status}). Basit ayrıştırıcı kullanılıyor.`);
         const parsed = parseNaturalLanguage(smartText);
         setStudents(prev => [...prev, ...parsed]);
         const total = students.length + parsed.length;
@@ -893,8 +894,8 @@ export default function Dashboard() {
             </h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.5, marginBottom: '24px' }}>
               {!user 
-                ? "Misafir kullanıcılar için günlük 3 olan yapay zeka analiz hakkınızı doldurdunuz. Sınırsız özellikler ve günlük 10 hak için hemen ücretsiz kayıt olun!"
-                : "Günlük 10 olan ücretsiz yapay zeka analiz hakkınızı doldurdunuz. Sınırsız kullanım için çok yakında Pro pakete geçebileceksiniz!"}
+                ? "Misafir kullanıcılar için günlük 10 olan yapay zeka analiz hakkınızı doldurdunuz. Sınırsız özellikler ve günlük 50 hak için hemen ücretsiz kayıt olun!"
+                : "Günlük 50 olan ücretsiz yapay zeka analiz hakkınızı doldurdunuz. Sınırsız kullanım için çok yakında Pro pakete geçebileceksiniz!"}
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {!user && (
