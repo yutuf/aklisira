@@ -29,8 +29,12 @@ interface RoomAssignment {
   seats: ExamSeat[];
 }
 
-// Assign exam version based on position (4-version kelebek pattern)
-const getExamVersion = (row: number, col: number): 'A' | 'B' | 'C' | 'D' => {
+// Assign exam version based on position
+const getExamVersion = (row: number, col: number, pattern: string): 'A' | 'B' | 'C' | 'D' => {
+  if (pattern === 'col-ab') return col % 2 === 0 ? 'A' : 'B';
+  if (pattern === 'row-ab') return row % 2 === 0 ? 'A' : 'B';
+  
+  // kelebek (default)
   const r = row % 2;
   const c = col % 2;
   if (r === 0 && c === 0) return 'A';
@@ -46,8 +50,16 @@ const examVersionColors: Record<string, { bg: string; border: string; text: stri
   D: { bg: '#fae8ff', border: '#d946ef', text: '#a21caf' },
 };
 
-export const ExamMode: React.FC = () => {
-  const [classes, setClasses] = useState<ExamClass[]>([]);
+interface ExamModeProps {
+  activeClass?: { id: string; name: string; students: string[] };
+}
+
+export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
+  const [classes, setClasses] = useState<ExamClass[]>(
+    activeClass && activeClass.students.length > 0 
+      ? [{ id: activeClass.id, name: activeClass.name, students: activeClass.students }] 
+      : []
+  );
   const [rooms, setRooms] = useState<ExamRoom[]>([
     { id: 'r1', name: 'Salon 1', capacity: 30, rows: 5, cols: 6 },
     { id: 'r2', name: 'Salon 2', capacity: 30, rows: 5, cols: 6 },
@@ -56,6 +68,8 @@ export const ExamMode: React.FC = () => {
   const [className, setClassName] = useState('');
   const [results, setResults] = useState<RoomAssignment[]>([]);
   const [selectedRoom, setSelectedRoom] = useState<number>(0);
+  const [pattern, setPattern] = useState<'kelebek' | 'col-ab' | 'row-ab'>('kelebek');
+  const [draggedSeat, setDraggedSeat] = useState<{r: number, c: number} | null>(null);
 
   // Add a class with its student list
   const addClass = () => {
@@ -122,7 +136,7 @@ export const ExamMode: React.FC = () => {
             className: shuffled[studentIdx].className,
             row: r,
             col: c,
-            examVersion: getExamVersion(r, c),
+            examVersion: getExamVersion(r, c, pattern),
           });
           studentIdx++;
         }
@@ -341,6 +355,24 @@ export const ExamMode: React.FC = () => {
           </button>
         </div>
 
+        {/* Pattern Config */}
+        <div className="card animate-fade-in">
+          <div className="card-header">
+            <span>📝 Sınav Tipi</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <button onClick={() => setPattern('kelebek')} style={{ padding: '8px', borderRadius: '6px', border: pattern === 'kelebek' ? '1.5px solid var(--primary)' : '1px solid var(--border)', background: pattern === 'kelebek' ? 'var(--primary-pale)' : 'white', cursor: 'pointer', textAlign: 'left', fontSize: '0.8rem', fontWeight: 600 }}>
+              🦋 Kelebek (A, B, C, D)
+            </button>
+            <button onClick={() => setPattern('col-ab')} style={{ padding: '8px', borderRadius: '6px', border: pattern === 'col-ab' ? '1.5px solid var(--primary)' : '1px solid var(--border)', background: pattern === 'col-ab' ? 'var(--primary-pale)' : 'white', cursor: 'pointer', textAlign: 'left', fontSize: '0.8rem', fontWeight: 600 }}>
+              📊 Sütun A / B
+            </button>
+            <button onClick={() => setPattern('row-ab')} style={{ padding: '8px', borderRadius: '6px', border: pattern === 'row-ab' ? '1.5px solid var(--primary)' : '1px solid var(--border)', background: pattern === 'row-ab' ? 'var(--primary-pale)' : 'white', cursor: 'pointer', textAlign: 'left', fontSize: '0.8rem', fontWeight: 600 }}>
+              ➖ Satır A / B
+            </button>
+          </div>
+        </div>
+
         {/* Run Button */}
         <button
           onClick={runKelebek}
@@ -456,7 +488,7 @@ export const ExamMode: React.FC = () => {
                   {Array.from({ length: results[selectedRoom].room.rows }).map((_, rIdx) =>
                     Array.from({ length: results[selectedRoom].room.cols }).map((_, cIdx) => {
                       const seat = results[selectedRoom].seats.find(s => s.row === rIdx && s.col === cIdx);
-                      const version = getExamVersion(rIdx, cIdx);
+                      const version = getExamVersion(rIdx, cIdx, pattern);
                       const vc = examVersionColors[version];
 
                       if (!seat) {
@@ -472,12 +504,46 @@ export const ExamMode: React.FC = () => {
                       }
 
                       return (
-                        <div key={`${rIdx}-${cIdx}`} style={{
+                        <div key={`${rIdx}-${cIdx}`} 
+                          draggable
+                          onDragStart={(e) => {
+                            e.dataTransfer.setData('text/plain', JSON.stringify({ rIdx, cIdx }));
+                            setDraggedSeat({ r: rIdx, c: cIdx });
+                          }}
+                          onDragEnd={() => setDraggedSeat(null)}
+                          onDragOver={(e) => e.preventDefault()}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            try {
+                              const source = JSON.parse(e.dataTransfer.getData('text/plain'));
+                              if (source.r === rIdx && source.c === cIdx) return;
+                              // Swap
+                              const newResults = [...results];
+                              const roomSeats = newResults[selectedRoom].seats;
+                              const sourceSeatIndex = roomSeats.findIndex(s => s.row === source.r && s.col === source.c);
+                              const targetSeatIndex = roomSeats.findIndex(s => s.row === rIdx && s.col === cIdx);
+                              
+                              if (sourceSeatIndex !== -1 && targetSeatIndex !== -1) {
+                                const tempName = roomSeats[sourceSeatIndex].studentName;
+                                const tempClass = roomSeats[sourceSeatIndex].className;
+                                roomSeats[sourceSeatIndex].studentName = roomSeats[targetSeatIndex].studentName;
+                                roomSeats[sourceSeatIndex].className = roomSeats[targetSeatIndex].className;
+                                roomSeats[targetSeatIndex].studentName = tempName;
+                                roomSeats[targetSeatIndex].className = tempClass;
+                                setResults(newResults);
+                              }
+                            } catch {}
+                          }}
+                          style={{
                           padding: '8px 6px', borderRadius: 'var(--radius-sm)',
                           border: `2px solid ${vc.border}`, background: vc.bg,
                           textAlign: 'center', position: 'relative',
                           minHeight: '55px', display: 'flex', flexDirection: 'column',
                           justifyContent: 'center', gap: '3px',
+                          cursor: 'grab',
+                          opacity: draggedSeat?.r === rIdx && draggedSeat?.c === cIdx ? 0.4 : 1,
+                          transform: draggedSeat?.r === rIdx && draggedSeat?.c === cIdx ? 'scale(0.95)' : 'none',
+                          transition: 'transform 0.1s, opacity 0.1s',
                         }}>
                           <div style={{
                             position: 'absolute', top: '3px', right: '5px',

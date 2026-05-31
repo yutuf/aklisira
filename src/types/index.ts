@@ -7,6 +7,20 @@ export type HeightCategory = 'short' | 'average' | 'tall';
 export type VisionNeeds = 'none' | 'glasses' | 'front_required';
 export type HearingNeeds = 'none' | 'partial' | 'front_required';
 
+export type AttendanceStatus = 'present' | 'absent' | 'late' | 'excused';
+
+export interface AttendanceRecord {
+  date: string;
+  status: AttendanceStatus;
+}
+
+export interface Observation {
+  id: string;
+  date: string;
+  type: 'academic' | 'behavior' | 'parent' | 'general';
+  text: string;
+}
+
 export interface Student {
   id: string;
   name: string;
@@ -24,6 +38,16 @@ export interface Student {
   hearingNeeds?: HearingNeeds;
   gender?: string;
   notes?: string;
+  observations?: Observation[];
+  attendance?: AttendanceRecord[];
+  badges?: Badge[];
+}
+
+export interface Badge {
+  id: string;
+  type: 'star' | 'academic' | 'behavior' | 'helper';
+  date: string;
+  reason: string;
 }
 
 export interface Seat {
@@ -49,3 +73,29 @@ export interface SeatingAssignment {
 }
 
 export type LayoutType = 'grid' | 'paired' | 'u-shape' | 'cluster' | 'chevron';
+
+export type DayOfWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+
+export interface Lesson {
+  id: string;
+  subject: string;
+  classId: string;
+  day: DayOfWeek;
+  startTime: string; // "HH:mm"
+  endTime: string; // "HH:mm"
+  color?: string;
+}
+
+export interface WeeklySchedule {
+  lessons: Lesson[];
+}
+
+export interface ParentMeeting {
+  id: string;
+  studentId: string;
+  date: string; // "YYYY-MM-DD"
+  time: string; // "HH:mm"
+  topic: string;
+  status: 'scheduled' | 'completed' | 'cancelled';
+  notes?: string;
+}

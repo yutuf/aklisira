@@ -1,11 +1,14 @@
-"use client";
 import React, { useState } from 'react';
-import { ClassroomLayout, SeatingAssignment } from '../types';
+import { ClassroomLayout, SeatingAssignment, AttendanceStatus } from '../types';
 
 interface SeatingGridProps {
     layout: ClassroomLayout;
     assignments: SeatingAssignment[];
     layoutType?: string;
+    onAttendanceUpdate?: (studentId: string, status: AttendanceStatus) => void;
+    attendanceDate?: string;
+    isPrivacyMode?: boolean;
+    onSeatMove?: (sourceStudentId: string, targetRow: number, targetCol: number) => void;
 }
 
 const getBehaviorLabel = (type: string) => {
@@ -84,8 +87,41 @@ const getLearningLabel = (l?: string) => {
     }
 };
 
-export const SeatingGrid: React.FC<SeatingGridProps> = ({ layout, assignments, layoutType = 'grid' }) => {
+export const SeatingGrid: React.FC<SeatingGridProps> = ({ 
+    layout, 
+    assignments, 
+    layoutType = 'grid', 
+    onAttendanceUpdate,
+    attendanceDate = new Date().toLocaleDateString('tr-TR'),
+    isPrivacyMode = false,
+    onSeatMove
+}) => {
     const [hoveredStudent, setHoveredStudent] = useState<string | null>(null);
+    const [draggedStudentId, setDraggedStudentId] = useState<string | null>(null);
+    const [contextMenu, setContextMenu] = useState<{ x: number, y: number, studentId: string } | null>(null);
+
+    const handleContextMenu = (e: React.MouseEvent, studentId: string) => {
+        e.preventDefault();
+        setContextMenu({ x: e.clientX, y: e.clientY, studentId });
+    };
+
+    const markAttendance = (status: AttendanceStatus) => {
+        if (contextMenu && onAttendanceUpdate) {
+            onAttendanceUpdate(contextMenu.studentId, status);
+        }
+        setContextMenu(null);
+    };
+
+    const getAttendanceMarker = (student: any) => {
+        const record = student.attendance?.find((a: any) => a.date === attendanceDate);
+        if (!record) return null;
+        switch (record.status) {
+            case 'absent': return { label: 'GELMEDİ', color: '#dc2626', icon: '❌' };
+            case 'late': return { label: 'GEÇ', color: '#f59e0b', icon: '⏳' };
+            case 'excused': return { label: 'İZİNLİ', color: '#0369a1', icon: '📄' };
+            default: return null;
+        }
+    };
 
     // Build student placement grid
     const grid: (any | null)[][] = Array(layout.rows).fill(null).map(() => Array(layout.cols).fill(null));
@@ -100,7 +136,19 @@ export const SeatingGrid: React.FC<SeatingGridProps> = ({ layout, assignments, l
         if (!student) {
             if (isGhost) return null; // Don't render ghosts for non-grid layouts
             return (
-                <div key={`${rIndex}-${cIndex}`} className="seat-cell empty" style={{ opacity: 0.25, minHeight: '60px' }}>
+                <div 
+                    key={`${rIndex}-${cIndex}`} 
+                    className="seat-cell empty" 
+                    style={{ opacity: 0.25, minHeight: '60px' }}
+                    onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }}
+                    onDrop={(e) => {
+                        e.preventDefault();
+                        const sourceId = e.dataTransfer.getData('text/plain');
+                        if (sourceId && onSeatMove) {
+                            onSeatMove(sourceId, rIndex, cIndex);
+                        }
+                    }}
+                >
                     <span style={{ color: 'var(--text-muted)', fontSize: '0.6rem' }}>·</span>
                 </div>
             );
@@ -109,33 +157,77 @@ export const SeatingGrid: React.FC<SeatingGridProps> = ({ layout, assignments, l
             <div
                 key={`${rIndex}-${cIndex}`}
                 className="seat-cell occupied"
+                draggable={!isPrivacyMode}
+                onDragStart={(e) => {
+                    e.dataTransfer.setData('text/plain', student.id);
+                    e.dataTransfer.effectAllowed = 'move';
+                    setDraggedStudentId(student.id);
+                }}
+                onDragEnd={() => setDraggedStudentId(null)}
+                onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }}
+                onDrop={(e) => {
+                    e.preventDefault();
+                    const sourceId = e.dataTransfer.getData('text/plain');
+                    if (sourceId && sourceId !== student.id && onSeatMove) {
+                        onSeatMove(sourceId, rIndex, cIndex);
+                    }
+                }}
                 onMouseEnter={() => setHoveredStudent(student.id)}
                 onMouseLeave={() => setHoveredStudent(null)}
-                style={{ position: 'relative' }}
+                onContextMenu={(e) => handleContextMenu(e, student.id)}
+                style={{ 
+                    position: 'relative',
+                    cursor: isPrivacyMode ? 'context-menu' : 'grab',
+                    opacity: draggedStudentId === student.id ? 0.4 : 1,
+                    transform: draggedStudentId === student.id ? 'scale(0.95)' : 'none',
+                    transition: 'transform 0.1s, opacity 0.1s',
+                    background: getAttendanceMarker(student) ? `${getAttendanceMarker(student)?.color}15` : undefined,
+                    borderColor: getAttendanceMarker(student) ? getAttendanceMarker(student)?.color : undefined
+                }}
             >
+                {getAttendanceMarker(student) && (
+                    <div style={{
+                        position: 'absolute', top: '-6px', right: '-6px',
+                        background: getAttendanceMarker(student)?.color,
+                        color: 'white', fontSize: '0.55rem', fontWeight: 900,
+                        padding: '2px 5px', borderRadius: '4px', zIndex: 3,
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                    }}>
+                        {getAttendanceMarker(student)?.label}
+                    </div>
+                )}
                 <div className="seat-row-label">
                     {rIndex === 0 ? "Ön" : `${rIndex + 1}.`}
                 </div>
                 <div style={{ textAlign: 'center', marginTop: '2px' }}>
                     <span className="seat-name" title={student.name}>{student.name}</span>
                     <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '4px', alignItems: 'center' }}>
-                        <span style={{
-                            fontSize: '0.55rem', fontWeight: 700, color: 'white',
-                            background: getBehaviorLabel(student.behaviorType).color,
-                            padding: '1px 4px', borderRadius: '3px',
-                        }}>
-                            {getBehaviorLabel(student.behaviorType).label}
-                        </span>
-                        <span style={{
-                            fontSize: '0.65rem', color: getAcademicLabel(student.academicLevel).color, fontWeight: 700,
-                        }}>
-                            {getAcademicLabel(student.academicLevel).label}
-                        </span>
-                        {getSpecialLabel(student.specialNeeds) && (
-                            <span style={{
-                                fontSize: '0.5rem', fontWeight: 700, color: 'white',
-                                background: '#dc2626', padding: '0px 3px', borderRadius: '3px',
-                            }}>⚕</span>
+                        {!isPrivacyMode && (
+                            <>
+                                <span style={{
+                                    fontSize: '0.55rem', fontWeight: 700, color: 'white',
+                                    background: getBehaviorLabel(student.behaviorType).color,
+                                    padding: '1px 4px', borderRadius: '3px',
+                                }}>
+                                    {getBehaviorLabel(student.behaviorType).label}
+                                </span>
+                                <span style={{
+                                    fontSize: '0.65rem', color: getAcademicLabel(student.academicLevel).color, fontWeight: 700,
+                                }}>
+                                    {getAcademicLabel(student.academicLevel).label}
+                                </span>
+                                {getSpecialLabel(student.specialNeeds) && (
+                                    <span style={{
+                                        fontSize: '0.5rem', fontWeight: 700, color: 'white',
+                                        background: '#dc2626', padding: '0px 3px', borderRadius: '3px',
+                                    }}>⚕</span>
+                                )}
+                            </>
+                        )}
+                        {isPrivacyMode && (
+                            <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 500 }}>
+                                {student.name.split(' ').length > 1 ? student.name.split(' ')[0] : 'Öğrenci'}
+                            </span>
                         )}
                     </div>
                 </div>
@@ -355,9 +447,23 @@ export const SeatingGrid: React.FC<SeatingGridProps> = ({ layout, assignments, l
         <div className="card" style={{ padding: '24px' }}>
             <div className="card-header">
                 <span>📐 Sınıf Düzeni — {layoutLabels[layoutType] || 'Düz Sıra'}</span>
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 400 }}>
-                    {assignments.length} öğrenci
-                </span>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 400 }}>
+                        {assignments.length} öğrenci
+                    </span>
+                    <button 
+                        onClick={() => {
+                            const absent = assignments.filter(a => a.student.attendance?.find(r => r.date === attendanceDate && r.status === 'absent')).map(a => a.student.name);
+                            const late = assignments.filter(a => a.student.attendance?.find(r => r.date === attendanceDate && r.status === 'late')).map(a => a.student.name);
+                            const text = `AklıSıra Yoklama Raporu (${attendanceDate})\n-------------------\nGELMEYENLER (${absent.length}): ${absent.join(', ') || 'Yok'}\nGEÇ GELENLER (${late.length}): ${late.join(', ') || 'Yok'}`;
+                            navigator.clipboard.writeText(text);
+                            alert("Yoklama raporu kopyalandı!");
+                        }}
+                        style={{ background: 'var(--bg-muted)', border: '1px solid var(--border)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer' }}
+                    >
+                        📋 Yoklama Fişini Kopyala
+                    </button>
+                </div>
             </div>
 
             {/* Teacher desk */}
@@ -384,7 +490,35 @@ export const SeatingGrid: React.FC<SeatingGridProps> = ({ layout, assignments, l
                 <span><span style={{ color: '#0d6e64' }}>▲</span> Yüksek <span style={{ color: '#d97706' }}>▽</span> Düşük</span>
                 <span style={{ opacity: 0.3 }}>|</span>
                 <span><span style={{ color: '#dc2626', fontWeight: 700 }}>⚕</span> Özel</span>
+                <span style={{ opacity: 0.3 }}>|</span>
+                <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>💡 İpuçları:</span>
+                <span style={{ fontSize: '0.65rem' }}>Yer değiştirmek için öğrenciyi <strong>SÜRÜKLE BIRAK</strong>. Yoklama için <strong>SAĞ TIKLA</strong>.</span>
             </div>
+
+            {/* Context Menu */}
+            {contextMenu && (
+                <>
+                    <div 
+                        style={{ position: 'fixed', inset: 0, zIndex: 999 }} 
+                        onClick={() => setContextMenu(null)}
+                        onContextMenu={(e) => { e.preventDefault(); setContextMenu(null); }}
+                    />
+                    <div style={{
+                        position: 'fixed', top: contextMenu.y, left: contextMenu.x,
+                        background: 'white', border: '1px solid var(--border)',
+                        borderRadius: '12px', boxShadow: 'var(--shadow-lg)',
+                        zIndex: 1000, padding: '6px', minWidth: '160px',
+                        display: 'flex', flexDirection: 'column', gap: '2px',
+                        animation: 'fadeIn 0.1s ease-out'
+                    }}>
+                        <div style={{ padding: '6px 10px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', borderBottom: '1px solid var(--border-light)', marginBottom: '4px' }}>YOKLAMA DURUMU</div>
+                        <button onClick={() => markAttendance('present')} style={{ textAlign: 'left', padding: '8px 12px', border: 'none', background: 'transparent', cursor: 'pointer', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600 }} onMouseOver={e=>e.currentTarget.style.background='var(--bg-muted)'} onMouseOut={e=>e.currentTarget.style.background='transparent'}>✅ Burada (Mevcut)</button>
+                        <button onClick={() => markAttendance('absent')} style={{ textAlign: 'left', padding: '8px 12px', border: 'none', background: 'transparent', cursor: 'pointer', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600, color: '#dc2626' }} onMouseOver={e=>e.currentTarget.style.background='var(--danger-pale)'} onMouseOut={e=>e.currentTarget.style.background='transparent'}>❌ Gelmedi (Absent)</button>
+                        <button onClick={() => markAttendance('late')} style={{ textAlign: 'left', padding: '8px 12px', border: 'none', background: 'transparent', cursor: 'pointer', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600, color: '#f59e0b' }} onMouseOver={e=>e.currentTarget.style.background='var(--accent-pale)'} onMouseOut={e=>e.currentTarget.style.background='transparent'}>⏳ Geç Geldi</button>
+                        <button onClick={() => markAttendance('excused')} style={{ textAlign: 'left', padding: '8px 12px', border: 'none', background: 'transparent', cursor: 'pointer', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600, color: '#0369a1' }} onMouseOver={e=>e.currentTarget.style.background='rgba(3,105,161,0.1)'} onMouseOut={e=>e.currentTarget.style.background='transparent'}>📄 İzinli</button>
+                    </div>
+                </>
+            )}
         </div>
     );
 };
