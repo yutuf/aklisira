@@ -65,7 +65,7 @@ function runGa(students: Student[], seed: number): LayoutMetrics {
   });
 }
 
-function avgMetrics(list: LayoutMetrics[]) {
+function avgMetrics(list: LayoutMetrics[]): LayoutMetrics {
   const keys: (keyof LayoutMetrics)[] = [
     'academicBalance',
     'socialCompatibility',
@@ -73,11 +73,11 @@ function avgMetrics(list: LayoutMetrics[]) {
     'physicalAccessibility',
     'overallScore',
   ];
-  const out: Record<string, number> = {};
+  const out = {} as LayoutMetrics;
   for (const k of keys) {
     out[k] = Math.round(list.reduce((s, m) => s + m[k], 0) / list.length);
   }
-  return out as LayoutMetrics;
+  return out;
 }
 
 function benchmarkDataset(name: string, students: Student[]) {
