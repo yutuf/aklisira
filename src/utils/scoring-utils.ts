@@ -1,5 +1,5 @@
-import { SeatingAssignment } from '../types';
-import { getAcademicScore, getBehaviorScore, calculateCompatibility } from './student-utils';
+import { SeatingAssignment, Student } from '../types';
+import { getAcademicScore, calculateCompatibility } from './student-utils';
 
 export interface LayoutMetrics {
     academicBalance: number;
@@ -9,140 +9,211 @@ export interface LayoutMetrics {
     overallScore: number;
 }
 
-export const calculateMetrics = (assignments: SeatingAssignment[]): LayoutMetrics => {
-    let academicBalance = 0;
-    let socialCompatibility = 0;
-    let behavioralHarmony = 0;
-    let physicalAccessibility = 0;
+const NEIGHBOR_DIST = 1.5;
 
-    // --- 1. Academic Balance ---
-    const academicScores = assignments.map(a => getAcademicScore(a.student.academicLevel));
-    const academicMean = academicScores.reduce((a, b) => a + b, 0) / (academicScores.length || 1);
-    const academicVariance = academicScores.reduce((sum, score) => sum + Math.pow(score - academicMean, 2), 0) / (academicScores.length || 1);
+function neighborPairs(assignments: SeatingAssignment[]): [SeatingAssignment, SeatingAssignment][] {
+    const pairs: [SeatingAssignment, SeatingAssignment][] = [];
+    for (let i = 0; i < assignments.length; i++) {
+        for (let j = i + 1; j < assignments.length; j++) {
+            const a1 = assignments[i];
+            const a2 = assignments[j];
+            const dist = Math.hypot(a1.row - a2.row, a1.col - a2.col);
+            if (dist <= NEIGHBOR_DIST) pairs.push([a1, a2]);
+        }
+    }
+    return pairs;
+}
 
-    let baseBalance = Math.max(0, 100 - academicVariance * 10);
-    let academicStrategicBonus = 0;
+function areNeighbors(a: SeatingAssignment, b: SeatingAssignment): boolean {
+    return Math.hypot(a.row - b.row, a.col - b.col) <= NEIGHBOR_DIST;
+}
 
-    assignments.forEach((a1, i) => {
-        assignments.forEach((a2, j) => {
-            if (i === j) return;
-            const dist = Math.sqrt(Math.pow(a1.row - a2.row, 2) + Math.pow(a1.col - a2.col, 2));
-            if (dist <= 1.5) {
-                const diff = Math.abs(getAcademicScore(a1.student.academicLevel) - getAcademicScore(a2.student.academicLevel));
-                if (diff === 2) academicStrategicBonus += 5;
-                else if (diff === 1) academicStrategicBonus += 3;
+function collectFriendPairs(students: Student[]): [string, string][] {
+    const pairs: [string, string][] = [];
+    const seen = new Set<string>();
+    for (const s of students) {
+        for (const friend of s.friends) {
+            const key = [s.name, friend].sort().join('|');
+            if (!seen.has(key)) {
+                seen.add(key);
+                pairs.push([s.name, friend]);
             }
-        });
-    });
+        }
+    }
+    return pairs;
+}
 
-    academicBalance = Math.min(100, baseBalance + academicStrategicBonus);
+function findAssignmentByName(assignments: SeatingAssignment[], name: string): SeatingAssignment | undefined {
+    return assignments.find(a => a.student.name === name);
+}
 
-    // --- 2. Social Compatibility ---
-    let totalCompatibility = 0;
-    let compatibilityCount = 0;
-    let maxPossibleScore = 0;
+function clampScore(score: number): number {
+    return Math.round(Math.max(0, Math.min(100, score)));
+}
 
-    assignments.forEach((a1, i) => {
-        assignments.forEach((a2, j) => {
-            if (i === j) return;
-            const dist = Math.sqrt(Math.pow(a1.row - a2.row, 2) + Math.pow(a1.col - a2.col, 2));
-            if (dist <= 1.5) {
-                const comp = calculateCompatibility(a1.student, a2.student);
-                totalCompatibility += comp;
-                compatibilityCount++;
-                maxPossibleScore += Math.max(
-                    calculateCompatibility(a1.student, a2.student),
-                    calculateCompatibility(a2.student, a1.student)
-                );
-            }
-        });
-    });
+function academicPairScore(a: SeatingAssignment, b: SeatingAssignment): number {
+    const diff = Math.abs(
+        getAcademicScore(a.student.academicLevel) - getAcademicScore(b.student.academicLevel)
+    );
+    if (diff === 1) return 100;
+    if (diff === 2) return 82;
+    if (diff === 0) return 62;
+    return 38;
+}
 
-    const currentAvg = compatibilityCount > 0 ? totalCompatibility / compatibilityCount : 0;
-    const potentialAvg = compatibilityCount > 0 ? maxPossibleScore / compatibilityCount : 0;
-    const efficiency = potentialAvg > 0 ? currentAvg / potentialAvg : 1;
-    socialCompatibility = Math.min(100, currentAvg + (efficiency * 20));
+function scoreAcademicBalance(assignments: SeatingAssignment[]): number {
+    const pairs = neighborPairs(assignments);
+    if (pairs.length === 0) return 50;
+    const total = pairs.reduce((s, [a, b]) => s + academicPairScore(a, b), 0);
+    return Math.round(total / pairs.length);
+}
 
-    // --- 3. Behavioral Harmony ---
-    const behavioralScores = assignments.map(a => getBehaviorScore(a.student.behaviorType));
-    const behavioralMean = behavioralScores.reduce((a, b) => a + b, 0) / (behavioralScores.length || 1);
+function scoreSocialCompatibility(assignments: SeatingAssignment[]): number {
+    const pairs = neighborPairs(assignments);
+    if (pairs.length === 0) return 50;
 
-    let baseHarmony = Math.max(0, 100 - Math.abs(behavioralMean - 3) * 20);
-    let diversityBonus = 0;
-    let behavioralStrategicBonus = 0;
+    let pairTotal = 0;
+    let avoidAdjacent = 0;
 
-    const behaviorTypes = assignments.map(a => a.student.behaviorType);
-    const leaders = behaviorTypes.filter(b => b === 'leader').length;
-    const quiet = behaviorTypes.filter(b => b === 'quiet').length;
-    const disruptive = behaviorTypes.filter(b => b === 'disruptive').length;
+    for (const [a, b] of pairs) {
+        const aAvoidsB = a.student.avoidStudents.includes(b.student.name);
+        const bAvoidsA = b.student.avoidStudents.includes(a.student.name);
+        if (aAvoidsB || bAvoidsA) {
+            avoidAdjacent++;
+            continue;
+        }
+        pairTotal += (calculateCompatibility(a.student, b.student) +
+            calculateCompatibility(b.student, a.student)) / 2;
+    }
 
-    if (leaders >= 2 && quiet >= 3 && disruptive <= 2) diversityBonus += 15;
+    const nonAvoidPairs = pairs.length - avoidAdjacent;
+    const avgPair = nonAvoidPairs > 0
+        ? pairTotal / nonAvoidPairs
+        : avoidAdjacent > 0 ? 10 : 35;
 
+    const students = assignments.map(a => a.student);
+    const friendPairs = collectFriendPairs(students);
+    let metFriends = 0;
+    for (const [nameA, nameB] of friendPairs) {
+        const assignA = findAssignmentByName(assignments, nameA);
+        const assignB = findAssignmentByName(assignments, nameB);
+        if (assignA && assignB && areNeighbors(assignA, assignB)) metFriends++;
+    }
+
+    const friendRatio = friendPairs.length > 0 ? metFriends / friendPairs.length : 0.5;
+    const classSize = assignments.length;
+    const unmetCount = friendPairs.length - metFriends;
+    const unmetPerFriend = classSize >= 20
+        ? 0.8 + (friendPairs.length / classSize) * 1.8
+        : 1.2 + (friendPairs.length / classSize) * 5.5;
+    const maxUnmetPenalty = classSize >= 20 ? 12 : 34;
+
+    let score = avgPair * 0.72 + friendRatio * 100 * 0.28;
+    score -= avoidAdjacent * (14 + Math.min(6, (friendPairs.length / classSize) * 8));
+    score -= Math.min(maxUnmetPenalty, unmetCount * unmetPerFriend);
+    score += metFriends * 1.5;
+
+    return clampScore(score);
+}
+
+function scoreBehavioralHarmony(assignments: SeatingAssignment[]): number {
+    let score = 66;
+    const pairs = neighborPairs(assignments);
     const cols = assignments.map(a => a.col);
     const maxCol = cols.length ? Math.max(...cols) : 0;
+    const disruptive = assignments.filter(a => a.student.behaviorType === 'disruptive');
+    const densityScale = disruptive.length >= 4 ? 0.38 : disruptive.length >= 3 ? 0.58 : 1;
 
-    assignments.forEach(a => {
-        if (a.student.behaviorType === 'leader' && a.row === 0) behavioralStrategicBonus += 10;
-        if (a.student.behaviorType === 'quiet' && (a.col === 0 || a.col === maxCol)) behavioralStrategicBonus += 8;
-    });
+    for (const [a, b] of pairs) {
+        const ba = a.student.behaviorType;
+        const bb = b.student.behaviorType;
+        if (ba === 'disruptive' && bb === 'disruptive') score -= 26 * densityScale;
+        else if (ba === 'disruptive' || bb === 'disruptive') {
+            const other = ba === 'disruptive' ? bb : ba;
+            if (other === 'active') score -= 13 * densityScale;
+            else if (other === 'quiet') score += 7;
+            else score -= 6 * densityScale;
+        }
+        if (
+            (ba === 'active' && bb === 'active') &&
+            (a.student.movementNeeds === 'high' || b.student.movementNeeds === 'high')
+        ) {
+            score -= 8;
+        }
+    }
 
-    behavioralHarmony = Math.min(100, baseHarmony + diversityBonus + behavioralStrategicBonus);
+    for (const a of assignments) {
+        if (a.student.behaviorType === 'leader' && a.row <= 1) score += 7;
+        if (a.student.behaviorType === 'quiet' && (a.col === 0 || a.col === maxCol)) score += 5;
+    }
 
-    // --- 4. Physical Accessibility (NEW) ---
+    if (disruptive.length >= 2) {
+        const rows = disruptive.map(a => a.row);
+        const spread = Math.max(...rows) - Math.min(...rows);
+        const clusterPenalty = disruptive.length <= 2 ? 14 : 10 + Math.max(0, disruptive.length - 2) * 3;
+        if (spread <= 1) score -= clusterPenalty * densityScale;
+    }
+
+    return clampScore(score);
+}
+
+function scorePhysicalAccessibility(assignments: SeatingAssignment[]): number {
     let physicalTotal = 0;
     let physicalChecks = 0;
+    const maxRow = Math.max(...assignments.map(x => x.row), 0);
 
-    assignments.forEach(a => {
+    for (const a of assignments) {
         const s = a.student;
 
-        // Vision: front_required must be in row 0 or 1
-        if (s.visionNeeds === 'front_required') {
+        if (s.visionNeeds === 'front_required' || s.specialNeeds === 'vision') {
             physicalChecks++;
-            physicalTotal += a.row <= 1 ? 100 : Math.max(0, 50 - (a.row - 1) * 25);
+            physicalTotal += a.row <= 1 ? 100 : Math.max(0, 70 - (a.row - 1) * 13);
         }
-
-        // Hearing: front_required must be in row 0 or 1
-        if (s.hearingNeeds === 'front_required') {
+        if (s.hearingNeeds === 'front_required' || s.specialNeeds === 'hearing') {
             physicalChecks++;
-            physicalTotal += a.row <= 1 ? 100 : Math.max(0, 50 - (a.row - 1) * 25);
+            physicalTotal += a.row <= 1 ? 100 : Math.max(0, 70 - (a.row - 1) * 13);
         }
-
-        // Legacy special needs vision/hearing check
-        if (s.specialNeeds === 'vision' && !s.visionNeeds) {
+        if (s.hearingNeeds === 'partial') {
             physicalChecks++;
-            physicalTotal += a.row <= 1 ? 100 : 40;
+            physicalTotal += a.row <= 2 ? 100 : 58;
         }
-        if (s.specialNeeds === 'hearing' && !s.hearingNeeds) {
-            physicalChecks++;
-            physicalTotal += a.row <= 1 ? 100 : 40;
-        }
-
-        // Height: shorter students should be closer to front
         if (s.height === 'tall') {
             physicalChecks++;
-            const maxRow = Math.max(...assignments.map(x => x.row), 0);
-            // Tall students should be in later rows
-            physicalTotal += a.row >= maxRow / 2 ? 100 : 50;
+            physicalTotal += a.row >= Math.floor(maxRow / 2) ? 100 : 38;
         }
         if (s.height === 'short') {
             physicalChecks++;
-            // Short students should be in earlier rows
-            physicalTotal += a.row <= 1 ? 100 : 60;
+            physicalTotal += a.row <= 1 ? 100 : 52;
         }
-    });
+    }
 
-    physicalAccessibility = physicalChecks > 0 ? Math.round(physicalTotal / physicalChecks) : 100;
+    return physicalChecks > 0 ? Math.round(physicalTotal / physicalChecks) : 85;
+}
 
-    // --- Overall ---
-    const overall = physicalChecks > 0
-        ? (academicBalance + socialCompatibility + behavioralHarmony + physicalAccessibility) / 4
-        : (academicBalance + socialCompatibility + behavioralHarmony) / 3;
+export const calculateMetrics = (assignments: SeatingAssignment[]): LayoutMetrics => {
+    if (assignments.length === 0) {
+        return {
+            academicBalance: 0,
+            socialCompatibility: 0,
+            behavioralHarmony: 0,
+            physicalAccessibility: 0,
+            overallScore: 0,
+        };
+    }
+
+    const academicBalance = scoreAcademicBalance(assignments);
+    const socialCompatibility = scoreSocialCompatibility(assignments);
+    const behavioralHarmony = scoreBehavioralHarmony(assignments);
+    const physicalAccessibility = scorePhysicalAccessibility(assignments);
+    const overallScore = Math.round(
+        (academicBalance + socialCompatibility + behavioralHarmony + physicalAccessibility) / 4
+    );
 
     return {
-        academicBalance: Math.round(academicBalance),
-        socialCompatibility: Math.round(socialCompatibility),
-        behavioralHarmony: Math.round(behavioralHarmony),
-        physicalAccessibility: Math.round(physicalAccessibility),
-        overallScore: Math.round(overall)
+        academicBalance,
+        socialCompatibility,
+        behavioralHarmony,
+        physicalAccessibility,
+        overallScore,
     };
 };

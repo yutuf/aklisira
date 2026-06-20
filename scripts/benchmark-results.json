@@ -1,0 +1,133 @@
+{
+  "generatedAt": "2026-06-20T08:26:51.749Z",
+  "protocol": {
+    "randomBaseline": "30 independent uniform random seat assignments",
+    "ga": "10 runs × 80 generations, population 60, seed base 20260619",
+    "layout": "5 rows × 6 columns"
+  },
+  "datasets": [
+    {
+      "name": "test_students.csv",
+      "studentCount": 23,
+      "layout": "5×6",
+      "randomTrials": 30,
+      "gaTrials": 10,
+      "gaGenerations": 80,
+      "random": {
+        "academicBalance": 76,
+        "socialCompatibility": 30,
+        "behavioralHarmony": 72,
+        "physicalAccessibility": 74,
+        "overallScore": 63
+      },
+      "gaAverage": {
+        "academicBalance": 81,
+        "socialCompatibility": 85,
+        "behavioralHarmony": 100,
+        "physicalAccessibility": 99,
+        "overallScore": 92
+      },
+      "gaBestRun": {
+        "academicBalance": 80,
+        "socialCompatibility": 86,
+        "behavioralHarmony": 100,
+        "physicalAccessibility": 100,
+        "overallScore": 92
+      },
+      "improvementRatio": 1.46
+    },
+    {
+      "name": "demo_15_students",
+      "studentCount": 15,
+      "layout": "5×6",
+      "randomTrials": 30,
+      "gaTrials": 10,
+      "gaGenerations": 80,
+      "random": {
+        "academicBalance": 76,
+        "socialCompatibility": 9,
+        "behavioralHarmony": 24,
+        "physicalAccessibility": 86,
+        "overallScore": 49
+      },
+      "gaAverage": {
+        "academicBalance": 77,
+        "socialCompatibility": 89,
+        "behavioralHarmony": 97,
+        "physicalAccessibility": 93,
+        "overallScore": 89
+      },
+      "gaBestRun": {
+        "academicBalance": 76,
+        "socialCompatibility": 92,
+        "behavioralHarmony": 100,
+        "physicalAccessibility": 94,
+        "overallScore": 91
+      },
+      "improvementRatio": 1.82
+    }
+  ],
+  "nlp": {
+    "cases": 10,
+    "attributesTested": 11,
+    "correct": 11,
+    "accuracyPercent": 100,
+    "details": [
+      {
+        "text": "Ali gürültücü ve hareketli. [behaviorType]",
+        "ok": true,
+        "got": "disruptive"
+      },
+      {
+        "text": "Ali gürültücü ve hareketli. [movementNeeds]",
+        "ok": true,
+        "got": "high"
+      },
+      {
+        "text": "Elif sessiz ve başarılı. [behaviorType]",
+        "ok": true,
+        "got": "quiet"
+      },
+      {
+        "text": "Elif sessiz ve başarılı. [academicLevel]",
+        "ok": true,
+        "got": "high"
+      },
+      {
+        "text": "Mehmet lider. [behaviorType]",
+        "ok": true,
+        "got": "leader"
+      },
+      {
+        "text": "Ayşe DEHB. [movementNeeds]",
+        "ok": true,
+        "got": "high"
+      },
+      {
+        "text": "Can gözlük kullanıyor ön sırada oturmalı. [visionNeeds]",
+        "ok": true,
+        "got": "front_required"
+      },
+      {
+        "text": "Zeynep zorlanıyor. [academicLevel]",
+        "ok": true,
+        "got": "struggling"
+      },
+      {
+        "text": "Deniz 92 puan. [academicLevel]",
+        "ok": true,
+        "got": "high"
+      },
+      {
+        "text": "Burak haylaz. [behaviorType]",
+        "ok": true,
+        "got": "disruptive"
+      },
+      {
+        "text": "Selin sessiz. [behaviorType]",
+        "ok": true,
+        "got": "quiet"
+      }
+    ]
+  }
+}

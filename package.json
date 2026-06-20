@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "benchmark": "tsx scripts/run-benchmark.ts",
+    "test": "tsx --test src/utils/scoring-utils.test.ts"
   },
   "dependencies": {
     "@fal-ai/client": "^1.10.0",
@@ -24,6 +26,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
+    "tsx": "^4.20.3",
     "typescript": "^5"
   }
 }

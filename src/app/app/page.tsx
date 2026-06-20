@@ -57,6 +57,7 @@ export default function Dashboard() {
   const [assignments, setAssignments] = useState<SeatingAssignment[]>([]);
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [generation, setGeneration] = useState(0);
+  const [fitnessHistory, setFitnessHistory] = useState<number[]>([]);
   const [currentMetrics, setCurrentMetrics] = useState<any>(null);
   const [aiExplanation, setAiExplanation] = useState("");
   const [optimizationDone, setOptimizationDone] = useState(false);
@@ -369,14 +370,19 @@ export default function Dashboard() {
     if (students.length === 0) return;
     setIsOptimizing(true);
     setGeneration(0);
+    setFitnessHistory([]);
     setAiExplanation("");
     setOptimizationDone(false);
 
     const solver = new GeneticSolver(students, layout);
     solver.initialize();
+    const initialBest = solver.getBestGenome();
+    setFitnessHistory([initialBest.fitness]);
+    setAssignments([...initialBest.assignments]);
+    setCurrentMetrics(calculateMetrics(initialBest.assignments));
 
     let gen = 0;
-    const maxGens = 50;
+    const maxGens = 60;
     const startTime = Date.now();
 
     const interval = setInterval(() => {
@@ -384,8 +390,10 @@ export default function Dashboard() {
         clearInterval(interval);
         setIsOptimizing(false);
         setOptimizationDone(true);
-        const finalResult = solver.evolve(0);
+        const finalResult = solver.getBestGenome();
+        setAssignments([...finalResult.assignments]);
         const finalMetrics = calculateMetrics(finalResult.assignments);
+        setCurrentMetrics(finalMetrics);
         setAiExplanation(generateLayoutExplanation(finalMetrics, finalResult.assignments));
         
         // Log completion
@@ -402,6 +410,7 @@ export default function Dashboard() {
       const bestGenome = solver.nextGeneration();
       setAssignments([...bestGenome.assignments]);
       setCurrentMetrics(calculateMetrics(bestGenome.assignments));
+      setFitnessHistory(prev => [...prev, bestGenome.fitness]);
       setGeneration(gen + 1);
       gen++;
     }, 100);
@@ -1088,7 +1097,52 @@ export default function Dashboard() {
                 <div className="card" style={{ borderTop: '3px solid var(--primary)' }}>
                   <div className="card-header">
                     <span>📊 Sonuçlar</span>
+                    {isOptimizing && (
+                      <span style={{ fontSize: '0.72rem', color: 'var(--primary)', fontWeight: 700 }}>
+                        Nesil {generation}/60
+                      </span>
+                    )}
                   </div>
+                  {(fitnessHistory.length > 1 || isOptimizing) && (
+                    <div className="gen-chart" aria-label="Nesil bazlı uyum grafiği">
+                      <div className="gen-chart-header">
+                        <span className="gen-chart-title">Optimizasyon İlerlemesi</span>
+                        <span className="gen-chart-value">%{fitnessHistory[fitnessHistory.length - 1] ?? 0}</span>
+                      </div>
+                      <svg className="gen-chart-svg" viewBox="0 0 280 72" preserveAspectRatio="none">
+                        <defs>
+                          <linearGradient id="genChartFill" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="rgba(20, 184, 166, 0.35)" />
+                            <stop offset="100%" stopColor="rgba(20, 184, 166, 0.02)" />
+                          </linearGradient>
+                        </defs>
+                        {[25, 50, 75].map(y => (
+                          <line key={y} x1="0" y1={72 - (y / 100) * 72} x2="280" y2={72 - (y / 100) * 72} className="gen-chart-grid" />
+                        ))}
+                        {fitnessHistory.length > 1 && (() => {
+                          const max = Math.max(...fitnessHistory, 100);
+                          const min = Math.min(...fitnessHistory, 0);
+                          const range = Math.max(max - min, 8);
+                          const points = fitnessHistory.map((v, i) => {
+                            const x = (i / Math.max(fitnessHistory.length - 1, 1)) * 280;
+                            const y = 72 - ((v - min) / range) * 64 - 4;
+                            return `${x},${y}`;
+                          }).join(' ');
+                          const area = `0,72 ${points} 280,72`;
+                          return (
+                            <>
+                              <polygon points={area} fill="url(#genChartFill)" />
+                              <polyline points={points} className="gen-chart-line" />
+                            </>
+                          );
+                        })()}
+                      </svg>
+                      <div className="gen-chart-axis">
+                        <span>0</span>
+                        <span>Nesil {generation || fitnessHistory.length - 1}</span>
+                      </div>
+                    </div>
+                  )}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <div style={{ textAlign: 'center', padding: '8px 0 12px' }}>
                       <div className="score-big">%{currentMetrics.overallScore}</div>
