@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # OpenClaw setup for the aklisira WhatsApp channel.
-# Run as root on a fresh Ubuntu 24.04 server (paste into the provider's web console).
+# Run as root/ubuntu (with sudo) on a fresh Ubuntu 24.04 server — including Oracle Cloud's
+# Always Free ARM (Ampere A1) shape, which this installer supports natively (arch-detected,
+# installs via Node/npm rather than an architecture-specific binary).
+# Paste into the provider's web console, or SSH in and run it there.
 set -euo pipefail
 
 apt-get update -y
