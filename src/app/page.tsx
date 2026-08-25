@@ -9,6 +9,10 @@ import { GeneticSolver } from '../utils/genetic-solver';
 import { SeatingGrid } from '../components/SeatingGrid';
 import { generateLayoutExplanation } from '../utils/ai-explanation-service';
 import { calculateMetrics } from '../utils/scoring-utils';
+import { AuthGate } from '../components/AuthGate';
+import { useAuth } from '../hooks/useAuth';
+
+const FREE_PLAN_STUDENT_LIMIT = 5;
 
 // ─── Visitor Log ───
 function logVisitorAction(action: string, data: Record<string, any> = {}) {
@@ -27,6 +31,11 @@ function getVisitorCount(): number {
 }
 
 export default function Dashboard() {
+  return <AuthGate>{(auth) => <DashboardInner auth={auth} />}</AuthGate>;
+}
+
+function DashboardInner({ auth }: { auth: ReturnType<typeof useAuth> }) {
+  const isFreePlan = auth.plan !== 'pro';
   const [students, setStudents] = useState<Student[]>([]);
   const [layout, setLayout] = useState<ClassroomLayout>({ rows: 5, cols: 6, seats: [] });
   const [assignments, setAssignments] = useState<SeatingAssignment[]>([]);
@@ -58,6 +67,10 @@ export default function Dashboard() {
   const handleSmartParse = () => {
     if (!smartText.trim()) return;
     const parsed = parseNaturalLanguage(smartText);
+    if (isFreePlan && students.length + parsed.length > FREE_PLAN_STUDENT_LIMIT) {
+      alert(`Ücretsiz planda en fazla ${FREE_PLAN_STUDENT_LIMIT} öğrenci ekleyebilirsiniz. Daha fazlası için Pro'ya yükseltin.`);
+      return;
+    }
     setStudents(prev => [...prev, ...parsed]);
     setSmartText("");
     const total = students.length + parsed.length;
@@ -74,6 +87,10 @@ export default function Dashboard() {
         const text = evt.target?.result as string;
         try {
           const parsed = parseStudentsCSV(text);
+          if (isFreePlan && parsed.length > FREE_PLAN_STUDENT_LIMIT) {
+            alert(`Ücretsiz planda en fazla ${FREE_PLAN_STUDENT_LIMIT} öğrenci ekleyebilirsiniz. Daha fazlası için Pro'ya yükseltin.`);
+            return;
+          }
           setStudents(parsed);
           setLayout(prev => {
             const rows = Math.ceil(parsed.length / prev.cols);
@@ -183,7 +200,7 @@ export default function Dashboard() {
       { id: 'd14', name: 'Kerem', academicLevel: 'average', behaviorType: 'active', movementNeeds: 'moderate', specialNeeds: 'none', friends: ['Can'], avoidStudents: [], hearingNeeds: 'partial', height: 'average' },
       { id: 'd15', name: 'Nil', academicLevel: 'high', behaviorType: 'quiet', movementNeeds: 'low', specialNeeds: 'none', friends: ['Elif', 'Zeynep'], avoidStudents: [], learningStyle: 'readwrite', height: 'short' },
     ];
-    setStudents(demoStudents);
+    setStudents(isFreePlan ? demoStudents.slice(0, FREE_PLAN_STUDENT_LIMIT) : demoStudents);
     setAssignments([]);
     setCurrentMetrics(null);
     setAiExplanation("");
@@ -209,6 +226,25 @@ export default function Dashboard() {
               <div className="visitor-counter" style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.9)' }}>
                 <div className="visitor-dot" style={{ background: '#4ade80' }} />
                 {demoCount} optimizasyon tamamlandı
+              </div>
+            )}
+            {auth.configured && auth.session && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.85)' }}>
+                  {isFreePlan ? 'Ücretsiz Plan' : 'Pro Plan'} · {auth.session.user.email}
+                </span>
+                {isFreePlan && (
+                  <button
+                    onClick={() => alert('Ödeme entegrasyonu yakında! Pro plan için bizimle iletişime geçin.')}
+                    className="btn-accent"
+                    style={{ fontSize: '0.78rem', padding: '6px 12px' }}
+                  >
+                    Pro'ya Yükselt
+                  </button>
+                )}
+                <button onClick={() => auth.signOut()} className="btn-secondary" style={{ fontSize: '0.78rem', padding: '6px 12px' }}>
+                  Çıkış
+                </button>
               </div>
             )}
           </div>
