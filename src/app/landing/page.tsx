@@ -488,6 +488,9 @@ export default function LandingPage() {
               Kayıtsız Dene
             </Link>
           </div>
+          <p style={{ marginTop: "20px", fontSize: "0.8rem", color: "rgba(255,255,255,0.5)" }}>
+            Öğrenci listeleri tarayıcınızda kalır — <Link href="/gizlilik" style={{ color: "rgba(255,255,255,0.75)", textDecoration: "underline" }}>ayrıntılar</Link>
+          </p>
         </Reveal>
       </section>
 
@@ -503,6 +506,8 @@ export default function LandingPage() {
           ))}
           <span>·</span>
           <Link href="/app" style={{ color: "#5eead4", textDecoration: "none" }}>Demo</Link>
+          <span>·</span>
+          <Link href="/gizlilik" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Gizlilik</Link>
           <span>·</span>
           <a href="mailto:info@aklisira.com" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>info@aklisira.com</a>
         </div>

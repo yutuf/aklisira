@@ -16,6 +16,7 @@ import { generateLayoutExplanation } from '../../utils/ai-explanation-service';
 import { calculateMetrics } from '../../utils/scoring-utils';
 import { createBrowserClient } from '@supabase/ssr';
 import ClassStats from '../../components/ClassStats';
+import { PrivacyNotice, PrivacyNoticeLink } from '../../components/PrivacyNotice';
 
 // ─── Constants ───
 const AVATAR_COLORS = [
@@ -1292,8 +1293,12 @@ export default function Dashboard() {
           <span>AklıSıra · Baykar Fen Lisesi</span>
           <span style={{ opacity: 0.4 }}>|</span>
           <span>III. Eğitimde Yapay Zekâ Zirvesi 2026</span>
+          <span style={{ opacity: 0.4 }}>|</span>
+          <PrivacyNoticeLink style={{ color: 'var(--primary)' }} />
         </div>
       </footer>
+
+      <PrivacyNotice />
       {/* ─── Student Profile Modal (Professional Tabbed Notebook) ─── */}
       {selectedStudent && (
         <div className="modal-overlay">
