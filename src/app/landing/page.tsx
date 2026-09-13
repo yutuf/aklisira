@@ -19,22 +19,6 @@ function useReveal(threshold = 0.15) {
   return { ref, visible };
 }
 
-// ── Animated counter ──
-function useCounter(target: number, active: boolean, duration = 1200) {
-  const [value, setValue] = useState(0);
-  useEffect(() => {
-    if (!active) return;
-    let start = 0;
-    const step = target / (duration / 16);
-    const t = setInterval(() => {
-      start += step;
-      if (start >= target) { setValue(target); clearInterval(t); }
-      else setValue(Math.floor(start));
-    }, 16);
-    return () => clearInterval(t);
-  }, [active, target, duration]);
-  return value;
-}
 
 // ── Reveal wrapper ──
 function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
@@ -60,9 +44,6 @@ export default function LandingPage() {
   const [waitlistEmail, setWaitlistEmail] = useState("");
   const [waitlistName, setWaitlistName] = useState("");
   const [waitlistStatus, setWaitlistStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-  const statsRef = useRef<HTMLDivElement>(null);
-  const [statsActive, setStatsActive] = useState(false);
-
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handler);
@@ -72,14 +53,6 @@ export default function LandingPage() {
   useEffect(() => {
     const interval = setInterval(() => setActiveFeature((p) => (p + 1) % 4), 3200);
     return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const el = statsRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setStatsActive(true); }, { threshold: 0.3 });
-    obs.observe(el);
-    return () => obs.disconnect();
   }, []);
 
   const handleWaitlist = async (e: React.FormEvent) => {
@@ -106,15 +79,7 @@ export default function LandingPage() {
     { icon: "🎯", title: "Takım & Proje Seçimi", desc: "Sosyal sorumluluk projesi mi? Birkaç tıkla dengeli takımlar kur ya da en uygun öğrencileri seç.", color: "#ec4899" },
   ];
 
-  const testimonials = [
-    { name: "Matematik Öğretmeni", school: "İstanbul, Devlet Okulu", text: "Eskiden Excel'de 1 saat uğraşırdım. Şimdi 2 dakikada oturma düzenim hazır, üstelik AI neden böyle yerleştirdiğini açıklıyor.", avatar: "👩‍🏫" },
-    { name: "Sınıf Öğretmeni", school: "Ankara, Özel Okul", text: "Kelebek sistemini elle yapmak kabustu. Şimdi okul idaresiyle tek tıkla paylaşıyorum. Mükemmel 🙏", avatar: "👨‍🏫" },
-    { name: "Fen Bilimleri Öğretmeni", school: "İzmir, Devlet Okulu", text: "Öğrencilerimin öğrenme stillerini girince algoritmanın ne kadar akıllıca yerleştirdiğini görünce şaşırdım.", avatar: "👩‍🔬" },
-  ];
-
-  // Animated stat values
-  const c1 = useCounter(6, statsActive);
-  const c3 = useCounter(30, statsActive);
+  // Static product facts (avoid animated counters stuck at 0)
 
   return (
     <div style={{ fontFamily: "'Nunito', -apple-system, sans-serif", background: "#f7f5f2", minHeight: "100vh", color: "#1a1715", overflowX: "hidden" }}>
@@ -252,7 +217,7 @@ export default function LandingPage() {
           </p>
 
           <div style={{ display: "flex", gap: "14px", justifyContent: "center", flexWrap: "wrap", marginBottom: "64px" }}>
-            <Link href="/login" className="hero-btn" style={{
+            <Link href="/app" className="hero-btn" style={{
               textDecoration: "none",
               background: "linear-gradient(135deg, #14b8a6, #0d6e64)",
               color: "white", padding: "17px 40px", borderRadius: "50px",
@@ -273,12 +238,12 @@ export default function LandingPage() {
           </div>
 
           {/* Stats */}
-          <div ref={statsRef} style={{ display: "flex", justifyContent: "center", gap: "40px", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", justifyContent: "center", gap: "40px", flexWrap: "wrap" }}>
             {[
-              { val: `${c1}+`, label: "Düzen\nŞablonu" },
-              { val: `${c3}sn`, label: "Optimizasyon\nSüresi" },
+              { val: "6+", label: "Düzen\nŞablonu" },
+              { val: "~30sn", label: "Tipik\nOptimizasyon" },
               { val: "∞", label: "Öğrenci\nProfili" },
-              { val: "%100", label: "Ücretsiz\nBaşlangıç" },
+              { val: "1 sınıf", label: "İlk sınıf\nücretsiz" },
             ].map((s, i) => (
               <div key={i} style={{ textAlign: "center" }}>
                 <div style={{ fontSize: "1.9rem", fontWeight: 900, color: "#5eead4" }}>{s.val}</div>
@@ -328,7 +293,7 @@ export default function LandingPage() {
         <Reveal>
           <div style={{ textAlign: "center", marginBottom: "56px" }}>
             <h2 style={{ fontSize: "clamp(1.8rem, 4vw, 2.8rem)", fontWeight: 900, letterSpacing: "-0.02em", marginBottom: "16px" }}>Öğretmenler bugün ne yapıyor?</h2>
-            <p style={{ color: "#57534e", fontSize: "1.05rem", maxWidth: "600px", margin: "0 auto" }}>Türkiye'deki 1.2 milyon öğretmen hâlâ kağıt ve Excel'e mahkum.</p>
+            <p style={{ color: "#57534e", fontSize: "1.05rem", maxWidth: "600px", margin: "0 auto" }}>Çok öğretmen hâlâ kağıt ve Excel ile sınıf yönetiyor.</p>
           </div>
         </Reveal>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "20px" }}>
@@ -408,28 +373,19 @@ export default function LandingPage() {
         ))}
       </section>
 
-      {/* ─── TESTIMONIALS ─── */}
+      {/* ─── SOCIAL PROOF (real only) ─── */}
       <section style={{ padding: "88px 24px", background: "#f0ece7" }}>
-        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+        <div style={{ maxWidth: "720px", margin: "0 auto", textAlign: "center" }}>
           <Reveal>
-            <h2 style={{ textAlign: "center", fontSize: "clamp(1.8rem, 4vw, 2.4rem)", fontWeight: 900, marginBottom: "48px", letterSpacing: "-0.02em" }}>Öğretmenler ne diyor?</h2>
+            <div style={{ fontSize: "2.5rem", marginBottom: "16px" }}>🏆</div>
+            <h2 style={{ fontSize: "clamp(1.6rem, 3.5vw, 2.1rem)", fontWeight: 900, marginBottom: "16px", letterSpacing: "-0.02em" }}>Kanıtlanmış demo</h2>
+            <p style={{ color: "#57534e", fontSize: "1.05rem", lineHeight: 1.7, marginBottom: "8px" }}>
+              III. Eğitimde Yapay Zekâ Zirvesi&apos;nde <strong>En İyi Demo</strong> — YTÜ Davutpaşa, 2026.
+            </p>
+            <p style={{ color: "#a8a29e", fontSize: "0.9rem", lineHeight: 1.6 }}>
+              Sahte öğretmen yorumu yok. Ürünü kendin dene; zirvede gördüğün araçla aynı.
+            </p>
           </Reveal>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "20px" }}>
-            {testimonials.map((t, i) => (
-              <Reveal key={i} delay={i * 100}>
-                <div className="card-hover" style={{ background: "white", padding: "28px", borderRadius: "16px", border: "1.5px solid #e0d8d0", height: "100%" }}>
-                  <p style={{ color: "#1a1715", lineHeight: 1.7, marginBottom: "20px", fontStyle: "italic", fontSize: "0.9rem" }}>"{t.text}"</p>
-                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                    <span style={{ fontSize: "2rem" }}>{t.avatar}</span>
-                    <div>
-                      <div style={{ fontWeight: 800, fontSize: "0.85rem" }}>{t.name}</div>
-                      <div style={{ color: "#a8a29e", fontSize: "0.75rem" }}>{t.school}</div>
-                    </div>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -446,9 +402,9 @@ export default function LandingPage() {
             <div className="card-hover" style={{ background: "white", padding: "36px 28px", borderRadius: "20px", border: "1.5px solid #e0d8d0", height: "100%" }}>
               <div style={{ fontWeight: 800, fontSize: "0.85rem", color: "#57534e", marginBottom: "8px" }}>ÜCRETSİZ</div>
               <div style={{ fontSize: "2.5rem", fontWeight: 900, marginBottom: "4px" }}>₺0</div>
-              <div style={{ color: "#a8a29e", fontSize: "0.8rem", marginBottom: "24px" }}>Sonsuza kadar</div>
+              <div style={{ color: "#a8a29e", fontSize: "0.8rem", marginBottom: "24px" }}>İlk sınıf ücretsiz</div>
               <ul style={{ listStyle: "none", padding: 0, margin: "0 0 32px", display: "flex", flexDirection: "column", gap: "10px" }}>
-                {["5 öğrenciye kadar", "Tüm düzen tipleri", "Kelebek sınav modu", "Takım oluşturma"].map(f => (
+                {["İlk sınıfın tamamı ücretsiz", "Tüm düzen tipleri", "Kelebek sınav modu", "Takım oluşturma", "Kart gerekmez"].map(f => (
                   <li key={f} style={{ display: "flex", gap: "8px", fontSize: "0.85rem" }}><span style={{ color: "#14b8a6" }}>✓</span>{f}</li>
                 ))}
               </ul>
@@ -525,7 +481,7 @@ export default function LandingPage() {
             Kredi kartı gerekmez. 2 dakikada kurulum. Türkiye'deki öğretmenler için.
           </p>
           <div style={{ display: "flex", gap: "14px", justifyContent: "center", flexWrap: "wrap" }}>
-            <Link href="/login" className="hero-btn" style={{ textDecoration: "none", display: "inline-block", background: "white", color: "#0d6e64", padding: "18px 48px", borderRadius: "50px", fontWeight: 900, fontSize: "1.1rem", boxShadow: "0 12px 40px rgba(0,0,0,0.25)" }}>
+            <Link href="/app" className="hero-btn" style={{ textDecoration: "none", display: "inline-block", background: "white", color: "#0d6e64", padding: "18px 48px", borderRadius: "50px", fontWeight: 900, fontSize: "1.1rem", boxShadow: "0 12px 40px rgba(0,0,0,0.25)" }}>
               ✨ Ücretsiz Başla
             </Link>
             <Link href="/app" className="ghost-btn" style={{ textDecoration: "none", display: "inline-block", border: "2px solid rgba(255,255,255,0.35)", color: "white", padding: "18px 48px", borderRadius: "50px", fontWeight: 700, fontSize: "1.1rem" }}>
