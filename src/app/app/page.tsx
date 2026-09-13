@@ -87,6 +87,14 @@ export default function Dashboard() {
   const [schedule, setSchedule] = useState<WeeklySchedule>({ lessons: [] });
   const [meetings, setMeetings] = useState<ParentMeeting[]>([]);
   const { isListening, isProcessing, transcript, startListening, stopListening, isSupported, setTranscript } = useVoiceInput();
+  const [toast, setToast] = useState<string | null>(null);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 4000);
+    return () => clearTimeout(t);
+  }, [toast]);
 
   // Load active class into local state when it changes
   useEffect(() => {
@@ -506,20 +514,45 @@ export default function Dashboard() {
       { id: 'd14', name: 'Kerem', academicLevel: 'average', behaviorType: 'active', movementNeeds: 'moderate', specialNeeds: 'none', friends: ['Can'], avoidStudents: [], hearingNeeds: 'partial', height: 'average' },
       { id: 'd15', name: 'Nil', academicLevel: 'high', behaviorType: 'quiet', movementNeeds: 'low', specialNeeds: 'none', friends: ['Elif', 'Zeynep'], avoidStudents: [], learningStyle: 'readwrite', height: 'short' },
     ];
-    setStudents(demoStudents);
-    setAssignments([]);
-    setCurrentMetrics(null);
-    setAiExplanation("");
-    setGeneration(0);
-    setOptimizationDone(false);
-    setLayout({ rows: 5, cols: 6, seats: [] });
+    const demoLayout: ClassroomLayout = { rows: 5, cols: 6, seats: [], windowSide: 'left', doorPosition: 'front-right' };
+    // createClass flips activeClassId; the activeClassId effect would wipe students — defer write.
+    const classId = activeClassId || createClass('Demo 9-A', undefined, '9');
+    setTimeout(() => {
+      updateClass(classId, {
+        students: demoStudents,
+        layout: demoLayout,
+        assignments: [],
+        layoutType: 'grid',
+      });
+      setStudents(demoStudents);
+      setLayout(demoLayout);
+      setAssignments([]);
+      setCurrentMetrics(null);
+      setAiExplanation('');
+      setGeneration(0);
+      setOptimizationDone(false);
+      setActiveTab('classroom');
+      setMobileNavOpen(false);
+      setToast('Demo 9-A yüklendi — 15 öğrenci hazır.');
+    }, 0);
     logVisitorAction('demo_load');
+  };
+
+  const goTab = (tab: typeof activeTab) => {
+    setActiveTab(tab);
+    setMobileNavOpen(false);
   };
 
   return (
     <div className="app-layout">
+      {toast && (
+        <div className="app-toast" role="status">{toast}</div>
+      )}
+      {mobileNavOpen && (
+        <div className="sidebar-backdrop" onClick={() => setMobileNavOpen(false)} aria-hidden="true" />
+      )}
       {/* ─── SIDEBAR ─── */}
-      <div className="sidebar">
+      <div className={`sidebar${mobileNavOpen ? ' is-open' : ''}`}>
         <div className="sidebar-logo">
           <span style={{ fontSize: '1.8rem' }}>🧠</span>
           AklıSıra
@@ -528,49 +561,49 @@ export default function Dashboard() {
         <div className="sidebar-menu">
           <button 
             className={`sidebar-item ${activeTab === 'dashboard' ? 'active' : ''}`}
-            onClick={() => setActiveTab('dashboard')}
+            onClick={() => goTab('dashboard')}
           >
             <span className="icon">🏠</span> Pano (Özet)
           </button>
           <button 
             className={`sidebar-item ${activeTab === 'students' ? 'active' : ''}`}
-            onClick={() => setActiveTab('students')}
+            onClick={() => goTab('students')}
           >
             <span className="icon">👩‍🎓</span> Öğrenci Rehberi
           </button>
           <button 
             className={`sidebar-item ${activeTab === 'classroom' ? 'active' : ''}`}
-            onClick={() => setActiveTab('classroom')}
+            onClick={() => goTab('classroom')}
           >
             <span className="icon">🏫</span> Sınıf & Düzen
           </button>
           <button 
             className={`sidebar-item ${activeTab === 'attendance' ? 'active' : ''}`}
-            onClick={() => setActiveTab('attendance')}
+            onClick={() => goTab('attendance')}
           >
             <span className="icon">📋</span> Yoklama
           </button>
           <button 
             className={`sidebar-item ${activeTab === 'schedule' ? 'active' : ''}`}
-            onClick={() => setActiveTab('schedule')}
+            onClick={() => goTab('schedule')}
           >
             <span className="icon">📅</span> Ders Programı
           </button>
           <button 
             className={`sidebar-item ${activeTab === 'meetings' ? 'active' : ''}`}
-            onClick={() => setActiveTab('meetings')}
+            onClick={() => goTab('meetings')}
           >
             <span className="icon">🤝</span> Veli Görüşmeleri
           </button>
           <button 
             className={`sidebar-item ${activeTab === 'teams' ? 'active' : ''}`}
-            onClick={() => setActiveTab('teams')}
+            onClick={() => goTab('teams')}
           >
             <span className="icon">👥</span> Takım Kur
           </button>
           <button 
             className={`sidebar-item ${activeTab === 'exam' ? 'active' : ''}`}
-            onClick={() => setActiveTab('exam')}
+            onClick={() => goTab('exam')}
           >
             <span className="icon">📝</span> Sınav Modu
           </button>
@@ -601,6 +634,17 @@ export default function Dashboard() {
 
       {/* ─── MAIN CONTENT ─── */}
       <div className="main-content">
+        <div className="mobile-topbar">
+          <button
+            type="button"
+            className="mobile-menu-btn"
+            aria-label="Menüyü aç"
+            onClick={() => setMobileNavOpen(true)}
+          >
+            ☰
+          </button>
+          <span className="mobile-topbar-title">AklıSıra</span>
+        </div>
         
         {/* Class Selector Bar (Top Bar) */}
         <div style={{ background: 'var(--bg-card)', padding: '12px 24px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '12px', overflowX: 'auto', marginBottom: '24px', boxShadow: 'var(--shadow-sm)' }}>
@@ -689,6 +733,35 @@ export default function Dashboard() {
               </div>
             </div>
 
+            {students.length === 0 && (
+              <div className="card" style={{ marginBottom: '24px', border: '2px dashed var(--primary-light)', background: 'var(--primary-pale)' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+                  <div style={{ flex: '1 1 240px' }}>
+                    <h3 style={{ margin: '0 0 6px', fontSize: '1.15rem', fontWeight: 900 }}>Sınıfınızı kurmaya hazır mısınız?</h3>
+                    <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                      Demo veriyle hemen deneyin veya kendi sınıfınızı oluşturup öğrenci ekleyin.
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                    <button
+                      type="button"
+                      onClick={loadDemoData}
+                      style={{ padding: '10px 18px', borderRadius: '10px', border: 'none', background: 'var(--accent)', color: 'white', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}
+                    >
+                      🎁 Demo Yükle
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowNewClassModal(true)}
+                      style={{ padding: '10px 18px', borderRadius: '10px', border: '1.5px solid var(--primary)', background: 'white', color: 'var(--primary)', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}
+                    >
+                      ＋ Yeni sınıf
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* ─── GÜNLÜK AKIŞ (DAILY FLOW) ─── */}
             <div style={{ marginBottom: '32px' }}>
               <h2 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-secondary)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -704,7 +777,18 @@ export default function Dashboard() {
                     <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800 }}>Sınıf Yoklaması</h4>
                     <p style={{ margin: '2px 0 0', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Bugün henüz yoklama alınmadı.</p>
                   </div>
-                  <button onClick={() => setActiveTab('attendance')} style={{ padding: '6px 12px', borderRadius: '8px', border: 'none', background: 'var(--primary)', color: 'white', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}>Başlat</button>
+                  <button
+                    onClick={() => {
+                      if (students.length === 0) {
+                        setToast('Önce öğrenci ekleyin veya Demo Yükle ile başlayın.');
+                        return;
+                      }
+                      goTab('attendance');
+                    }}
+                    style={{ padding: '6px 12px', borderRadius: '8px', border: 'none', background: 'var(--primary)', color: 'white', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                  >
+                    Başlat
+                  </button>
                 </div>
 
                 {/* Task 2: Observations */}
@@ -1088,7 +1172,25 @@ export default function Dashboard() {
             ) : (
               <div className="empty-state">
                 <div className="icon">🏫</div>
-                <p>Öğrenci bilgilerini girin ve <strong>Düzeni Oluştur</strong> butonuna tıklayarak yapay zeka destekli oturma planını görün.</p>
+                <p>Öğrenci bilgilerini girin ve <strong>Düzeni Optimize Et</strong> butonuna tıklayarak yapay zeka destekli oturma planını görün.</p>
+                {students.length === 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', marginTop: '16px' }}>
+                    <button
+                      type="button"
+                      onClick={loadDemoData}
+                      style={{ padding: '10px 16px', borderRadius: '10px', border: 'none', background: 'var(--accent)', color: 'white', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}
+                    >
+                      🎁 Demo Yükle
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => goTab('students')}
+                      style={{ padding: '10px 16px', borderRadius: '10px', border: '1.5px solid var(--primary)', background: 'white', color: 'var(--primary)', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}
+                    >
+                      Öğrenci ekle
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
