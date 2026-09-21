@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
+import { Mic, Dna, Shuffle, Users, PenLine, Printer, Mail, Globe, School, Check } from "lucide-react";
 
 // ── Intersection Observer hook for reveal animations ──
 function useReveal(threshold = 0.15) {
@@ -19,7 +20,6 @@ function useReveal(threshold = 0.15) {
   return { ref, visible };
 }
 
-
 // ── Reveal wrapper ──
 function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
   const { ref, visible } = useReveal();
@@ -29,8 +29,8 @@ function Reveal({ children, delay = 0, className = "" }: { children: React.React
       className={className}
       style={{
         opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(32px)",
-        transition: `opacity 0.65s ease ${delay}ms, transform 0.65s ease ${delay}ms`,
+        transform: visible ? "translateY(0)" : "translateY(20px)",
+        transition: `opacity 0.5s ease ${delay}ms, transform 0.5s ease ${delay}ms`,
       }}
     >
       {children}
@@ -38,21 +38,68 @@ function Reveal({ children, delay = 0, className = "" }: { children: React.React
   );
 }
 
+// ── Hero diagram: an actual seating grid next to the kelebek (A/B checkerboard)
+// exam layout — the real product output, not stock/decorative art. ──
+function ProductDiagram() {
+  const seats = Array.from({ length: 12 }, (_, i) => i);
+  const highlighted = new Set([1, 6]); // two seats called out as "paired by rule"
+  return (
+    <svg viewBox="0 0 360 220" width="100%" height="auto" role="img" aria-label="Örnek oturma düzeni ve kelebek sınav düzeni">
+      <text x="8" y="18" fontSize="11" fontWeight="700" fill="rgba(247,245,242,0.55)" fontFamily="var(--font-nunito)">SINIF</text>
+      {seats.map((i) => {
+        const col = i % 4;
+        const row = Math.floor(i / 4);
+        const x = 8 + col * 38;
+        const y = 28 + row * 38;
+        const on = highlighted.has(i);
+        return (
+          <rect
+            key={i}
+            x={x} y={y} width="30" height="30" rx="6"
+            fill={on ? "#14b8a6" : "rgba(255,255,255,0.08)"}
+            stroke={on ? "#5eead4" : "rgba(255,255,255,0.18)"}
+            strokeWidth="1.5"
+          />
+        );
+      })}
+      <line x1="0" y1="0" x2="0" y2="0" />
+      <line x1="176" y1="20" x2="176" y2="196" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
+
+      <text x="196" y="18" fontSize="11" fontWeight="700" fill="rgba(247,245,242,0.55)" fontFamily="var(--font-nunito)">KELEBEK</text>
+      {seats.map((i) => {
+        const col = i % 4;
+        const row = Math.floor(i / 4);
+        const x = 196 + col * 38;
+        const y = 28 + row * 38;
+        const isA = (col + row) % 2 === 0;
+        return (
+          <g key={i}>
+            <rect
+              x={x} y={y} width="30" height="30" rx="6"
+              fill={isA ? "#d97706" : "rgba(255,255,255,0.08)"}
+              stroke={isA ? "#fbbf24" : "rgba(255,255,255,0.18)"}
+              strokeWidth="1.5"
+            />
+            <text x={x + 15} y={y + 19} fontSize="11" fontWeight="800" textAnchor="middle" fill={isA ? "#1a1715" : "rgba(255,255,255,0.4)"} fontFamily="var(--font-nunito)">
+              {isA ? "A" : "B"}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
-  const [activeFeature, setActiveFeature] = useState(0);
   const [waitlistEmail, setWaitlistEmail] = useState("");
   const [waitlistName, setWaitlistName] = useState("");
   const [waitlistStatus, setWaitlistStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handler);
     return () => window.removeEventListener("scroll", handler);
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => setActiveFeature((p) => (p + 1) % 4), 3200);
-    return () => clearInterval(interval);
   }, []);
 
   const handleWaitlist = async (e: React.FormEvent) => {
@@ -73,215 +120,190 @@ export default function LandingPage() {
   };
 
   const features = [
-    { icon: "🎤", title: "Doğal Dil Girişi", desc: "\"Ali 90 puan, biraz gürültücü\" yazın ya da sesle anlatın. AI öğrenci profilini saniyeler içinde oluşturur.", color: "#14b8a6" },
-    { icon: "🧬", title: "Genetik Optimizasyon", desc: "Akademik denge, davranış uyumu, fiziksel gereksinimler, öğrenme stilleri — hepsini aynı anda optimize eder.", color: "#8b5cf6" },
-    { icon: "🦋", title: "Sınav Modu (Kelebek)", desc: "Okul genelinde kopya önleme. Sınıfları karıştır, A/B/C/D versiyonları otomatik ata, salon listeleri hazır.", color: "#f97316" },
-    { icon: "🎯", title: "Takım & Proje Seçimi", desc: "Sosyal sorumluluk projesi mi? Birkaç tıkla dengeli takımlar kur ya da en uygun öğrencileri seç.", color: "#ec4899" },
+    { Icon: Mic, title: "Kurallarınızı Türkçe yazın", desc: "\"Ali ile Mehmet yan yana, Burak öne otursun\" — cümle olarak yazın ya da sesle söyleyin. Excel şablonu yok, IT talebi yok." },
+    { Icon: Dna, title: "Kısıt tabanlı yerleştirme", desc: "Akademik denge, davranış uyumu, fiziksel ihtiyaçlar ve yazdığınız kurallar aynı anda çözülür — genetik algoritma ile." },
+    { Icon: Shuffle, title: "Kelebek (A/B) sınav düzeni", desc: "Tek tıkla çapraz kopya önleme düzeni: bitişik sıralar farklı soru grubu alır, salon listesi yazdırmaya hazır." },
+    { Icon: Users, title: "Takım ve proje grupları", desc: "Aynı kural motoruyla dengeli takımlar kurun — kim kiminle uyumlu, tahmin etmeden." },
   ];
 
-  // Static product facts (avoid animated counters stuck at 0)
-
   return (
-    <div style={{ fontFamily: "'Nunito', -apple-system, sans-serif", background: "#f7f5f2", minHeight: "100vh", color: "#1a1715", overflowX: "hidden" }}>
-
-      {/* Global animation keyframes */}
+    <div style={{ background: "#f7f5f2", minHeight: "100vh", color: "#1a1715", overflowX: "hidden" }}>
       <style>{`
-        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
-        @keyframes pulse-ring { 0%{transform:scale(1);opacity:0.6} 100%{transform:scale(1.6);opacity:0} }
-        @keyframes gradient-shift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
-        @keyframes fadeInDown { from{opacity:0;transform:translateY(-16px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes shimmer { 0%{background-position:-200% center} 100%{background-position:200% center} }
-        .hero-btn:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 16px 48px rgba(20,184,166,0.45) !important; }
-        .hero-btn { transition: transform 0.2s, box-shadow 0.2s; }
-        .ghost-btn:hover { background: rgba(255,255,255,0.15) !important; }
-        .ghost-btn { transition: background 0.2s; }
-        .feature-card:hover { transform: translateY(-4px) scale(1.02); }
-        .feature-card { transition: transform 0.25s, background 0.25s, border-color 0.25s; }
-        .card-hover:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.10); }
-        .card-hover { transition: transform 0.22s, box-shadow 0.22s; }
-        .nav-link:hover { color: #0d6e64 !important; }
+        .btn-flat { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+        .btn-flat:hover { transform: translateY(-1px); }
         .nav-link { transition: color 0.15s; }
-        .orb1 { animation: float 7s ease-in-out infinite; }
-        .orb2 { animation: float 9s ease-in-out infinite 1s; }
-        .orb3 { animation: float 11s ease-in-out infinite 2s; }
-        .badge-anim { animation: fadeInDown 0.7s ease both; }
-        .glass-panel { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; box-shadow: 0 30px 60px rgba(0,0,0,0.4); }
-        .shimmer-text {
-          background: linear-gradient(90deg, #14b8a6 0%, #fbbf24 30%, #f97316 60%, #14b8a6 100%);
-          background-size: 200% auto;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          animation: shimmer 3.5s linear infinite;
-        }
+        .nav-link:hover { color: #0d6e64 !important; }
+        .plain-card { transition: border-color 0.15s ease; }
+        .plain-card:hover { border-color: #0d6e64; }
       `}</style>
 
-      {/* ─── Sticky Nav ─── */}
+      {/* ─── Nav ─── */}
       <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-        padding: "12px 32px",
-        background: scrolled ? "rgba(255,255,255,0.96)" : "transparent",
-        backdropFilter: scrolled ? "blur(12px)" : "none",
-        borderBottom: scrolled ? "1px solid rgba(0,0,0,0.06)" : "none",
-        transition: "all 0.35s ease",
+        padding: "14px 32px",
+        background: scrolled ? "#f7f5f2" : "transparent",
+        borderBottom: scrolled ? "1px solid #e0d8d0" : "1px solid transparent",
+        transition: "all 0.25s ease",
         display: "flex", justifyContent: "space-between", alignItems: "center",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <img src="/logo.png" alt="AklıSıra" style={{ height: "34px", width: "34px", objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-          <span style={{ fontSize: "1.4rem", fontWeight: 900, background: "linear-gradient(135deg, #0d6e64, #14b8a6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+          <img src="/logo.png" alt="AklıSıra" style={{ height: "30px", width: "30px", objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+          <span className="font-display" style={{ fontSize: "1.3rem", fontWeight: 600, color: "#0d6e64" }}>
             AklıSıra
           </span>
-          <span style={{ fontSize: "0.62rem", background: "#14b8a6", color: "white", padding: "2px 8px", borderRadius: "20px", fontWeight: 700 }}>BETA</span>
+          <span style={{ fontSize: "0.6rem", border: "1px solid #0d6e64", color: "#0d6e64", padding: "1px 8px", borderRadius: "3px", fontWeight: 700, letterSpacing: "0.05em" }}>BETA</span>
         </div>
         <div style={{ display: "flex", gap: "28px", alignItems: "center" }}>
-          {["Özellikler#features", "Fiyat#pricing", "İletişim#contact"].map((item) => {
+          {["Neden Farklı#neden", "Özellikler#features", "Fiyat#pricing", "İletişim#contact"].map((item) => {
             const [label, href] = item.split("#");
             return (
-              <a key={href} href={`#${href}`} className="nav-link" style={{ textDecoration: "none", color: scrolled ? "#57534e" : "rgba(255,255,255,0.75)", fontWeight: 600, fontSize: "0.85rem" }}>
+              <a key={href} href={`#${href}`} className="nav-link" style={{ textDecoration: "none", color: "#57534e", fontWeight: 600, fontSize: "0.85rem" }}>
                 {label}
               </a>
             );
           })}
-          <Link href="/app" className="nav-link" style={{ textDecoration: "none", color: scrolled ? "#57534e" : "rgba(255,255,255,0.75)", fontWeight: 700, fontSize: "0.85rem" }}>
+          <Link href="/app" className="nav-link" style={{ textDecoration: "none", color: "#57534e", fontWeight: 700, fontSize: "0.85rem" }}>
             Demo
           </Link>
-          <Link href="/login" style={{
+          <Link href="/login" className="btn-flat" style={{
             textDecoration: "none",
-            background: "linear-gradient(135deg, #0d6e64, #14b8a6)",
-            color: "white", padding: "8px 20px", borderRadius: "50px",
-            fontWeight: 800, fontSize: "0.85rem",
-            boxShadow: "0 4px 16px rgba(13,110,100,0.25)",
-            transition: "all 0.2s"
+            background: "#0d6e64",
+            color: "white", padding: "8px 20px", borderRadius: "6px",
+            fontWeight: 700, fontSize: "0.85rem",
           }}>
-            Giriş Yap →
+            Giriş Yap
           </Link>
         </div>
       </nav>
 
       {/* ─── HERO ─── */}
       <section style={{
-        minHeight: "100vh", display: "flex", flexDirection: "column",
-        justifyContent: "center", alignItems: "center", textAlign: "center",
-        padding: "160px 24px 100px",
-        background: "linear-gradient(160deg, #0d6e64 0%, #094f47 35%, #1a1715 100%)",
-        position: "relative", overflow: "hidden",
+        display: "flex", flexDirection: "column",
+        justifyContent: "center",
+        padding: "150px 24px 80px",
+        background: "#1a1715",
       }}>
-        <div className="orb1" style={{ position: "absolute", top: "10%", left: "5%", width: "420px", height: "420px", borderRadius: "50%", background: "radial-gradient(circle, rgba(20,184,166,0.25) 0%, transparent 70%)", pointerEvents: "none", filter: "blur(40px)" }} />
-        <div className="orb2" style={{ position: "absolute", bottom: "5%", right: "5%", width: "320px", height: "320px", borderRadius: "50%", background: "radial-gradient(circle, rgba(217,119,6,0.2) 0%, transparent 70%)", pointerEvents: "none", filter: "blur(40px)" }} />
-        <div className="orb3" style={{ position: "absolute", top: "40%", right: "20%", width: "250px", height: "250px", borderRadius: "50%", background: "radial-gradient(circle, rgba(236,72,153,0.15) 0%, transparent 70%)", pointerEvents: "none", filter: "blur(40px)" }} />
+        <div style={{ maxWidth: "1080px", margin: "0 auto", width: "100%", display: "grid", gridTemplateColumns: "1.15fr 0.85fr", gap: "56px", alignItems: "center" }}>
+          <div>
+            <div style={{
+              display: "inline-block",
+              borderLeft: "3px solid #14b8a6",
+              paddingLeft: "12px",
+              marginBottom: "28px",
+              color: "rgba(247,245,242,0.6)", fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.02em",
+            }}>
+              III. Eğitimde Yapay Zekâ Zirvesi — En İyi Demo
+            </div>
 
-        {/* Floating Glass Panels */}
-        <div className="orb1 glass-panel" style={{ position: "absolute", top: "15%", right: "10%", width: "180px", height: "220px", transform: "rotate(12deg)", zIndex: 0 }}>
-          <div style={{ padding: "20px" }}>
-            <div style={{ width: "100%", height: "8px", background: "rgba(255,255,255,0.2)", borderRadius: "4px", marginBottom: "12px" }}></div>
-            <div style={{ width: "80%", height: "8px", background: "rgba(255,255,255,0.2)", borderRadius: "4px", marginBottom: "24px" }}></div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
-              {[1,2,3,4,5,6].map(i => <div key={i} style={{ width: "100%", height: "24px", background: "rgba(255,255,255,0.1)", borderRadius: "6px" }}></div>)}
+            <h1 className="font-display" style={{ fontSize: "clamp(2.2rem, 4.6vw, 3.4rem)", fontWeight: 600, color: "#f7f5f2", lineHeight: 1.18, marginBottom: "24px", letterSpacing: "-0.01em" }}>
+              Excel yerine, sınıf masasında bir araç.
+            </h1>
+
+            <p style={{ fontSize: "1.05rem", color: "rgba(247,245,242,0.68)", lineHeight: 1.75, marginBottom: "40px", maxWidth: "520px" }}>
+              Kuralları Türkçe yazın ya da sesle anlatın: kim kiminle otursun, kim önde olsun. AklıSıra oturma düzenini ve kelebek sınav yerleşimini saniyeler içinde çözer — kurulum yok, IT talebi yok.
+            </p>
+
+            <div style={{ display: "flex", gap: "14px", flexWrap: "wrap", marginBottom: "36px" }}>
+              <Link href="/app" className="btn-flat" style={{
+                textDecoration: "none",
+                background: "#14b8a6",
+                color: "#0a2622", padding: "14px 32px", borderRadius: "6px",
+                fontWeight: 800, fontSize: "0.95rem",
+              }}>
+                Ücretsiz Başla
+              </Link>
+              <Link href="/app" className="btn-flat" style={{
+                textDecoration: "none",
+                background: "transparent",
+                border: "1.5px solid rgba(247,245,242,0.3)",
+                color: "#f7f5f2", padding: "14px 32px", borderRadius: "6px",
+                fontWeight: 700, fontSize: "0.95rem",
+              }}>
+                Kayıtsız Dene
+              </Link>
+            </div>
+
+            <div style={{ display: "flex", gap: "28px", flexWrap: "wrap", fontSize: "0.78rem", color: "rgba(247,245,242,0.45)" }}>
+              <span>İlk sınıf ücretsiz, kart gerekmez</span>
+              <span>·</span>
+              <span>6 düzen tipi + kelebek</span>
+              <span>·</span>
+              <span>Tipik optimizasyon ~30 sn</span>
             </div>
           </div>
-        </div>
-        <div className="orb2 glass-panel" style={{ position: "absolute", bottom: "25%", left: "8%", width: "200px", height: "140px", transform: "rotate(-8deg)", zIndex: 0 }}>
-          <div style={{ padding: "20px", display: "flex", alignItems: "center", gap: "12px" }}>
-            <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "rgba(255,255,255,0.15)" }}></div>
-            <div style={{ flex: 1 }}>
-              <div style={{ width: "100%", height: "6px", background: "rgba(255,255,255,0.3)", borderRadius: "4px", marginBottom: "8px" }}></div>
-              <div style={{ width: "60%", height: "6px", background: "rgba(255,255,255,0.15)", borderRadius: "4px" }}></div>
-            </div>
-          </div>
-          <div style={{ margin: "0 20px", height: "1px", background: "rgba(255,255,255,0.1)" }}></div>
-          <div style={{ padding: "16px 20px" }}>
-            <div style={{ width: "40%", height: "12px", background: "#5eead4", borderRadius: "4px", marginBottom: "6px" }}></div>
-            <div style={{ width: "70%", height: "6px", background: "rgba(255,255,255,0.2)", borderRadius: "4px" }}></div>
-          </div>
-        </div>
 
-        <div style={{ position: "relative", zIndex: 1, maxWidth: "820px" }}>
-          <div className="badge-anim" style={{
-            display: "inline-flex", alignItems: "center", gap: "8px",
-            background: "rgba(20,184,166,0.15)", border: "1px solid rgba(20,184,166,0.3)",
-            padding: "6px 18px", borderRadius: "50px", marginBottom: "36px",
-            color: "#5eead4", fontSize: "0.8rem", fontWeight: 700,
-          }}>
-            🏆 III. Eğitimde Yapay Zekâ Zirvesi — En İyi Demo
-          </div>
-
-          <h1 style={{ fontSize: "clamp(2.4rem, 6vw, 4.2rem)", fontWeight: 900, color: "white", lineHeight: 1.12, marginBottom: "28px", letterSpacing: "-0.02em" }}>
-            Öğretmenin{" "}
-            <span className="shimmer-text">asistanı.</span>
-            <br />
-            Sınıfın{" "}
-            <span style={{ background: "linear-gradient(90deg, #f97316, #ec4899)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>beyni.</span>
-          </h1>
-
-          <p style={{ fontSize: "1.12rem", color: "rgba(255,255,255,0.70)", lineHeight: 1.75, marginBottom: "52px", maxWidth: "640px", margin: "0 auto 52px" }}>
-            Kağıt, Excel ve hafıza ile yönetilen <strong style={{ color: "white" }}>30 öğrencinin kaosunu</strong> doğal dil + yapay zeka ile saniyeler içinde çözen platform. Oturma düzeni, sınav modu, takım oluşturma — hepsi tek yerde.
-          </p>
-
-          <div style={{ display: "flex", gap: "14px", justifyContent: "center", flexWrap: "wrap", marginBottom: "64px" }}>
-            <Link href="/app" className="hero-btn" style={{
-              textDecoration: "none",
-              background: "linear-gradient(135deg, #14b8a6, #0d6e64)",
-              color: "white", padding: "17px 40px", borderRadius: "50px",
-              fontWeight: 900, fontSize: "1.05rem",
-              boxShadow: "0 8px 32px rgba(20,184,166,0.35)",
-            }}>
-              ✨ Ücretsiz Başla
-            </Link>
-            <Link href="/app" className="ghost-btn" style={{
-              textDecoration: "none",
-              background: "rgba(255,255,255,0.08)",
-              border: "1.5px solid rgba(255,255,255,0.2)",
-              color: "white", padding: "17px 40px", borderRadius: "50px",
-              fontWeight: 700, fontSize: "1.05rem",
-            }}>
-              Kayıtsız Dene →
-            </Link>
-          </div>
-
-          {/* Stats */}
-          <div style={{ display: "flex", justifyContent: "center", gap: "40px", flexWrap: "wrap" }}>
-            {[
-              { val: "6+", label: "Düzen\nŞablonu" },
-              { val: "~30sn", label: "Tipik\nOptimizasyon" },
-              { val: "∞", label: "Öğrenci\nProfili" },
-              { val: "1 sınıf", label: "İlk sınıf\nücretsiz" },
-            ].map((s, i) => (
-              <div key={i} style={{ textAlign: "center" }}>
-                <div style={{ fontSize: "1.9rem", fontWeight: 900, color: "#5eead4" }}>{s.val}</div>
-                <div style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.48)", whiteSpace: "pre-line", lineHeight: 1.5 }}>{s.label}</div>
-              </div>
-            ))}
+          <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "10px", padding: "18px" }}>
+            <ProductDiagram />
           </div>
         </div>
       </section>
 
-      {/* ─── WAITLIST ─── */}
-      <section id="waitlist" style={{ padding: "72px 24px", background: "linear-gradient(135deg, #fef3c7 0%, #fffbf0 100%)", borderTop: "1.5px solid #f0d98a", borderBottom: "1.5px solid #f0d98a" }}>
+      {/* ─── DIFFERENTIATION: "K12 / Okulyo var, buna ne gerek?" ─── */}
+      <section id="neden" style={{ padding: "80px 24px", maxWidth: "980px", margin: "0 auto" }}>
         <Reveal>
-          <div style={{ maxWidth: "600px", margin: "0 auto", textAlign: "center" }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "#fef3c7", border: "1px solid #fbbf24", padding: "5px 15px", borderRadius: "50px", marginBottom: "20px", color: "#92400e", fontSize: "0.78rem", fontWeight: 700 }}>
-              ⏳ Erken Erişim — İlk 50 kullanıcıya %50 indirim
+          <h2 className="font-display" style={{ fontSize: "clamp(1.7rem, 3.4vw, 2.3rem)", fontWeight: 600, letterSpacing: "-0.01em", marginBottom: "18px" }}>
+            "Okulumun zaten K12 / Okulyo gibi bir sistemi var — buna ne gerek?"
+          </h2>
+          <p style={{ color: "#57534e", fontSize: "1rem", lineHeight: 1.75, maxWidth: "760px", marginBottom: "36px" }}>
+            K12NET, Okulyo ve benzeri sistemler <strong>okul yönetim yazılımı</strong> — kayıt, devam, veli iletişimi, kurum çapında sınav organizasyonu. Kurulur, IT ekibi yönetir, tüm okulu kapsar. AklıSıra bunların yerine geçmiyor: o sistemler yokken ya da o gün elinizde yokken, <strong>tek bir sınıfın oturma düzenini</strong> Excel yerine iki dakikada çözen bir öğretmen aracı.
+          </p>
+        </Reveal>
+        <Reveal delay={80}>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.88rem" }}>
+              <thead>
+                <tr style={{ borderBottom: "2px solid #1a1715" }}>
+                  <th style={{ textAlign: "left", padding: "10px 12px", fontWeight: 800 }}>Sistem</th>
+                  <th style={{ textAlign: "left", padding: "10px 12px", fontWeight: 800 }}>Ne için</th>
+                  <th style={{ textAlign: "left", padding: "10px 12px", fontWeight: 800, color: "#0d6e64" }}>AklıSıra farkı</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  ["K12NET", "Kurum çapında sınav oturma sihirbazı, tam MIS", "Öğretmenin kendi sınıfı için, IT olmadan, 2 dakikada"],
+                  ["Okulyo", "Yoklama, turnike, veli bildirim — kampüs operasyonu", "Sınıf pedagojisi: kim kimle otursun, biz buna bakarız"],
+                  ["ETED (TED)", "Kuruma özel yerleşik sistem", "Yerini almaya çalışmıyoruz — hâlâ Excel'e dönen öğretmen için tamamlayıcı"],
+                ].map((row) => (
+                  <tr key={row[0]} style={{ borderBottom: "1px solid #e0d8d0" }}>
+                    <td style={{ padding: "12px", fontWeight: 700 }}>{row[0]}</td>
+                    <td style={{ padding: "12px", color: "#57534e" }}>{row[1]}</td>
+                    <td style={{ padding: "12px", color: "#0d6e64", fontWeight: 600 }}>{row[2]}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* ─── WAITLIST ─── */}
+      <section id="waitlist" style={{ padding: "64px 24px", background: "#fdf8ee", borderTop: "1px solid #f0d98a", borderBottom: "1px solid #f0d98a" }}>
+        <Reveal>
+          <div style={{ maxWidth: "560px", margin: "0 auto", textAlign: "center" }}>
+            <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#92400e", marginBottom: "14px", letterSpacing: "0.02em" }}>
+              ERKEN ERİŞİM — İLK 50 KULLANICIYA %50 İNDİRİM
             </div>
-            <h2 style={{ fontSize: "clamp(1.6rem, 4vw, 2.2rem)", fontWeight: 900, marginBottom: "12px", letterSpacing: "-0.02em" }}>
+            <h2 className="font-display" style={{ fontSize: "clamp(1.5rem, 3.4vw, 1.9rem)", fontWeight: 600, marginBottom: "12px" }}>
               Pro özellikleri ilk deneyin
             </h2>
-            <p style={{ color: "#57534e", fontSize: "0.95rem", lineHeight: 1.7, maxWidth: "460px", margin: "0 auto 32px" }}>
-              Auth sistemi, kalıcı öğrenci profilleri, dönem takibi ve AI analiz raporu hazır olunca sizi ilk haberdar edeceğiz.
+            <p style={{ color: "#57534e", fontSize: "0.92rem", lineHeight: 1.7, maxWidth: "440px", margin: "0 auto 28px" }}>
+              Kalıcı öğrenci profilleri, dönem takibi ve AI analiz raporu hazır olunca sizi ilk haberdar edeceğiz.
             </p>
             {waitlistStatus === "success" ? (
-              <div style={{ padding: "24px", background: "#dcfce7", borderRadius: "16px", border: "1.5px solid #86efac", color: "#15803d", fontWeight: 800, fontSize: "1rem" }}>
-                ✅ Listeye eklendiniz! Haberdar edeceğiz.
+              <div style={{ padding: "20px", background: "#dcfce7", borderRadius: "8px", border: "1px solid #86efac", color: "#15803d", fontWeight: 700, fontSize: "0.95rem" }}>
+                Listeye eklendiniz — haberdar edeceğiz.
               </div>
             ) : (
-              <form onSubmit={handleWaitlist} style={{ display: "flex", flexDirection: "column", gap: "12px", maxWidth: "440px", margin: "0 auto" }}>
-                <input type="text" placeholder="Adınız (isteğe bağlı)" value={waitlistName} onChange={e => setWaitlistName(e.target.value)} style={{ padding: "14px 18px", borderRadius: "12px", border: "1.5px solid #e0d8d0", fontSize: "0.95rem", fontFamily: "inherit", outline: "none", background: "white" }} />
+              <form onSubmit={handleWaitlist} style={{ display: "flex", flexDirection: "column", gap: "10px", maxWidth: "420px", margin: "0 auto" }}>
+                <input type="text" placeholder="Adınız (isteğe bağlı)" value={waitlistName} onChange={e => setWaitlistName(e.target.value)} style={{ padding: "13px 16px", borderRadius: "6px", border: "1.5px solid #e0d8d0", fontSize: "0.92rem", fontFamily: "inherit", outline: "none", background: "white" }} />
                 <div style={{ display: "flex", gap: "10px" }}>
-                  <input type="email" placeholder="E-posta adresiniz" value={waitlistEmail} onChange={e => setWaitlistEmail(e.target.value)} required style={{ flex: 1, padding: "14px 18px", borderRadius: "12px", border: "1.5px solid #e0d8d0", fontSize: "0.95rem", fontFamily: "inherit", outline: "none", background: "white" }} />
-                  <button type="submit" disabled={waitlistStatus === "loading"} style={{ padding: "14px 22px", borderRadius: "12px", background: "linear-gradient(135deg, #0d6e64, #14b8a6)", color: "white", border: "none", fontWeight: 800, fontSize: "0.9rem", cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap", minWidth: "130px" }}>
-                    {waitlistStatus === "loading" ? "⏳..." : "Listeye Katıl →"}
+                  <input type="email" placeholder="E-posta adresiniz" value={waitlistEmail} onChange={e => setWaitlistEmail(e.target.value)} required style={{ flex: 1, padding: "13px 16px", borderRadius: "6px", border: "1.5px solid #e0d8d0", fontSize: "0.92rem", fontFamily: "inherit", outline: "none", background: "white" }} />
+                  <button type="submit" disabled={waitlistStatus === "loading"} className="btn-flat" style={{ padding: "13px 20px", borderRadius: "6px", background: "#0d6e64", color: "white", border: "none", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}>
+                    {waitlistStatus === "loading" ? "Gönderiliyor…" : "Listeye Katıl"}
                   </button>
                 </div>
-                {waitlistStatus === "error" && <p style={{ color: "#dc2626", fontSize: "0.82rem", margin: 0 }}>Bir hata oluştu. Lütfen tekrar deneyin.</p>}
-                <p style={{ color: "#a8a29e", fontSize: "0.75rem", margin: 0 }}>Spam yok. İstediğiniz zaman çıkabilirsiniz.</p>
+                {waitlistStatus === "error" && <p style={{ color: "#dc2626", fontSize: "0.8rem", margin: 0 }}>Bir hata oluştu. Lütfen tekrar deneyin.</p>}
+                <p style={{ color: "#a8a29e", fontSize: "0.74rem", margin: 0 }}>Spam yok. İstediğiniz zaman çıkabilirsiniz.</p>
               </form>
             )}
           </div>
@@ -289,58 +311,40 @@ export default function LandingPage() {
       </section>
 
       {/* ─── PROBLEM ─── */}
-      <section style={{ padding: "88px 24px", maxWidth: "1100px", margin: "0 auto" }}>
+      <section style={{ padding: "80px 24px", maxWidth: "1040px", margin: "0 auto" }}>
         <Reveal>
-          <div style={{ textAlign: "center", marginBottom: "56px" }}>
-            <h2 style={{ fontSize: "clamp(1.8rem, 4vw, 2.8rem)", fontWeight: 900, letterSpacing: "-0.02em", marginBottom: "16px" }}>Öğretmenler bugün ne yapıyor?</h2>
-            <p style={{ color: "#57534e", fontSize: "1.05rem", maxWidth: "600px", margin: "0 auto" }}>Çok öğretmen hâlâ kağıt ve Excel ile sınıf yönetiyor.</p>
-          </div>
+          <h2 className="font-display" style={{ fontSize: "clamp(1.6rem, 3.4vw, 2.2rem)", fontWeight: 600, letterSpacing: "-0.01em", marginBottom: "14px" }}>Öğretmenler bugün ne yapıyor?</h2>
+          <p style={{ color: "#57534e", fontSize: "1rem", maxWidth: "560px", marginBottom: "44px" }}>Çoğu öğretmen hâlâ kağıt ve Excel ile sınıf yönetiyor — kurumsal sistem varsa bile.</p>
         </Reveal>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "20px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "1px", background: "#e0d8d0", border: "1px solid #e0d8d0" }}>
           {[
-            { icon: "😩", title: "Oturma düzeni = silgi izi", desc: "Her dönem sıfırdan çiz, her şikayet sonrası yeniden düzenle." },
-            { icon: "📋", title: "30 öğrenci × Excel = kaos", desc: "Notlar, davranışlar, aile notları — hepsi farklı yerlerde." },
-            { icon: "🔀", title: "Sınav karıştırma = eziyet", desc: "Her sınav döneminde el ile karıştırma, liste hazırlama." },
-            { icon: "🗂️", title: "Proje grubu = 'en iyiler'", desc: "Kim kimle uyumlu? Kim bu projeye uygun? Tahmin et." },
-          ].map((p, i) => (
-            <Reveal key={i} delay={i * 100}>
-              <div className="card-hover" style={{ background: "white", padding: "28px", borderRadius: "16px", border: "1.5px solid #e0d8d0", display: "flex", gap: "16px", height: "100%" }}>
-                <span style={{ fontSize: "2rem", flexShrink: 0 }}>{p.icon}</span>
-                <div>
-                  <h3 style={{ fontWeight: 800, fontSize: "0.95rem", marginBottom: "8px" }}>{p.title}</h3>
-                  <p style={{ color: "#57534e", fontSize: "0.85rem", lineHeight: 1.6, margin: 0 }}>{p.desc}</p>
-                </div>
-              </div>
-            </Reveal>
+            ["01", "Oturma düzeni, silgi izi", "Her dönem sıfırdan çiz, her şikayet sonrası yeniden düzenle."],
+            ["02", "30 öğrenci, tek bir Excel", "Notlar, davranışlar, aile notları — hepsi farklı sekmelerde."],
+            ["03", "Sınav karıştırma, eziyet", "Her dönemde el ile karıştırma, salon listesi hazırlama."],
+            ["04", "Proje grubu, tahmin işi", "Kim kimle uyumlu? Kim bu projeye uygun? Belli değil."],
+          ].map(([n, title, desc]) => (
+            <div key={n} style={{ background: "white", padding: "26px 24px" }}>
+              <div style={{ fontFamily: "var(--font-fraunces)", fontWeight: 600, fontSize: "1.6rem", color: "#d8cfc4", marginBottom: "10px" }}>{n}</div>
+              <h3 style={{ fontWeight: 800, fontSize: "0.92rem", marginBottom: "8px" }}>{title}</h3>
+              <p style={{ color: "#57534e", fontSize: "0.84rem", lineHeight: 1.6, margin: 0 }}>{desc}</p>
+            </div>
           ))}
         </div>
       </section>
 
       {/* ─── FEATURES ─── */}
-      <section id="features" style={{ padding: "88px 24px", background: "#0d6e64" }}>
-        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+      <section id="features" style={{ padding: "80px 24px", background: "#f0ece7" }}>
+        <div style={{ maxWidth: "1040px", margin: "0 auto" }}>
           <Reveal>
-            <div style={{ textAlign: "center", marginBottom: "56px" }}>
-              <h2 style={{ fontSize: "clamp(1.8rem, 4vw, 2.8rem)", fontWeight: 900, color: "white", letterSpacing: "-0.02em", marginBottom: "16px" }}>AklıSıra ne yapar?</h2>
-              <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "1.05rem", maxWidth: "500px", margin: "0 auto" }}>Öğretmenin kağıtla yaptığı her şeyi, yapay zeka ile dakikalar içinde.</p>
-            </div>
+            <h2 className="font-display" style={{ fontSize: "clamp(1.6rem, 3.4vw, 2.2rem)", fontWeight: 600, letterSpacing: "-0.01em", marginBottom: "44px" }}>Ne yapar</h2>
           </Reveal>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "16px" }}>
-            {features.map((f, i) => (
-              <Reveal key={i} delay={i * 80}>
-                <div
-                  className="feature-card"
-                  onClick={() => setActiveFeature(i)}
-                  style={{
-                    padding: "28px", borderRadius: "16px", cursor: "pointer", height: "100%",
-                    background: activeFeature === i ? "rgba(255,255,255,0.13)" : "rgba(255,255,255,0.05)",
-                    border: `1.5px solid ${activeFeature === i ? "rgba(255,255,255,0.32)" : "rgba(255,255,255,0.1)"}`,
-                    boxShadow: activeFeature === i ? "0 8px 32px rgba(0,0,0,0.18)" : "none",
-                  }}
-                >
-                  <div style={{ fontSize: "2.2rem", marginBottom: "14px" }}>{f.icon}</div>
-                  <h3 style={{ color: "white", fontWeight: 800, fontSize: "1rem", marginBottom: "10px" }}>{f.title}</h3>
-                  <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.85rem", lineHeight: 1.6, margin: 0 }}>{f.desc}</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "36px 28px" }}>
+            {features.map(({ Icon, title, desc }, i) => (
+              <Reveal key={title} delay={i * 60}>
+                <div>
+                  <Icon size={22} strokeWidth={1.6} color="#0d6e64" style={{ marginBottom: "14px" }} />
+                  <h3 style={{ fontWeight: 800, fontSize: "0.96rem", marginBottom: "8px" }}>{title}</h3>
+                  <p style={{ color: "#57534e", fontSize: "0.85rem", lineHeight: 1.65, margin: 0 }}>{desc}</p>
                 </div>
               </Reveal>
             ))}
@@ -349,24 +353,24 @@ export default function LandingPage() {
       </section>
 
       {/* ─── HOW IT WORKS ─── */}
-      <section style={{ padding: "88px 24px", maxWidth: "900px", margin: "0 auto" }}>
+      <section style={{ padding: "80px 24px", maxWidth: "820px", margin: "0 auto" }}>
         <Reveal>
-          <h2 style={{ textAlign: "center", fontSize: "clamp(1.8rem, 4vw, 2.8rem)", fontWeight: 900, letterSpacing: "-0.02em", marginBottom: "56px" }}>3 adımda çalışır</h2>
+          <h2 className="font-display" style={{ fontSize: "clamp(1.6rem, 3.4vw, 2.2rem)", fontWeight: 600, letterSpacing: "-0.01em", marginBottom: "44px" }}>3 adımda çalışır</h2>
         </Reveal>
         {[
-          { step: "01", icon: "✍️", title: "Öğrencileri Tanıt", desc: "\"Ali 90 puan, biraz haylaz. Elif sessiz, kısa boylu, gözlük kullanıyor\" — yaz ya da sesle anlat. AI geri kalanını yapar.", color: "#14b8a6" },
-          { step: "02", icon: "🧬", title: "Optimizasyonu Başlat", desc: "Genetik algoritma 50 nesil boyunca çalışır. Akademik denge, davranış uyumu, fiziksel gereksinimler — saniyeler içinde.", color: "#8b5cf6" },
-          { step: "03", icon: "📋", title: "Kullan, Paylaş, Tekrarla", desc: "Oturma planını yazdır veya paylaş. Sınav moduna geç, takım oluştur. Dönem içinde istediğin zaman güncelle.", color: "#f97316" },
-        ].map((step, i) => (
-          <Reveal key={i} delay={i * 120}>
-            <div style={{ display: "flex", gap: "24px", padding: "32px 0", borderBottom: i < 2 ? "1px solid #e0d8d0" : "none" }}>
-              <div style={{ flexShrink: 0, width: "56px", height: "56px", borderRadius: "14px", background: step.color + "18", border: `2px solid ${step.color}35`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem" }}>
-                {step.icon}
+          { step: "01", Icon: PenLine, title: "Öğrencileri tanıtın", desc: "\"Ali 90 puan, biraz haylaz. Elif sessiz, gözlük kullanıyor\" — yazın ya da sesle anlatın." },
+          { step: "02", Icon: Dna, title: "Optimizasyonu başlatın", desc: "Akademik denge, davranış uyumu, fiziksel gereksinimler — genetik algoritma ile saniyeler içinde." },
+          { step: "03", Icon: Printer, title: "Kullanın, paylaşın, tekrarlayın", desc: "Planı yazdırın ya da paylaşın. Sınav moduna geçin, takım oluşturun. İstediğiniz an güncelleyin." },
+        ].map(({ step, Icon, title, desc }, i) => (
+          <Reveal key={step} delay={i * 90}>
+            <div style={{ display: "flex", gap: "20px", padding: "28px 0", borderBottom: i < 2 ? "1px solid #e0d8d0" : "none" }}>
+              <div style={{ flexShrink: 0, width: "48px", height: "48px", borderRadius: "8px", background: "#d1faf4", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Icon size={20} strokeWidth={1.6} color="#0d6e64" />
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: "0.68rem", fontWeight: 900, color: step.color, marginBottom: "6px", letterSpacing: "0.1em" }}>ADIM {step.step}</div>
-                <h3 style={{ fontWeight: 900, fontSize: "1.1rem", marginBottom: "8px" }}>{step.title}</h3>
-                <p style={{ color: "#57534e", lineHeight: 1.65, margin: 0, fontSize: "0.9rem" }}>{step.desc}</p>
+                <div style={{ fontSize: "0.65rem", fontWeight: 900, color: "#0d6e64", marginBottom: "6px", letterSpacing: "0.1em" }}>ADIM {step}</div>
+                <h3 style={{ fontWeight: 800, fontSize: "1.05rem", marginBottom: "6px" }}>{title}</h3>
+                <p style={{ color: "#57534e", lineHeight: 1.6, margin: 0, fontSize: "0.88rem" }}>{desc}</p>
               </div>
             </div>
           </Reveal>
@@ -374,58 +378,55 @@ export default function LandingPage() {
       </section>
 
       {/* ─── SOCIAL PROOF (real only) ─── */}
-      <section style={{ padding: "88px 24px", background: "#f0ece7" }}>
-        <div style={{ maxWidth: "720px", margin: "0 auto", textAlign: "center" }}>
+      <section style={{ padding: "72px 24px", background: "#1a1715" }}>
+        <div style={{ maxWidth: "680px", margin: "0 auto", textAlign: "center" }}>
           <Reveal>
-            <div style={{ fontSize: "2.5rem", marginBottom: "16px" }}>🏆</div>
-            <h2 style={{ fontSize: "clamp(1.6rem, 3.5vw, 2.1rem)", fontWeight: 900, marginBottom: "16px", letterSpacing: "-0.02em" }}>Kanıtlanmış demo</h2>
-            <p style={{ color: "#57534e", fontSize: "1.05rem", lineHeight: 1.7, marginBottom: "8px" }}>
-              III. Eğitimde Yapay Zekâ Zirvesi&apos;nde <strong>En İyi Demo</strong> — YTÜ Davutpaşa, 2026.
+            <h2 className="font-display" style={{ fontSize: "clamp(1.4rem, 3vw, 1.8rem)", fontWeight: 600, color: "#f7f5f2", marginBottom: "14px" }}>Kanıtlanmış demo</h2>
+            <p style={{ color: "rgba(247,245,242,0.7)", fontSize: "0.98rem", lineHeight: 1.7, marginBottom: "8px" }}>
+              III. Eğitimde Yapay Zekâ Zirvesi'nde <strong style={{ color: "#5eead4" }}>En İyi Demo</strong> — YTÜ Davutpaşa, 2026.
             </p>
-            <p style={{ color: "#a8a29e", fontSize: "0.9rem", lineHeight: 1.6 }}>
-              Sahte öğretmen yorumu yok. Ürünü kendin dene; zirvede gördüğün araçla aynı.
+            <p style={{ color: "rgba(247,245,242,0.4)", fontSize: "0.85rem", lineHeight: 1.6 }}>
+              Sahte öğretmen yorumu yok. Ürünü kendiniz deneyin — zirvede gösterilenle aynı.
             </p>
           </Reveal>
         </div>
       </section>
 
       {/* ─── PRICING ─── */}
-      <section id="pricing" style={{ padding: "88px 24px", maxWidth: "820px", margin: "0 auto" }}>
+      <section id="pricing" style={{ padding: "80px 24px", maxWidth: "780px", margin: "0 auto" }}>
         <Reveal>
-          <div style={{ textAlign: "center", marginBottom: "48px" }}>
-            <h2 style={{ fontSize: "clamp(1.8rem, 4vw, 2.4rem)", fontWeight: 900, marginBottom: "16px", letterSpacing: "-0.02em" }}>Sade ve şeffaf fiyatlandırma</h2>
-            <p style={{ color: "#57534e", fontSize: "1rem" }}>Başvuru kartı yok. Kredi kartı yok. Sadece ihtiyacın kadar.</p>
-          </div>
+          <h2 className="font-display" style={{ fontSize: "clamp(1.6rem, 3.4vw, 2rem)", fontWeight: 600, letterSpacing: "-0.01em", marginBottom: "12px" }}>Sade ve şeffaf fiyatlandırma</h2>
+          <p style={{ color: "#57534e", fontSize: "0.95rem", marginBottom: "44px" }}>Başvuru kartı yok, kredi kartı yok. Sadece ihtiyacınız kadar.</p>
         </Reveal>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "20px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1px", background: "#e0d8d0", border: "1px solid #e0d8d0" }}>
           <Reveal delay={0}>
-            <div className="card-hover" style={{ background: "white", padding: "36px 28px", borderRadius: "20px", border: "1.5px solid #e0d8d0", height: "100%" }}>
-              <div style={{ fontWeight: 800, fontSize: "0.85rem", color: "#57534e", marginBottom: "8px" }}>ÜCRETSİZ</div>
-              <div style={{ fontSize: "2.5rem", fontWeight: 900, marginBottom: "4px" }}>₺0</div>
-              <div style={{ color: "#a8a29e", fontSize: "0.8rem", marginBottom: "24px" }}>İlk sınıf ücretsiz</div>
-              <ul style={{ listStyle: "none", padding: 0, margin: "0 0 32px", display: "flex", flexDirection: "column", gap: "10px" }}>
+            <div className="plain-card" style={{ background: "white", padding: "32px 26px", border: "1px solid transparent", height: "100%" }}>
+              <div style={{ fontWeight: 800, fontSize: "0.8rem", color: "#57534e", marginBottom: "8px", letterSpacing: "0.05em" }}>ÜCRETSİZ</div>
+              <div style={{ fontSize: "2.2rem", fontWeight: 900, marginBottom: "4px" }}>₺0</div>
+              <div style={{ color: "#a8a29e", fontSize: "0.78rem", marginBottom: "22px" }}>İlk sınıf ücretsiz</div>
+              <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px", display: "flex", flexDirection: "column", gap: "9px" }}>
                 {["İlk sınıfın tamamı ücretsiz", "Tüm düzen tipleri", "Kelebek sınav modu", "Takım oluşturma", "Kart gerekmez"].map(f => (
-                  <li key={f} style={{ display: "flex", gap: "8px", fontSize: "0.85rem" }}><span style={{ color: "#14b8a6" }}>✓</span>{f}</li>
+                  <li key={f} style={{ display: "flex", gap: "8px", alignItems: "center", fontSize: "0.84rem" }}><Check size={14} color="#0d6e64" strokeWidth={2.5} />{f}</li>
                 ))}
               </ul>
-              <Link href="/app" style={{ display: "block", textAlign: "center", textDecoration: "none", border: "2px solid #0d6e64", color: "#0d6e64", padding: "12px", borderRadius: "12px", fontWeight: 800, fontSize: "0.9rem" }}>
+              <Link href="/app" style={{ display: "block", textAlign: "center", textDecoration: "none", border: "1.5px solid #0d6e64", color: "#0d6e64", padding: "11px", borderRadius: "6px", fontWeight: 700, fontSize: "0.88rem" }}>
                 Demo'yu Aç
               </Link>
             </div>
           </Reveal>
-          <Reveal delay={120}>
-            <div style={{ background: "linear-gradient(135deg, #0d6e64, #094f47)", padding: "36px 28px", borderRadius: "20px", position: "relative", overflow: "hidden", boxShadow: "0 16px 48px rgba(13,110,100,0.3)", height: "100%" }}>
-              <div style={{ position: "absolute", top: "16px", right: "16px", background: "#fbbf24", color: "#1a1715", fontSize: "0.65rem", fontWeight: 900, padding: "4px 10px", borderRadius: "50px" }}>BETA İNDİRİMİ</div>
-              <div style={{ fontWeight: 800, fontSize: "0.85rem", color: "rgba(255,255,255,0.6)", marginBottom: "8px" }}>PRO</div>
-              <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "white", marginBottom: "4px" }}>₺150</div>
-              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.8rem", marginBottom: "24px" }}>/ ay — yakında ₺200</div>
-              <ul style={{ listStyle: "none", padding: 0, margin: "0 0 32px", display: "flex", flexDirection: "column", gap: "10px" }}>
+          <Reveal delay={80}>
+            <div style={{ background: "#1a1715", padding: "32px 26px", position: "relative", height: "100%" }}>
+              <div style={{ position: "absolute", top: "16px", right: "16px", border: "1px solid #fbbf24", color: "#fbbf24", fontSize: "0.62rem", fontWeight: 800, padding: "3px 9px", borderRadius: "3px", letterSpacing: "0.03em" }}>BETA İNDİRİMİ</div>
+              <div style={{ fontWeight: 800, fontSize: "0.8rem", color: "rgba(247,245,242,0.55)", marginBottom: "8px", letterSpacing: "0.05em" }}>PRO</div>
+              <div style={{ fontSize: "2.2rem", fontWeight: 900, color: "#f7f5f2", marginBottom: "4px" }}>₺150</div>
+              <div style={{ color: "rgba(247,245,242,0.45)", fontSize: "0.78rem", marginBottom: "22px" }}>/ ay — yakında ₺200</div>
+              <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px", display: "flex", flexDirection: "column", gap: "9px" }}>
                 {["Sınırsız öğrenci", "Tüm ücretsiz özellikler +", "Öğrenci not defteri", "Dönem geçmişi", "AI sınıf analizi", "Öncelikli destek"].map(f => (
-                  <li key={f} style={{ display: "flex", gap: "8px", fontSize: "0.85rem", color: "white" }}><span style={{ color: "#5eead4" }}>✓</span>{f}</li>
+                  <li key={f} style={{ display: "flex", gap: "8px", alignItems: "center", fontSize: "0.84rem", color: "#f7f5f2" }}><Check size={14} color="#5eead4" strokeWidth={2.5} />{f}</li>
                 ))}
               </ul>
-              <a href="#waitlist" style={{ display: "block", textAlign: "center", textDecoration: "none", background: "white", color: "#0d6e64", padding: "14px", borderRadius: "12px", fontWeight: 900, fontSize: "0.9rem" }}>
-                Erken Erişim Al →
+              <a href="#waitlist" className="btn-flat" style={{ display: "block", textAlign: "center", textDecoration: "none", background: "#14b8a6", color: "#0a2622", padding: "13px", borderRadius: "6px", fontWeight: 800, fontSize: "0.88rem" }}>
+                Erken Erişim Al
               </a>
             </div>
           </Reveal>
@@ -433,63 +434,57 @@ export default function LandingPage() {
       </section>
 
       {/* ─── CONTACT ─── */}
-      <section id="contact" style={{ padding: "88px 24px", maxWidth: "900px", margin: "0 auto" }}>
+      <section id="contact" style={{ padding: "80px 24px", maxWidth: "980px", margin: "0 auto" }}>
         <Reveal>
-          <div style={{ textAlign: "center", marginBottom: "48px" }}>
-            <h2 style={{ fontSize: "clamp(1.8rem, 4vw, 2.4rem)", fontWeight: 900, marginBottom: "16px", letterSpacing: "-0.02em" }}>İletişime geç</h2>
-            <p style={{ color: "#57534e", fontSize: "1rem", maxWidth: "500px", margin: "0 auto" }}>Okul veya kurum olarak pilot kullanım, iş birliği ya da demo talebi için ulaşın.</p>
-          </div>
+          <h2 className="font-display" style={{ fontSize: "clamp(1.6rem, 3.4vw, 2rem)", fontWeight: 600, letterSpacing: "-0.01em", marginBottom: "12px" }}>İletişime geçin</h2>
+          <p style={{ color: "#57534e", fontSize: "0.95rem", maxWidth: "500px", marginBottom: "40px" }}>Okul veya kurum olarak pilot kullanım, iş birliği ya da demo talebi için ulaşın.</p>
         </Reveal>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "20px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1px", background: "#e0d8d0", border: "1px solid #e0d8d0", marginBottom: "24px" }}>
           {[
-            { icon: "✉️", title: "E-POSTA", value: "info@aklisira.com", href: "mailto:info@aklisira.com", desc: "Sorular, demo talepleri ve iş birlikleri" },
-            { icon: "🌐", title: "WEB", value: "aklisira.com", href: "https://aklisira.com", desc: "Uygulamayı hemen ücretsiz deneyin" },
-            { icon: "🏫", title: "KURUM", value: "Baykar Fen Lisesi", href: "#", desc: "İstanbul — Eğitimde Yapay Zekâ Zirvesi" },
-          ].map((c, i) => (
-            <Reveal key={i} delay={i * 100}>
-              <a href={c.href} style={{ textDecoration: "none", display: "block" }}>
-                <div className="card-hover" style={{ background: "white", padding: "28px", borderRadius: "16px", border: "1.5px solid #e0d8d0", height: "100%" }}>
-                  <div style={{ fontSize: "2rem", marginBottom: "14px" }}>{c.icon}</div>
-                  <div style={{ fontSize: "0.68rem", fontWeight: 800, color: "#14b8a6", marginBottom: "6px", letterSpacing: "0.1em" }}>{c.title}</div>
-                  <div style={{ fontWeight: 800, fontSize: "0.95rem", color: "#0d6e64", marginBottom: "8px" }}>{c.value}</div>
-                  <div style={{ color: "#57534e", fontSize: "0.8rem", lineHeight: 1.5 }}>{c.desc}</div>
-                </div>
-              </a>
-            </Reveal>
+            { Icon: Mail, title: "E-POSTA", value: "info@aklisira.com", href: "mailto:info@aklisira.com", desc: "Sorular, demo talepleri ve iş birlikleri" },
+            { Icon: Globe, title: "WEB", value: "aklisira.com", href: "https://aklisira.com", desc: "Uygulamayı hemen ücretsiz deneyin" },
+            { Icon: School, title: "KURUM", value: "Baykar Fen Lisesi", href: "#", desc: "İstanbul — Eğitimde Yapay Zekâ Zirvesi" },
+          ].map((c) => (
+            <a key={c.title} href={c.href} className="plain-card" style={{ textDecoration: "none", display: "block", background: "white", padding: "26px 24px", border: "1px solid transparent" }}>
+              <c.Icon size={20} strokeWidth={1.6} color="#0d6e64" style={{ marginBottom: "14px" }} />
+              <div style={{ fontSize: "0.66rem", fontWeight: 800, color: "#0d6e64", marginBottom: "6px", letterSpacing: "0.08em" }}>{c.title}</div>
+              <div style={{ fontWeight: 800, fontSize: "0.94rem", color: "#1a1715", marginBottom: "6px" }}>{c.value}</div>
+              <div style={{ color: "#57534e", fontSize: "0.8rem", lineHeight: 1.5 }}>{c.desc}</div>
+            </a>
           ))}
         </div>
-        <Reveal delay={200}>
-          <div style={{ marginTop: "32px", padding: "28px 32px", background: "linear-gradient(135deg, #f0ece7, #fff)", borderRadius: "16px", border: "1.5px solid #e0d8d0", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>
+        <Reveal delay={150}>
+          <div style={{ padding: "24px 28px", background: "white", border: "1px solid #e0d8d0", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>
             <div>
-              <div style={{ fontWeight: 800, fontSize: "1rem", marginBottom: "4px" }}>Okulunuz için pilot kurmak ister misiniz?</div>
-              <div style={{ color: "#57534e", fontSize: "0.85rem" }}>Okul yönetimleri ve zümre başkanları için özel demo randevusu.</div>
+              <div style={{ fontWeight: 800, fontSize: "0.95rem", marginBottom: "4px" }}>Okulunuz için pilot kurmak ister misiniz?</div>
+              <div style={{ color: "#57534e", fontSize: "0.83rem" }}>Okul yönetimleri ve zümre başkanları için özel demo randevusu.</div>
             </div>
-            <a href="mailto:info@aklisira.com?subject=Pilot%20Demo%20Talebi" style={{ textDecoration: "none", background: "linear-gradient(135deg, #0d6e64, #14b8a6)", color: "white", padding: "12px 28px", borderRadius: "50px", fontWeight: 800, fontSize: "0.9rem", whiteSpace: "nowrap" }}>
-              📩 Demo Talep Et
+            <a href="mailto:info@aklisira.com?subject=Pilot%20Demo%20Talebi" className="btn-flat" style={{ textDecoration: "none", background: "#0d6e64", color: "white", padding: "11px 24px", borderRadius: "6px", fontWeight: 700, fontSize: "0.86rem", whiteSpace: "nowrap" }}>
+              Demo Talep Et
             </a>
           </div>
         </Reveal>
       </section>
 
       {/* ─── FINAL CTA ─── */}
-      <section style={{ padding: "88px 24px", textAlign: "center", background: "linear-gradient(135deg, #0d6e64, #094f47)" }}>
+      <section style={{ padding: "80px 24px", textAlign: "center", background: "#0d6e64" }}>
         <Reveal>
-          <h2 style={{ fontSize: "clamp(1.8rem, 4vw, 2.8rem)", fontWeight: 900, color: "white", marginBottom: "16px", letterSpacing: "-0.02em" }}>
+          <h2 className="font-display" style={{ fontSize: "clamp(1.6rem, 3.4vw, 2.2rem)", fontWeight: 600, color: "white", marginBottom: "14px" }}>
             Sınıfınızı tanımaya hazır mısınız?
           </h2>
-          <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "1.05rem", maxWidth: "500px", margin: "0 auto 40px" }}>
+          <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "1rem", maxWidth: "480px", margin: "0 auto 32px" }}>
             Kredi kartı gerekmez. 2 dakikada kurulum. Türkiye'deki öğretmenler için.
           </p>
           <div style={{ display: "flex", gap: "14px", justifyContent: "center", flexWrap: "wrap" }}>
-            <Link href="/app" className="hero-btn" style={{ textDecoration: "none", display: "inline-block", background: "white", color: "#0d6e64", padding: "18px 48px", borderRadius: "50px", fontWeight: 900, fontSize: "1.1rem", boxShadow: "0 12px 40px rgba(0,0,0,0.25)" }}>
-              ✨ Ücretsiz Başla
+            <Link href="/app" className="btn-flat" style={{ textDecoration: "none", display: "inline-block", background: "white", color: "#0d6e64", padding: "15px 40px", borderRadius: "6px", fontWeight: 800, fontSize: "1rem" }}>
+              Ücretsiz Başla
             </Link>
-            <Link href="/app" className="ghost-btn" style={{ textDecoration: "none", display: "inline-block", border: "2px solid rgba(255,255,255,0.35)", color: "white", padding: "18px 48px", borderRadius: "50px", fontWeight: 700, fontSize: "1.1rem" }}>
+            <Link href="/app" className="btn-flat" style={{ textDecoration: "none", display: "inline-block", border: "1.5px solid rgba(255,255,255,0.35)", color: "white", padding: "15px 40px", borderRadius: "6px", fontWeight: 700, fontSize: "1rem" }}>
               Kayıtsız Dene
             </Link>
           </div>
-          <p style={{ marginTop: "20px", fontSize: "0.8rem", color: "rgba(255,255,255,0.5)" }}>
-            Öğrenci listeleri tarayıcınızda kalır — <Link href="/gizlilik" style={{ color: "rgba(255,255,255,0.75)", textDecoration: "underline" }}>ayrıntılar</Link>
+          <p style={{ marginTop: "18px", fontSize: "0.78rem", color: "rgba(255,255,255,0.55)" }}>
+            Öğrenci listeleri tarayıcınızda kalır — <Link href="/gizlilik" style={{ color: "rgba(255,255,255,0.8)", textDecoration: "underline" }}>ayrıntılar</Link>
           </p>
         </Reveal>
       </section>
@@ -497,21 +492,22 @@ export default function LandingPage() {
       {/* ─── FOOTER ─── */}
       <footer style={{ padding: "40px 24px", textAlign: "center", background: "#1a1715", color: "rgba(255,255,255,0.4)", fontSize: "0.8rem" }}>
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "6px", marginBottom: "16px" }}>
-          <img src="/logo.png" alt="AklıSıra" style={{ height: "26px", width: "26px", objectFit: "contain", filter: "brightness(0) invert(1)", opacity: 0.65 }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-          <span style={{ fontWeight: 900, color: "rgba(255,255,255,0.8)", fontSize: "1rem" }}>AklıSıra</span>
+          <img src="/logo.png" alt="AklıSıra" style={{ height: "24px", width: "24px", objectFit: "contain", filter: "brightness(0) invert(1)", opacity: 0.65 }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+          <span className="font-display" style={{ fontWeight: 600, color: "rgba(255,255,255,0.85)", fontSize: "1rem" }}>AklıSıra</span>
         </div>
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "16px", flexWrap: "wrap", marginBottom: "12px" }}>
-          {[["Özellikler", "#features"], ["Fiyat", "#pricing"], ["İletişim", "#contact"], ["Erken Erişim", "#waitlist"]].map(([label, href]) => (
+          {[["Neden Farklı", "#neden"], ["Özellikler", "#features"], ["Fiyat", "#pricing"], ["İletişim", "#contact"]].map(([label, href]) => (
             <a key={href} href={href} style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>{label}</a>
           ))}
           <span>·</span>
           <Link href="/app" style={{ color: "#5eead4", textDecoration: "none" }}>Demo</Link>
           <span>·</span>
           <Link href="/gizlilik" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Gizlilik</Link>
-          <span>·</span>
-          <a href="mailto:info@aklisira.com" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>info@aklisira.com</a>
         </div>
-        <div>Baykar Fen Lisesi · III. Eğitimde Yapay Zekâ Zirvesi 2026 · © 2026</div>
+        <div style={{ marginBottom: "4px" }}>
+          Yusuf Kerim Kaymakçı · Baykar Fen Lisesi · <a href="mailto:ykk@zilant.one" style={{ color: "rgba(255,255,255,0.5)", textDecoration: "none" }}>ykk@zilant.one</a> · aklisira.com
+        </div>
+        <div style={{ opacity: 0.7 }}>Öğrenci yapımı · III. Eğitimde Yapay Zekâ Zirvesi 2026 · © 2026</div>
       </footer>
     </div>
   );

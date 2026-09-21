@@ -1,11 +1,22 @@
 import type { Metadata } from "next";
-import { Nunito } from "next/font/google";
+import { Nunito, Fraunces } from "next/font/google";
 import "./globals.css";
 
 const nunito = Nunito({
   variable: "--font-nunito",
   subsets: ["latin", "latin-ext"],
   weight: ["400", "600", "700", "800", "900"],
+});
+
+// Distinctive editorial display serif for headings — deliberately not
+// another Inter/Poppins-style grotesque, to read as crafted rather than
+// templated. Nunito stays for body/UI text.
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin", "latin-ext"],
+  weight: "variable",
+  style: ["normal", "italic"],
+  axes: ["opsz", "SOFT", "WONK"],
 });
 
 export const metadata: Metadata = {
@@ -60,7 +71,7 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/logo.png" type="image/png" />
       </head>
-      <body className={`${nunito.variable} antialiased`}>
+      <body className={`${nunito.variable} ${fraunces.variable} antialiased`}>
         {children}
       </body>
     </html>
