@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { CalendarDays, Handshake, BarChart3, Brain, PenLine, FileText } from 'lucide-react';
 import { ParentMeeting, Student } from '../types';
 
 interface MeetingManagerProps {
@@ -33,14 +34,14 @@ export const MeetingManager: React.FC<MeetingManagerProps> = ({
       {/* ─── Meeting List ─── */}
       <div className="card animate-fade-in" style={{ padding: '20px' }}>
         <div className="card-header" style={{ marginBottom: '16px' }}>
-          <span>📅 Veli Görüşmeleri</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CalendarDays size={18} strokeWidth={1.75} /> Veli Görüşmeleri</span>
           <button className="btn-primary" onClick={() => setShowAddModal(true)} style={{ padding: '6px 12px', fontSize: '0.75rem' }}>+ Yeni Randevu</button>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {meetings.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
-              <div style={{ fontSize: '2rem', marginBottom: '8px' }}>🤝</div>
+              <Handshake size={32} strokeWidth={1.5} style={{ marginBottom: '8px' }} />
               <p style={{ fontSize: '0.85rem' }}>Henüz planlanmış bir görüşme yok.</p>
             </div>
           ) : (
@@ -79,7 +80,7 @@ export const MeetingManager: React.FC<MeetingManagerProps> = ({
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '4px' }}>{activeMeeting.date} | {activeMeeting.time}</div>
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
-                 <button onClick={() => onUpdateMeeting(activeMeeting.id, { status: 'completed' })} className="btn-primary" style={{ background: '#22c55e', border: 'none', padding: '8px 16px' }}>✓ Tamamlandı</button>
+                 <button onClick={() => onUpdateMeeting(activeMeeting.id, { status: 'completed' })} className="btn-primary" style={{ background: '#22c55e', border: 'none', padding: '8px 16px' }}>Tamamlandı</button>
                  <button onClick={() => setActiveMeetingId(null)} className="btn-secondary">Kapat</button>
               </div>
             </div>
@@ -87,7 +88,7 @@ export const MeetingManager: React.FC<MeetingManagerProps> = ({
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
               {/* Student Overview */}
               <div>
-                <h4 style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '10px' }}>📊 ÖĞRENCİ ÖZETİ</h4>
+                <h4 style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}><BarChart3 size={14} strokeWidth={1.75} /> ÖĞRENCİ ÖZETİ</h4>
                 <div className="card" style={{ background: 'var(--bg-muted)', border: 'none', padding: '12px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -108,7 +109,7 @@ export const MeetingManager: React.FC<MeetingManagerProps> = ({
 
               {/* Behavior & Traits */}
               <div>
-                <h4 style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '10px' }}>🧠 DAVRANIŞ & MİZAÇ</h4>
+                <h4 style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}><Brain size={14} strokeWidth={1.75} /> DAVRANIŞ & MİZAÇ</h4>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                   <span style={{ padding: '4px 10px', borderRadius: '20px', background: 'var(--primary-pale)', color: 'var(--primary)', fontSize: '0.7rem', fontWeight: 700 }}>{activeStudent.behaviorType}</span>
                   <span style={{ padding: '4px 10px', borderRadius: '20px', background: 'var(--accent-pale)', color: 'var(--accent)', fontSize: '0.7rem', fontWeight: 700 }}>{activeStudent.learningStyle || 'Genel'}</span>
@@ -119,7 +120,7 @@ export const MeetingManager: React.FC<MeetingManagerProps> = ({
 
             {/* Observation History */}
             <div style={{ marginTop: '24px' }}>
-               <h4 style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '10px' }}>✍️ GÖZLEM GEÇMİŞİ</h4>
+               <h4 style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}><PenLine size={14} strokeWidth={1.75} /> GÖZLEM GEÇMİŞİ</h4>
                <div style={{ maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                  {activeStudent.observations?.map(obs => (
                    <div key={obs.id} style={{ padding: '10px', borderRadius: '8px', background: 'white', border: '1px solid var(--border-light)' }}>
@@ -136,7 +137,7 @@ export const MeetingManager: React.FC<MeetingManagerProps> = ({
 
             {/* Meeting Notes */}
             <div style={{ marginTop: '24px' }}>
-               <h4 style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '10px' }}>📝 GÖRÜŞME NOTLARI (Veliye İletilecek)</h4>
+               <h4 style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}><FileText size={14} strokeWidth={1.75} /> GÖRÜŞME NOTLARI (Veliye İletilecek)</h4>
                <textarea 
                   style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '0.85rem', minHeight: '100px' }}
                   placeholder="Görüşme sırasında aldığınız notları buraya ekleyin..."

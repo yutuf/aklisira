@@ -10,7 +10,10 @@
   --primary-light: #14b8a6;
   --primary-pale: #d1faf4;
   --primary-dark: #094f47;
-  --primary-gradient: linear-gradient(135deg, #0d6e64, #14b8a6);
+  /* Flat, not a shiny gradient — matches the landing page's anti-slop
+     visual language. Kept as a token (not a literal color) so every
+     call site updates together. */
+  --primary-gradient: var(--primary);
 
   --accent: #d97706;
   --accent-light: #fbbf24;
@@ -46,6 +49,16 @@
   --color-background: var(--bg);
   --color-foreground: var(--text);
   --font-sans: var(--font-nunito);
+  --font-display: var(--font-fraunces);
+}
+
+/* Headings/display copy use Fraunces (editorial serif) instead of the
+   body sans, so the page reads as designed rather than a generic
+   startup-template grotesque-everywhere look. Apply via .font-display
+   or the --font-display token directly. */
+.font-display {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-optical-sizing: auto;
 }
 
 /* ===========================
@@ -79,8 +92,9 @@ body {
 }
 
 .sidebar-logo {
-  font-size: 1.5rem;
-  font-weight: 900;
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-size: 1.4rem;
+  font-weight: 600;
   color: var(--primary);
   margin-bottom: 32px;
   padding: 0 12px;
@@ -829,6 +843,8 @@ input[type="file"]::file-selector-button:hover {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+.spin { animation: spin 1s linear infinite; }
 
 /* ===========================
    Empty State

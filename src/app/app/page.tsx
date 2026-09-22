@@ -17,6 +17,12 @@ import { calculateMetrics } from '../../utils/scoring-utils';
 import { createBrowserClient } from '@supabase/ssr';
 import ClassStats from '../../components/ClassStats';
 import { PrivacyNotice, PrivacyNoticeLink } from '../../components/PrivacyNotice';
+import {
+  Brain, LayoutDashboard, GraduationCap, LayoutGrid, ClipboardCheck, CalendarDays,
+  Handshake, Users, FileEdit, Menu, Eye, EyeOff, Gift, Sparkles,
+  Download, Mic, Square, Ruler, BarChart3, Lightbulb, FileText, Search,
+  Zap, Loader2, PenLine, Clock, Star,
+} from 'lucide-react';
 
 // ─── Constants ───
 const AVATAR_COLORS = [
@@ -458,7 +464,7 @@ export default function Dashboard() {
   const handleSaveAssignments = () => {
     if (!activeClassId) return;
     updateClass(activeClassId, { assignments, layout, layoutType });
-    alert("Sınıf düzeni başarıyla kaydedildi! ✓");
+    alert("Sınıf düzeni başarıyla kaydedildi.");
     logVisitorAction('save_layout', { studentCount: students.length });
   };
 
@@ -555,58 +561,58 @@ export default function Dashboard() {
       {/* ─── SIDEBAR ─── */}
       <div className={`sidebar${mobileNavOpen ? ' is-open' : ''}`}>
         <div className="sidebar-logo">
-          <span style={{ fontSize: '1.8rem' }}>🧠</span>
+          <Brain size={22} strokeWidth={1.75} />
           AklıSıra
         </div>
-        
+
         <div className="sidebar-menu">
-          <button 
+          <button
             className={`sidebar-item ${activeTab === 'dashboard' ? 'active' : ''}`}
             onClick={() => goTab('dashboard')}
           >
-            <span className="icon">🏠</span> Pano (Özet)
+            <LayoutDashboard className="icon" size={18} strokeWidth={1.75} /> Pano (Özet)
           </button>
-          <button 
+          <button
             className={`sidebar-item ${activeTab === 'students' ? 'active' : ''}`}
             onClick={() => goTab('students')}
           >
-            <span className="icon">👩‍🎓</span> Öğrenci Rehberi
+            <GraduationCap className="icon" size={18} strokeWidth={1.75} /> Öğrenci Rehberi
           </button>
-          <button 
+          <button
             className={`sidebar-item ${activeTab === 'classroom' ? 'active' : ''}`}
             onClick={() => goTab('classroom')}
           >
-            <span className="icon">🏫</span> Sınıf & Düzen
+            <LayoutGrid className="icon" size={18} strokeWidth={1.75} /> Sınıf & Düzen
           </button>
-          <button 
+          <button
             className={`sidebar-item ${activeTab === 'attendance' ? 'active' : ''}`}
             onClick={() => goTab('attendance')}
           >
-            <span className="icon">📋</span> Yoklama
+            <ClipboardCheck className="icon" size={18} strokeWidth={1.75} /> Yoklama
           </button>
-          <button 
+          <button
             className={`sidebar-item ${activeTab === 'schedule' ? 'active' : ''}`}
             onClick={() => goTab('schedule')}
           >
-            <span className="icon">📅</span> Ders Programı
+            <CalendarDays className="icon" size={18} strokeWidth={1.75} /> Ders Programı
           </button>
-          <button 
+          <button
             className={`sidebar-item ${activeTab === 'meetings' ? 'active' : ''}`}
             onClick={() => goTab('meetings')}
           >
-            <span className="icon">🤝</span> Veli Görüşmeleri
+            <Handshake className="icon" size={18} strokeWidth={1.75} /> Veli Görüşmeleri
           </button>
-          <button 
+          <button
             className={`sidebar-item ${activeTab === 'teams' ? 'active' : ''}`}
             onClick={() => goTab('teams')}
           >
-            <span className="icon">👥</span> Takım Kur
+            <Users className="icon" size={18} strokeWidth={1.75} /> Takım Kur
           </button>
-          <button 
+          <button
             className={`sidebar-item ${activeTab === 'exam' ? 'active' : ''}`}
             onClick={() => goTab('exam')}
           >
-            <span className="icon">📝</span> Sınav Modu
+            <FileEdit className="icon" size={18} strokeWidth={1.75} /> Sınav Modu
           </button>
         </div>
 
@@ -642,7 +648,7 @@ export default function Dashboard() {
             aria-label="Menüyü aç"
             onClick={() => setMobileNavOpen(true)}
           >
-            ☰
+            <Menu size={22} strokeWidth={1.75} />
           </button>
           <span className="mobile-topbar-title">AklıSıra</span>
         </div>
@@ -681,10 +687,11 @@ export default function Dashboard() {
                 cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px'
               }}
             >
-              {isPrivacyMode ? '👁️ Gizlilik: AÇIK' : '👁️ Gizlilik: KAPALI'}
+              {isPrivacyMode ? <Eye size={14} strokeWidth={2} /> : <EyeOff size={14} strokeWidth={2} />}
+              {isPrivacyMode ? 'Gizlilik: Açık' : 'Gizlilik: Kapalı'}
             </button>
-            <button onClick={loadDemoData} style={{ padding: '6px 12px', borderRadius: '50px', fontSize: '0.75rem', fontWeight: 700, border: 'none', background: 'var(--accent-pale)', color: 'var(--accent)' }}>
-              🎁 Demo Yükle
+            <button onClick={loadDemoData} style={{ padding: '6px 12px', borderRadius: '50px', fontSize: '0.75rem', fontWeight: 700, border: 'none', background: 'var(--accent-pale)', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Gift size={14} strokeWidth={2} /> Demo Yükle
             </button>
           </div>
         </div>
@@ -698,7 +705,7 @@ export default function Dashboard() {
                 <input type="text" placeholder="Şube (isteğe bağlı)" value={newClassGrade} onChange={e => setNewClassGrade(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleCreateClass()} style={{ padding: '12px 16px', borderRadius: '10px', border: '1.5px solid var(--border)', fontSize: '0.95rem', fontFamily: 'inherit', outline: 'none' }} />
                 <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                   <button onClick={() => setShowNewClassModal(false)} style={{ flex: 1, padding: '12px', borderRadius: '10px', border: '1.5px solid var(--border)', background: 'transparent', fontSize: '0.9rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>İptal</button>
-                  <button onClick={handleCreateClass} style={{ flex: 2, padding: '12px', borderRadius: '10px', background: 'var(--primary-gradient)', color: 'white', border: 'none', fontSize: '0.9rem', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>Oluştur ✓</button>
+                  <button onClick={handleCreateClass} style={{ flex: 2, padding: '12px', borderRadius: '10px', background: 'var(--primary-gradient)', color: 'white', border: 'none', fontSize: '0.9rem', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>Oluştur</button>
                 </div>
               </div>
             </div>
@@ -711,8 +718,8 @@ export default function Dashboard() {
           <div className="animate-fade-in" style={{ maxWidth: '1000px', margin: '0 auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
               <div>
-                <h1 style={{ fontSize: '2.2rem', fontWeight: 900, color: 'var(--text)', margin: 0 }}>
-                  Günaydın{user ? `, ${user.user_metadata?.full_name?.split(' ')[0] || 'Hocam'}` : ' Hocam'}! ☀️
+                <h1 className="font-display" style={{ fontSize: '2.1rem', fontWeight: 600, color: 'var(--text)', margin: 0 }}>
+                  Günaydın{user ? `, ${user.user_metadata?.full_name?.split(' ')[0] || 'Hocam'}` : ' Hocam'}
                 </h1>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', marginTop: '4px' }}>
                   AklıSıra asistanınız bugün için hazır.
@@ -729,7 +736,7 @@ export default function Dashboard() {
                   <div style={{ height: '100%', width: `${(aiUsage/aiLimit)*100}%`, background: 'var(--primary-gradient)', borderRadius: '10px', transition: 'width 1s ease' }}></div>
                 </div>
                 <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: '6px', textAlign: 'right', fontWeight: 600 }}>
-                  {aiUsage >= aiLimit ? '🎉 Bugün harikaydınız!' : `${aiLimit - aiUsage} analiz daha yaparak hedefi tamamla!`}
+                  {aiUsage >= aiLimit ? 'Bugün harikaydınız!' : `${aiLimit - aiUsage} analiz daha yaparak hedefi tamamla!`}
                 </div>
               </div>
             </div>
@@ -749,14 +756,14 @@ export default function Dashboard() {
                       onClick={loadDemoData}
                       style={{ padding: '10px 18px', borderRadius: '10px', border: 'none', background: 'var(--accent)', color: 'white', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}
                     >
-                      🎁 Demo Yükle
+                      Demo Yükle
                     </button>
                     <button
                       type="button"
                       onClick={() => setShowNewClassModal(true)}
                       style={{ padding: '10px 18px', borderRadius: '10px', border: '1.5px solid var(--primary)', background: 'white', color: 'var(--primary)', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}
                     >
-                      ＋ Yeni sınıf
+                      + Yeni sınıf
                     </button>
                   </div>
                 </div>
@@ -766,13 +773,13 @@ export default function Dashboard() {
             {/* ─── GÜNLÜK AKIŞ (DAILY FLOW) ─── */}
             <div style={{ marginBottom: '32px' }}>
               <h2 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-secondary)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '1.4rem' }}>📅</span> Günlük Akış
+                <CalendarDays size={20} strokeWidth={1.75} /> Günlük Akış
               </h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
                 {/* Task 1: Attendance */}
                 <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '16px', border: '1px solid var(--border-light)', padding: '16px' }}>
-                  <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--primary-pale)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>
-                    📋
+                  <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--primary-pale)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ClipboardCheck size={22} strokeWidth={1.75} />
                   </div>
                   <div style={{ flex: 1 }}>
                     <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800 }}>Sınıf Yoklaması</h4>
@@ -794,8 +801,8 @@ export default function Dashboard() {
 
                 {/* Task 2: Observations */}
                 <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '16px', border: '1px solid var(--border-light)', padding: '16px' }}>
-                  <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--accent-pale)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>
-                    ✍️
+                  <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--accent-pale)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <PenLine size={22} strokeWidth={1.75} />
                   </div>
                   <div style={{ flex: 1 }}>
                     <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800 }}>Gözlem Notları</h4>
@@ -809,8 +816,8 @@ export default function Dashboard() {
                   const { current, next } = getNextLesson() || {};
                   return (
                     <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '16px', border: '1px solid var(--border-light)', padding: '16px', background: current ? 'var(--primary-pale)' : 'white' }}>
-                      <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: current ? 'white' : 'var(--primary-pale)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>
-                        ⏰
+                      <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: current ? 'white' : 'var(--primary-pale)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Clock size={22} strokeWidth={1.75} />
                       </div>
                       <div style={{ flex: 1 }}>
                         <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800 }}>
@@ -828,7 +835,7 @@ export default function Dashboard() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                   {/* Today's Meetings */}
                   <div className="card" style={{ padding: '16px', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ fontSize: '1.5rem' }}>🤝</div>
+                    <Handshake size={22} strokeWidth={1.75} color="var(--primary)" />
                     <div>
                       <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 800 }}>Bugünkü Randevular</h4>
                       <p style={{ margin: '2px 0 0', fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
@@ -841,8 +848,8 @@ export default function Dashboard() {
                   {(() => {
                     const star = getStudentOfTheWeek();
                     return (
-                      <div className="card" style={{ padding: '16px', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', gap: '12px', background: 'linear-gradient(135deg, #fffbeb, #fff)' }}>
-                        <div style={{ fontSize: '1.5rem' }}>⭐</div>
+                      <div className="card" style={{ padding: '16px', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--accent-pale)' }}>
+                        <Star size={22} strokeWidth={1.75} color="var(--accent)" />
                         <div>
                           <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 800 }}>Haftanın Yıldızı</h4>
                           <p style={{ margin: '2px 0 0', fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
@@ -862,7 +869,7 @@ export default function Dashboard() {
                    onMouseLeave={e => e.currentTarget.style.borderColor = 'transparent'}
                    onClick={() => setActiveTab('attendance')}
               >
-                <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>📋</div>
+                <ClipboardCheck size={32} strokeWidth={1.6} color="var(--primary)" style={{ marginBottom: '12px' }} />
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: '0 0 8px 0' }}>Yoklama Al</h3>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', flex: 1 }}>{activeClassId ? `${students.length} öğrencinin bulunduğu aktif sınıfınızın bugünkü yoklamasını saniyeler içinde tamamlayın.` : 'Önce bir sınıf seçin ve yoklama işlemlerine hızlıca başlayın.'}</p>
                 <div style={{ marginTop: '16px', color: 'var(--primary)', fontWeight: 700, fontSize: '0.85rem' }}>Yoklamaya Git →</div>
@@ -873,7 +880,7 @@ export default function Dashboard() {
                    onMouseLeave={e => e.currentTarget.style.borderColor = 'transparent'}
                    onClick={() => setActiveTab('classroom')}
               >
-                <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>✨</div>
+                <Sparkles size={32} strokeWidth={1.6} color="var(--accent)" style={{ marginBottom: '12px' }} />
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: '0 0 8px 0' }}>Sınıfı Düzenle</h3>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', flex: 1 }}>Öğrenci profillerini analiz ederek en ideal oturma planını oluşturun ve yeni oturma düzenleri deneyin.</p>
                 <div style={{ marginTop: '16px', color: 'var(--accent)', fontWeight: 700, fontSize: '0.85rem' }}>Yeni Düzen Oluştur →</div>
@@ -884,14 +891,14 @@ export default function Dashboard() {
                    onMouseLeave={e => e.currentTarget.style.borderColor = 'transparent'}
                    onClick={() => setActiveTab('students')}
               >
-                <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>👩‍🎓</div>
+                <GraduationCap size={32} strokeWidth={1.6} color="#3b82f6" style={{ marginBottom: '12px' }} />
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: '0 0 8px 0' }}>Öğrenci Rehberi</h3>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', flex: 1 }}>Yeni öğrenciler ekleyin, listeyi Excel'den aktarın veya öğrencilerin gözlem defterlerine not düşün.</p>
                 <div style={{ marginTop: '16px', color: '#3b82f6', fontWeight: 700, fontSize: '0.85rem' }}>Rehberi Aç →</div>
               </div>
             </div>
             {activeClassId && (
-              <div className="card" style={{ marginTop: '32px', background: 'linear-gradient(135deg, var(--primary-dark), var(--primary))', color: 'white', border: 'none' }}>
+              <div className="card" style={{ marginTop: '32px', background: 'var(--primary-dark)', color: 'white', border: 'none' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <h3 style={{ margin: '0 0 4px 0', fontSize: '1.2rem', fontWeight: 800 }}>Şu anki sınıfınız: {classes.find(c => c.id === activeClassId)?.name}</h3>
@@ -905,7 +912,7 @@ export default function Dashboard() {
           <div className="animate-fade-in" style={{ maxWidth: '1200px', margin: '0 auto' }}>
             <div className="card" style={{ marginBottom: '24px' }}>
               <div className="card-header">
-                <span>👩‍🎓 Öğrenci Rehberi ve Gözlem Defteri</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><GraduationCap size={18} strokeWidth={1.75} /> Öğrenci Rehberi ve Gözlem Defteri</span>
                 <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{students.length} Öğrenci Kayıtlı</span>
               </div>
               
@@ -981,8 +988,8 @@ export default function Dashboard() {
               <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900 }}>Günlük Yoklama</h2>
               <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Öğrenci yerlerine sağ tıklayarak yoklama durumunu güncelleyebilirsiniz.</p>
             </div>
-            <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--primary)' }}>
-              📅 {new Date().toLocaleDateString('tr-TR')}
+            <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <CalendarDays size={20} strokeWidth={1.75} /> {new Date().toLocaleDateString('tr-TR')}
             </div>
           </div>
           <SeatingGrid 
@@ -1009,7 +1016,7 @@ export default function Dashboard() {
             {/* Student Input Card */}
             <div className="card animate-fade-in">
               <div className="card-header">
-                <span>👩‍🎓 Öğrenci Ekle</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><GraduationCap size={18} strokeWidth={1.75} /> Öğrenci Ekle</span>
                 <div className="toggle-group">
                   <button onClick={() => setInputMode('smart')} className={`toggle-btn ${inputMode === 'smart' ? 'active' : ''}`}>Akıllı</button>
                   <button onClick={() => setInputMode('csv')} className={`toggle-btn ${inputMode === 'csv' ? 'active' : ''}`}>CSV</button>
@@ -1023,8 +1030,8 @@ export default function Dashboard() {
                   <div style={{ marginTop: '4px' }}>
                     <a href="data:text/csv;charset=utf-8,Ad Soyad,Akademik Ba%C5%9Far%C4%B1,Davran%C4%B1%C5%9F,Boy,G%C3%B6rme Durumu,%C3%96%C4%9Frenme Stili,Yan%C4%B1na Oturmak %C4%B0stedi%C4%9Fi,Uzak Durmak %C4%B0stedi%C4%9Fi"
                        download="aklisira_sablon.csv" 
-                       style={{ fontSize: '0.72rem', color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}>
-                      📥 Örnek Şablon İndir
+                       style={{ fontSize: '0.72rem', color: 'var(--primary)', textDecoration: 'none', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                      <Download size={13} strokeWidth={2} /> Örnek Şablon İndir
                     </a>
                   </div>
                 </div>
@@ -1032,20 +1039,20 @@ export default function Dashboard() {
                 <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Yapay Zeka Asistanı</span>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 800, color: aiUsage >= aiLimit ? 'var(--danger)' : 'var(--primary)', background: aiUsage >= aiLimit ? 'rgba(239,68,68,0.1)' : 'rgba(74,222,128,0.1)', padding: '2px 8px', borderRadius: '50px' }}>
-                      ⚡ {Math.max(0, aiLimit - aiUsage)} / {aiLimit} Hak
+                    <span style={{ fontSize: '0.75rem', fontWeight: 800, color: aiUsage >= aiLimit ? 'var(--danger)' : 'var(--primary)', background: aiUsage >= aiLimit ? 'rgba(239,68,68,0.1)' : 'rgba(74,222,128,0.1)', padding: '2px 8px', borderRadius: '50px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      <Zap size={12} strokeWidth={2} /> {Math.max(0, aiLimit - aiUsage)} / {aiLimit} Hak
                     </span>
                   </div>
                   {isListening && (
                     <div className="recording-banner">
                       <div className="recording-dot" />
-                      <span className="recording-text">🎤 Kayıt yapılıyor... Bitirmek için mikrofona tekrar tıklayın</span>
+                      <span className="recording-text" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><Mic size={14} strokeWidth={2} /> Kayıt yapılıyor... Bitirmek için mikrofona tekrar tıklayın</span>
                     </div>
                   )}
                   {isProcessing && (
                     <div className="recording-banner processing">
                       <div className="spinner-dot" />
-                      <span className="recording-text">⏳ Sesiniz yazıya dökülüyor...</span>
+                      <span className="recording-text" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><Loader2 size={14} strokeWidth={2} className="spin" /> Sesiniz yazıya dökülüyor...</span>
                     </div>
                   )}
                   <textarea
@@ -1056,8 +1063,8 @@ export default function Dashboard() {
                     onChange={(e) => setSmartText(e.target.value)}
                   />
                   <div style={{ display: 'flex', gap: '8px' }}>
-                    <button onClick={handleSmartParse} disabled={isOptimizing} className="btn-primary" style={{ flex: 1 }}>
-                      {isOptimizing ? '⏳ Çözümleniyor...' : 'Metin Ekle'}
+                    <button onClick={handleSmartParse} disabled={isOptimizing} className="btn-primary" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                      {isOptimizing ? <><Loader2 size={15} strokeWidth={2} className="spin" /> Çözümleniyor...</> : 'Metin Ekle'}
                     </button>
                     {isSupported && (
                       <button
@@ -1066,7 +1073,7 @@ export default function Dashboard() {
                         title={isListening ? "Kaydı Bitir" : "Sesli Giriş"}
                         disabled={isProcessing}
                       >
-                        {isProcessing ? '⏳' : isListening ? '⏹️' : '🎤'}
+                        {isProcessing ? <Loader2 size={16} strokeWidth={2} className="spin" /> : isListening ? <Square size={16} strokeWidth={2} /> : <Mic size={16} strokeWidth={2} />}
                       </button>
                     )}
                   </div>
@@ -1107,7 +1114,7 @@ export default function Dashboard() {
             {/* Layout Config Card */}
             <div className="card animate-fade-in">
               <div className="card-header">
-                <span>📐 Düzen Tipi</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Ruler size={18} strokeWidth={1.75} /> Düzen Tipi</span>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px', marginBottom: '12px' }}>
                 {[
@@ -1147,7 +1154,7 @@ export default function Dashboard() {
                 onClick={handleOptimize}
                 disabled={isOptimizing || students.length === 0}
               >
-                {isOptimizing ? '✨ Optimizasyon Sürüyor...' : '✨ Düzeni Optimize Et'}
+                {isOptimizing ? 'Optimizasyon Sürüyor...' : 'Düzeni Optimize Et'}
               </button>
               {assignments.length > 0 && (
                 <div style={{ marginTop: '12px', display: 'flex', gap: '8px' }}>
@@ -1172,7 +1179,7 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="empty-state">
-                <div className="icon">🏫</div>
+                <LayoutGrid className="icon" size={40} strokeWidth={1.5} />
                 <p>Öğrenci bilgilerini girin ve <strong>Düzeni Optimize Et</strong> butonuna tıklayarak yapay zeka destekli oturma planını görün.</p>
                 {students.length === 0 && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', marginTop: '16px' }}>
@@ -1181,7 +1188,7 @@ export default function Dashboard() {
                       onClick={loadDemoData}
                       style={{ padding: '10px 16px', borderRadius: '10px', border: 'none', background: 'var(--accent)', color: 'white', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}
                     >
-                      🎁 Demo Yükle
+                      Demo Yükle
                     </button>
                     <button
                       type="button"
@@ -1199,7 +1206,7 @@ export default function Dashboard() {
               <div className="results-grid animate-slide-up" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div className="card" style={{ borderTop: '3px solid var(--primary)' }}>
                   <div className="card-header">
-                    <span>📊 Sonuçlar</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><BarChart3 size={18} strokeWidth={1.75} /> Sonuçlar</span>
                     {isOptimizing && (
                       <span style={{ fontSize: '0.72rem', color: 'var(--primary)', fontWeight: 700 }}>
                         Nesil {generation}/60
@@ -1273,7 +1280,7 @@ export default function Dashboard() {
 
                 {aiExplanation && (
                   <div className="ai-box animate-slide-up">
-                    <h3>💡 Yapay Zeka Analizi</h3>
+                    <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Lightbulb size={18} strokeWidth={1.75} /> Yapay Zeka Analizi</h3>
                     <p>{aiExplanation}</p>
                   </div>
                 )}
@@ -1315,8 +1322,8 @@ export default function Dashboard() {
             </div>
 
             <div className="modal-tabs">
-              <button onClick={() => setModalTab('info')} className={`modal-tab ${modalTab === 'info' ? 'active' : ''}`}>📑 BİLGİLER</button>
-              <button onClick={() => setModalTab('observations')} className={`modal-tab ${modalTab === 'observations' ? 'active' : ''}`}>🔍 GÖZLEMLER ({selectedStudent.observations?.length || 0})</button>
+              <button onClick={() => setModalTab('info')} className={`modal-tab ${modalTab === 'info' ? 'active' : ''}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><FileText size={14} strokeWidth={1.75} /> BİLGİLER</button>
+              <button onClick={() => setModalTab('observations')} className={`modal-tab ${modalTab === 'observations' ? 'active' : ''}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><Search size={14} strokeWidth={1.75} /> GÖZLEMLER ({selectedStudent.observations?.length || 0})</button>
             </div>
             
             <div className="modal-body">
@@ -1412,7 +1419,7 @@ export default function Dashboard() {
                       value={newObsText}
                       onChange={e => setNewObsText(e.target.value)}
                     />
-                    <button onClick={handleAddObservation} className="btn-primary" style={{ padding: '8px' }}>Ekle ✓</button>
+                    <button onClick={handleAddObservation} className="btn-primary" style={{ padding: '8px' }}>Ekle</button>
                   </div>
 
                   {/* Observation History */}
@@ -1448,7 +1455,7 @@ export default function Dashboard() {
       {showLimitModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 400, padding: '16px' }}>
           <div className="animate-slide-up" style={{ background: 'white', borderRadius: '24px', padding: '32px', width: '100%', maxWidth: '420px', boxShadow: 'var(--shadow-xl)', textAlign: 'center' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '16px' }}>⚡</div>
+            <Zap size={40} strokeWidth={1.5} color="var(--accent)" style={{ marginBottom: '16px' }} />
             <h2 style={{ margin: '0 0 12px', fontWeight: 900, color: 'var(--text-dark)', fontSize: '1.4rem' }}>
               Yapay Zeka Hakkınız Doldu
             </h2>

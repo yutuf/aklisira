@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import { Lock } from 'lucide-react';
 import { PRIVACY_NOTICE_TITLE, PRIVACY_NOTICE_PARAGRAPHS, PRIVACY_NOTICE_FOOTNOTE_EMAIL } from '../content/privacy-notice';
 
 const STORAGE_KEY = 'aklisira_privacy_notice_v1';
@@ -55,8 +56,8 @@ export function PrivacyNotice() {
           ×
         </button>
 
-        <h2 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text)', margin: '0 24px 12px 0' }}>
-          🔒 {PRIVACY_NOTICE_TITLE}
+        <h2 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text)', margin: '0 24px 12px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Lock size={18} strokeWidth={1.75} /> {PRIVACY_NOTICE_TITLE}
         </h2>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.85rem', lineHeight: 1.55, color: 'var(--text-secondary)' }}>

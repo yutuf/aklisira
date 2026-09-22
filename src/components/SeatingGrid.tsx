@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BookOpen, LayoutGrid, Copy, School, Lightbulb, CheckCircle2, XCircle, Clock, FileText } from 'lucide-react';
 import { ClassroomLayout, SeatingAssignment, AttendanceStatus } from '../types';
 
 interface SeatingGridProps {
@@ -116,9 +117,9 @@ export const SeatingGrid: React.FC<SeatingGridProps> = ({
         const record = student.attendance?.find((a: any) => a.date === attendanceDate);
         if (!record) return null;
         switch (record.status) {
-            case 'absent': return { label: 'GELMEDİ', color: '#dc2626', icon: '❌' };
-            case 'late': return { label: 'GEÇ', color: '#f59e0b', icon: '⏳' };
-            case 'excused': return { label: 'İZİNLİ', color: '#0369a1', icon: '📄' };
+            case 'absent': return { label: 'GELMEDİ', color: '#dc2626' };
+            case 'late': return { label: 'GEÇ', color: '#f59e0b' };
+            case 'excused': return { label: 'İZİNLİ', color: '#0369a1' };
             default: return null;
         }
     };
@@ -220,7 +221,7 @@ export const SeatingGrid: React.FC<SeatingGridProps> = ({
                                     <span style={{
                                         fontSize: '0.5rem', fontWeight: 700, color: 'white',
                                         background: '#dc2626', padding: '0px 3px', borderRadius: '3px',
-                                    }}>⚕</span>
+                                    }}>+</span>
                                 )}
                             </>
                         )}
@@ -299,7 +300,7 @@ export const SeatingGrid: React.FC<SeatingGridProps> = ({
                     {/* Center empty space */}
                     <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: maxSide * 90 }}>
                         <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', opacity: 0.4, textAlign: 'center' }}>
-                            <div style={{ fontSize: '1.5rem', marginBottom: '4px' }}>📚</div>
+                            <BookOpen size={24} strokeWidth={1.5} style={{ marginBottom: '4px' }} />
                             Çalışma Alanı
                         </div>
                     </div>
@@ -446,7 +447,7 @@ export const SeatingGrid: React.FC<SeatingGridProps> = ({
     return (
         <div className="card" style={{ padding: '24px' }}>
             <div className="card-header">
-                <span>📐 Sınıf Düzeni — {layoutLabels[layoutType] || 'Düz Sıra'}</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><LayoutGrid size={18} strokeWidth={1.75} /> Sınıf Düzeni — {layoutLabels[layoutType] || 'Düz Sıra'}</span>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                     <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 400 }}>
                         {assignments.length} öğrenci
@@ -459,15 +460,15 @@ export const SeatingGrid: React.FC<SeatingGridProps> = ({
                             navigator.clipboard.writeText(text);
                             alert("Yoklama raporu kopyalandı!");
                         }}
-                        style={{ background: 'var(--bg-muted)', border: '1px solid var(--border)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer' }}
+                        style={{ background: 'var(--bg-muted)', border: '1px solid var(--border)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '5px' }}
                     >
-                        📋 Yoklama Fişini Kopyala
+                        <Copy size={12} strokeWidth={2} /> Yoklama Fişini Kopyala
                     </button>
                 </div>
             </div>
 
             {/* Teacher desk */}
-            <div className="teacher-desk">🏫 Öğretmen Masası</div>
+            <div className="teacher-desk" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}><School size={16} strokeWidth={1.75} /> Öğretmen Masası</div>
 
             {/* Grid Content */}
             <div style={{ marginTop: '12px' }}>
@@ -489,9 +490,9 @@ export const SeatingGrid: React.FC<SeatingGridProps> = ({
                 <span style={{ opacity: 0.3 }}>|</span>
                 <span><span style={{ color: '#0d6e64' }}>▲</span> Yüksek <span style={{ color: '#d97706' }}>▽</span> Düşük</span>
                 <span style={{ opacity: 0.3 }}>|</span>
-                <span><span style={{ color: '#dc2626', fontWeight: 700 }}>⚕</span> Özel</span>
+                <span><span style={{ color: '#dc2626', fontWeight: 700 }}>+</span> Özel</span>
                 <span style={{ opacity: 0.3 }}>|</span>
-                <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>💡 İpuçları:</span>
+                <span style={{ color: 'var(--text-secondary)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}><Lightbulb size={12} strokeWidth={2} /> İpuçları:</span>
                 <span style={{ fontSize: '0.65rem' }}>Yer değiştirmek için öğrenciyi <strong>SÜRÜKLE BIRAK</strong>. Yoklama için <strong>SAĞ TIKLA</strong>.</span>
             </div>
 
@@ -512,10 +513,10 @@ export const SeatingGrid: React.FC<SeatingGridProps> = ({
                         animation: 'fadeIn 0.1s ease-out'
                     }}>
                         <div style={{ padding: '6px 10px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', borderBottom: '1px solid var(--border-light)', marginBottom: '4px' }}>YOKLAMA DURUMU</div>
-                        <button onClick={() => markAttendance('present')} style={{ textAlign: 'left', padding: '8px 12px', border: 'none', background: 'transparent', cursor: 'pointer', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600 }} onMouseOver={e=>e.currentTarget.style.background='var(--bg-muted)'} onMouseOut={e=>e.currentTarget.style.background='transparent'}>✅ Burada (Mevcut)</button>
-                        <button onClick={() => markAttendance('absent')} style={{ textAlign: 'left', padding: '8px 12px', border: 'none', background: 'transparent', cursor: 'pointer', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600, color: '#dc2626' }} onMouseOver={e=>e.currentTarget.style.background='var(--danger-pale)'} onMouseOut={e=>e.currentTarget.style.background='transparent'}>❌ Gelmedi (Absent)</button>
-                        <button onClick={() => markAttendance('late')} style={{ textAlign: 'left', padding: '8px 12px', border: 'none', background: 'transparent', cursor: 'pointer', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600, color: '#f59e0b' }} onMouseOver={e=>e.currentTarget.style.background='var(--accent-pale)'} onMouseOut={e=>e.currentTarget.style.background='transparent'}>⏳ Geç Geldi</button>
-                        <button onClick={() => markAttendance('excused')} style={{ textAlign: 'left', padding: '8px 12px', border: 'none', background: 'transparent', cursor: 'pointer', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600, color: '#0369a1' }} onMouseOver={e=>e.currentTarget.style.background='rgba(3,105,161,0.1)'} onMouseOut={e=>e.currentTarget.style.background='transparent'}>📄 İzinli</button>
+                        <button onClick={() => markAttendance('present')} style={{ textAlign: 'left', padding: '8px 12px', border: 'none', background: 'transparent', cursor: 'pointer', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }} onMouseOver={e=>e.currentTarget.style.background='var(--bg-muted)'} onMouseOut={e=>e.currentTarget.style.background='transparent'}><CheckCircle2 size={15} strokeWidth={2} /> Burada (Mevcut)</button>
+                        <button onClick={() => markAttendance('absent')} style={{ textAlign: 'left', padding: '8px 12px', border: 'none', background: 'transparent', cursor: 'pointer', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600, color: '#dc2626', display: 'flex', alignItems: 'center', gap: '8px' }} onMouseOver={e=>e.currentTarget.style.background='var(--danger-pale)'} onMouseOut={e=>e.currentTarget.style.background='transparent'}><XCircle size={15} strokeWidth={2} /> Gelmedi (Absent)</button>
+                        <button onClick={() => markAttendance('late')} style={{ textAlign: 'left', padding: '8px 12px', border: 'none', background: 'transparent', cursor: 'pointer', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: '8px' }} onMouseOver={e=>e.currentTarget.style.background='var(--accent-pale)'} onMouseOut={e=>e.currentTarget.style.background='transparent'}><Clock size={15} strokeWidth={2} /> Geç Geldi</button>
+                        <button onClick={() => markAttendance('excused')} style={{ textAlign: 'left', padding: '8px 12px', border: 'none', background: 'transparent', cursor: 'pointer', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600, color: '#0369a1', display: 'flex', alignItems: 'center', gap: '8px' }} onMouseOver={e=>e.currentTarget.style.background='rgba(3,105,161,0.1)'} onMouseOut={e=>e.currentTarget.style.background='transparent'}><FileText size={15} strokeWidth={2} /> İzinli</button>
                     </div>
                 </>
             )}
