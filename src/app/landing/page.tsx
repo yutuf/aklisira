@@ -44,7 +44,7 @@ function ProductDiagram() {
   const seats = Array.from({ length: 12 }, (_, i) => i);
   const highlighted = new Set([1, 6]); // two seats called out as "paired by rule"
   return (
-    <svg viewBox="0 0 360 220" width="100%" height="auto" role="img" aria-label="Örnek oturma düzeni ve kelebek sınav düzeni">
+    <svg viewBox="0 0 360 220" width="100%" style={{ height: 'auto' }} role="img" aria-label="Örnek oturma düzeni ve kelebek sınav düzeni">
       <text x="8" y="18" fontSize="11" fontWeight="700" fill="rgba(247,245,242,0.55)" fontFamily="var(--font-nunito)">SINIF</text>
       {seats.map((i) => {
         const col = i % 4;
