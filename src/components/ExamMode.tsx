@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { School, Plus, ClipboardList, X, DoorOpen, FileEdit, Shuffle, AlertTriangle, CheckCircle2, Columns3, Rows3 } from 'lucide-react';
 
 interface ExamClass {
   id: string;
@@ -214,7 +215,7 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
         {/* Add Class Card */}
         <div className="card animate-fade-in">
           <div className="card-header">
-            <span>🏫 Sınıf Ekle</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><School size={16} strokeWidth={1.75} /> Sınıf Ekle</span>
           </div>
 
           <div style={{ display: 'flex', gap: '6px', marginBottom: '6px' }}>
@@ -244,9 +245,9 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
             }}
           />
 
-          <button onClick={addClass} className="btn-primary" style={{ width: '100%' }}
+          <button onClick={addClass} className="btn-primary" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
             disabled={!className.trim() || !classInput.trim()}>
-            ➕ Sınıfı Ekle
+            <Plus size={15} strokeWidth={2} /> Sınıfı Ekle
           </button>
         </div>
 
@@ -254,7 +255,7 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
         {classes.length > 0 && (
           <div className="card animate-fade-in">
             <div className="card-header">
-              <span>📋 Sınıflar</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><ClipboardList size={16} strokeWidth={1.75} /> Sınıflar</span>
               <span style={{ fontSize: '0.72rem', color: 'var(--primary)', fontWeight: 700 }}>
                 {totalStudents} öğrenci
               </span>
@@ -278,8 +279,8 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
                   </div>
                   <button onClick={() => removeClass(c.id)} style={{
                     background: 'none', border: 'none', color: '#ef4444',
-                    cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700,
-                  }}>✕</button>
+                    cursor: 'pointer', display: 'flex', alignItems: 'center',
+                  }}><X size={14} strokeWidth={2} /></button>
                 </div>
               ))}
             </div>
@@ -289,7 +290,7 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
         {/* Rooms Config */}
         <div className="card animate-fade-in">
           <div className="card-header">
-            <span>🚪 Sınav Salonları</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><DoorOpen size={16} strokeWidth={1.75} /> Sınav Salonları</span>
             <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>
               {totalCapacity} kapasite
             </span>
@@ -340,8 +341,8 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
                 </div>
                 <button onClick={() => removeRoom(room.id)} style={{
                   background: 'none', border: 'none', color: '#ef4444',
-                  cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700,
-                }} disabled={rooms.length <= 1}>✕</button>
+                  cursor: 'pointer', display: 'flex', alignItems: 'center',
+                }} disabled={rooms.length <= 1}><X size={14} strokeWidth={2} /></button>
               </div>
             ))}
           </div>
@@ -358,17 +359,17 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
         {/* Pattern Config */}
         <div className="card animate-fade-in">
           <div className="card-header">
-            <span>📝 Sınav Tipi</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><FileEdit size={16} strokeWidth={1.75} /> Sınav Tipi</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <button onClick={() => setPattern('kelebek')} style={{ padding: '8px', borderRadius: '6px', border: pattern === 'kelebek' ? '1.5px solid var(--primary)' : '1px solid var(--border)', background: pattern === 'kelebek' ? 'var(--primary-pale)' : 'white', cursor: 'pointer', textAlign: 'left', fontSize: '0.8rem', fontWeight: 600 }}>
-              🦋 Kelebek (A, B, C, D)
+            <button onClick={() => setPattern('kelebek')} style={{ padding: '8px', borderRadius: '6px', border: pattern === 'kelebek' ? '1.5px solid var(--primary)' : '1px solid var(--border)', background: pattern === 'kelebek' ? 'var(--primary-pale)' : 'white', cursor: 'pointer', textAlign: 'left', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Shuffle size={15} strokeWidth={1.75} /> Kelebek (A, B, C, D)
             </button>
-            <button onClick={() => setPattern('col-ab')} style={{ padding: '8px', borderRadius: '6px', border: pattern === 'col-ab' ? '1.5px solid var(--primary)' : '1px solid var(--border)', background: pattern === 'col-ab' ? 'var(--primary-pale)' : 'white', cursor: 'pointer', textAlign: 'left', fontSize: '0.8rem', fontWeight: 600 }}>
-              📊 Sütun A / B
+            <button onClick={() => setPattern('col-ab')} style={{ padding: '8px', borderRadius: '6px', border: pattern === 'col-ab' ? '1.5px solid var(--primary)' : '1px solid var(--border)', background: pattern === 'col-ab' ? 'var(--primary-pale)' : 'white', cursor: 'pointer', textAlign: 'left', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Columns3 size={15} strokeWidth={1.75} /> Sütun A / B
             </button>
-            <button onClick={() => setPattern('row-ab')} style={{ padding: '8px', borderRadius: '6px', border: pattern === 'row-ab' ? '1.5px solid var(--primary)' : '1px solid var(--border)', background: pattern === 'row-ab' ? 'var(--primary-pale)' : 'white', cursor: 'pointer', textAlign: 'left', fontSize: '0.8rem', fontWeight: 600 }}>
-              ➖ Satır A / B
+            <button onClick={() => setPattern('row-ab')} style={{ padding: '8px', borderRadius: '6px', border: pattern === 'row-ab' ? '1.5px solid var(--primary)' : '1px solid var(--border)', background: pattern === 'row-ab' ? 'var(--primary-pale)' : 'white', cursor: 'pointer', textAlign: 'left', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Rows3 size={15} strokeWidth={1.75} /> Satır A / B
             </button>
           </div>
         </div>
@@ -384,7 +385,7 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
             justifyContent: 'center', gap: '8px',
           }}
         >
-          🦋 Kelebek Düzeni Oluştur
+          <Shuffle size={17} strokeWidth={1.75} /> Kelebek Düzeni Oluştur
         </button>
 
         {totalStudents > totalCapacity && (
@@ -392,8 +393,9 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
             padding: '8px 12px', borderRadius: 'var(--radius-sm)',
             background: '#fef2f2', border: '1px solid #fca5a5',
             fontSize: '0.72rem', color: '#dc2626', fontWeight: 600,
+            display: 'flex', alignItems: 'center', gap: '6px',
           }}>
-            ⚠️ Kapasite yetersiz! {totalStudents} öğrenci / {totalCapacity} koltuk
+            <AlertTriangle size={14} strokeWidth={2} /> Kapasite yetersiz! {totalStudents} öğrenci / {totalCapacity} koltuk
           </div>
         )}
       </div>
@@ -402,7 +404,7 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
       <div>
         {results.length === 0 ? (
           <div className="empty-state">
-            <div className="icon">🦋</div>
+            <Shuffle className="icon" size={40} strokeWidth={1.5} />
             <p>
               En az <strong>2 sınıf</strong> ekleyin ve <strong>Kelebek Düzeni Oluştur</strong> butonuna tıklayın.
               <br /><br />
@@ -435,7 +437,7 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
             {results[selectedRoom] && (
               <div className="card" style={{ padding: '24px' }}>
                 <div className="card-header" style={{ marginBottom: '12px' }}>
-                  <span>🏫 {results[selectedRoom].room.name} — Kelebek Düzeni</span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><School size={16} strokeWidth={1.75} /> {results[selectedRoom].room.name} — Kelebek Düzeni</span>
                   <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 400 }}>
                     {results[selectedRoom].seats.length} öğrenci
                   </span>
@@ -477,7 +479,7 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
                 </div>
 
                 {/* Teacher desk */}
-                <div className="teacher-desk">🏫 Gözetmen Masası</div>
+                <div className="teacher-desk" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}><School size={16} strokeWidth={1.75} /> Gözetmen Masası</div>
 
                 {/* Grid */}
                 <div style={{
@@ -604,8 +606,8 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
                       });
                       conflicts = conflicts / 2; // each pair counted twice
                       return conflicts === 0
-                        ? '✅ Yok — mükemmel dağılım!'
-                        : `⚠️ ${conflicts} aynı sınıf komşuluğu`;
+                        ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><CheckCircle2 size={12} strokeWidth={2} /> Yok — mükemmel dağılım!</span>
+                        : <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><AlertTriangle size={12} strokeWidth={2} /> {conflicts} aynı sınıf komşuluğu</span>;
                     })()}
                   </div>
                 </div>

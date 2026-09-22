@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Lock } from 'lucide-react';
 import { PRIVACY_NOTICE_TITLE, PRIVACY_NOTICE_PARAGRAPHS, PRIVACY_NOTICE_FOOTNOTE_EMAIL } from '../../content/privacy-notice';
 
 export const metadata = {
@@ -13,8 +14,8 @@ export default function GizlilikPage() {
           ← Ana sayfa
         </Link>
 
-        <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text)', margin: '16px 0 8px' }}>
-          🔒 {PRIVACY_NOTICE_TITLE}
+        <h1 className="font-display" style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--text)', margin: '16px 0 8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Lock size={20} strokeWidth={1.75} /> {PRIVACY_NOTICE_TITLE}
         </h1>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '0.92rem', lineHeight: 1.6, color: 'var(--text-secondary)', marginTop: '16px' }}>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { Users, Settings, Loader2, Target, Handshake } from 'lucide-react';
 import { Student } from '../types';
 
 interface TeamBuilderProps {
@@ -83,7 +84,7 @@ export const TeamBuilder: React.FC<TeamBuilderProps> = ({ students }) => {
   if (students.length === 0) {
     return (
         <div className="empty-state">
-            <div className="icon">👥</div>
+            <Users className="icon" size={40} strokeWidth={1.5} />
             <p>
                 Takım oluşturmak için önce <strong>Sınıf Düzeni</strong> sekmesinden öğrencileri yükleyin.
             </p>
@@ -98,7 +99,7 @@ export const TeamBuilder: React.FC<TeamBuilderProps> = ({ students }) => {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         <div className="card animate-fade-in">
           <div className="card-header">
-            <span>⚙️ Takım Kuralları</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Settings size={16} strokeWidth={1.75} /> Takım Kuralları</span>
             <span style={{ fontSize: '0.72rem', color: 'var(--primary)', fontWeight: 700 }}>
               {students.length} öğrenci
             </span>
@@ -156,9 +157,9 @@ export const TeamBuilder: React.FC<TeamBuilderProps> = ({ students }) => {
               className="btn-primary" 
               onClick={generateTeams} 
               disabled={isGenerating}
-              style={{ padding: '12px', fontWeight: 800, marginTop: '8px' }}
+              style={{ padding: '12px', fontWeight: 800, marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
             >
-              {isGenerating ? '⏳ Takımlar Kuruluyor...' : '🎯 Takımları Oluştur'}
+              {isGenerating ? <><Loader2 size={16} strokeWidth={2} className="spin" /> Takımlar Kuruluyor...</> : <><Target size={16} strokeWidth={2} /> Takımları Oluştur</>}
             </button>
           </div>
         </div>
@@ -168,7 +169,7 @@ export const TeamBuilder: React.FC<TeamBuilderProps> = ({ students }) => {
       <div>
         {teams.length === 0 ? (
           <div className="empty-state">
-            <div className="icon">🤝</div>
+            <Handshake className="icon" size={40} strokeWidth={1.5} />
             <p>Sol taraftan kuralları belirleyip takım oluşturabilirsiniz.</p>
           </div>
         ) : (

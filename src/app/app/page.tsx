@@ -718,7 +718,7 @@ export default function Dashboard() {
           <div className="animate-fade-in" style={{ maxWidth: '1000px', margin: '0 auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
               <div>
-                <h1 style={{ fontSize: '2.2rem', fontWeight: 900, color: 'var(--text)', margin: 0 }}>
+                <h1 className="font-display" style={{ fontSize: '2.1rem', fontWeight: 600, color: 'var(--text)', margin: 0 }}>
                   Günaydın{user ? `, ${user.user_metadata?.full_name?.split(' ')[0] || 'Hocam'}` : ' Hocam'}
                 </h1>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', marginTop: '4px' }}>
@@ -848,7 +848,7 @@ export default function Dashboard() {
                   {(() => {
                     const star = getStudentOfTheWeek();
                     return (
-                      <div className="card" style={{ padding: '16px', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', gap: '12px', background: 'linear-gradient(135deg, #fffbeb, #fff)' }}>
+                      <div className="card" style={{ padding: '16px', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--accent-pale)' }}>
                         <Star size={22} strokeWidth={1.75} color="var(--accent)" />
                         <div>
                           <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 800 }}>Haftanın Yıldızı</h4>
@@ -898,7 +898,7 @@ export default function Dashboard() {
               </div>
             </div>
             {activeClassId && (
-              <div className="card" style={{ marginTop: '32px', background: 'linear-gradient(135deg, var(--primary-dark), var(--primary))', color: 'white', border: 'none' }}>
+              <div className="card" style={{ marginTop: '32px', background: 'var(--primary-dark)', color: 'white', border: 'none' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <h3 style={{ margin: '0 0 4px 0', fontSize: '1.2rem', fontWeight: 800 }}>Şu anki sınıfınız: {classes.find(c => c.id === activeClassId)?.name}</h3>

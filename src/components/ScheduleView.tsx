@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { CalendarDays } from 'lucide-react';
 import { Lesson, DayOfWeek, WeeklySchedule } from '../types';
 
 interface ScheduleViewProps {
@@ -38,7 +39,7 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({ schedule, classes, o
   return (
     <div className="card animate-fade-in" style={{ padding: '24px' }}>
       <div className="card-header" style={{ marginBottom: '20px' }}>
-        <span>📅 Ders Programı</span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CalendarDays size={18} strokeWidth={1.75} /> Ders Programı</span>
         <button 
           className="btn-primary" 
           onClick={() => setShowAddModal(true)}

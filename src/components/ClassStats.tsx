@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo } from 'react';
+import { BarChart3 } from 'lucide-react';
 import { Student } from '../types';
 
 interface ClassStatsProps {
@@ -38,7 +39,7 @@ export default function ClassStats({ students }: ClassStatsProps) {
   return (
     <div className="card animate-fade-in" style={{ padding: '16px' }}>
       <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text)', marginBottom: '12px', display: 'flex', justifyContent: 'space-between' }}>
-        <span>📊 SINIF PROFİLİ</span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><BarChart3 size={14} strokeWidth={1.75} /> SINIF PROFİLİ</span>
         <span>{students.length} Öğrenci</span>
       </div>
 
