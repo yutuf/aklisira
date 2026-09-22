@@ -38,11 +38,21 @@ function Reveal({ children, delay = 0, className = "" }: { children: React.React
   );
 }
 
+const COMPARISON_ROWS: [string, string, string][] = [
+  ["K12NET", "Kurum çapında sınav oturma sihirbazı, tam MIS", "Öğretmenin kendi sınıfı için, IT olmadan, 2 dakikada"],
+  ["Okulyo", "Yoklama, turnike, veli bildirim — kampüs operasyonu", "Sınıf pedagojisi: kim kimle otursun, biz buna bakarız"],
+  ["ETED (TED)", "Kuruma özel yerleşik sistem", "Yerini almaya çalışmıyoruz — hâlâ Excel'e dönen öğretmen için tamamlayıcı"],
+];
+
 // ── Hero diagram: an actual seating grid next to the kelebek (A/B checkerboard)
 // exam layout — the real product output, not stock/decorative art. ──
+// Real first-name initials in the seating half, so it reads as an actual
+// class roster rather than an abstract grid of colored boxes.
+const SEAT_INITIALS = ["AY", "MK", "EÇ", "ZT", "BÜ", "CN", "FS", "DY", "SK", "NA", "RK", "TÖ"];
+
 function ProductDiagram() {
   const seats = Array.from({ length: 12 }, (_, i) => i);
-  const highlighted = new Set([1, 6]); // two seats called out as "paired by rule"
+  const highlighted = new Set([1, 6]); // Mehmet & Can — seated together by rule
   return (
     <svg viewBox="0 0 360 220" width="100%" style={{ height: 'auto' }} role="img" aria-label="Örnek oturma düzeni ve kelebek sınav düzeni">
       <text x="8" y="18" fontSize="11" fontWeight="700" fill="rgba(247,245,242,0.55)" fontFamily="var(--font-nunito)">SINIF</text>
@@ -53,13 +63,17 @@ function ProductDiagram() {
         const y = 28 + row * 38;
         const on = highlighted.has(i);
         return (
-          <rect
-            key={i}
-            x={x} y={y} width="30" height="30" rx="6"
-            fill={on ? "#14b8a6" : "rgba(255,255,255,0.08)"}
-            stroke={on ? "#5eead4" : "rgba(255,255,255,0.18)"}
-            strokeWidth="1.5"
-          />
+          <g key={i}>
+            <rect
+              x={x} y={y} width="30" height="30" rx="6"
+              fill={on ? "#14b8a6" : "rgba(255,255,255,0.08)"}
+              stroke={on ? "#5eead4" : "rgba(255,255,255,0.18)"}
+              strokeWidth="1.5"
+            />
+            <text x={x + 15} y={y + 19} fontSize="9.5" fontWeight="700" textAnchor="middle" fill={on ? "#0a2622" : "rgba(247,245,242,0.55)"} fontFamily="var(--font-nunito)">
+              {SEAT_INITIALS[i]}
+            </text>
+          </g>
         );
       })}
       <line x1="0" y1="0" x2="0" y2="0" />
@@ -135,12 +149,49 @@ export default function LandingPage() {
         .nav-link:hover { color: #0d6e64 !important; }
         .plain-card { transition: border-color 0.15s ease; }
         .plain-card:hover { border-color: #0d6e64; }
+
+        /* Phone-friendly: nav loses the anchor links (repeated in the
+           footer) rather than wrapping and overlapping the logo/badge. */
+        .nav-links { display: flex; gap: 28px; align-items: center; }
+        .nav-anchor-links { display: flex; gap: 28px; align-items: center; }
+        @media (max-width: 760px) {
+          .nav-anchor-links { display: none; }
+          .nav-links { gap: 14px; }
+        }
+
+        .compare-table { display: block; }
+        .compare-cards { display: none; }
+        @media (max-width: 640px) {
+          .compare-table { display: none; }
+          .compare-cards { display: flex; }
+        }
+
+        .hero-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 56px; align-items: center; }
+        @media (max-width: 760px) {
+          .hero-grid { grid-template-columns: 1fr; gap: 32px; }
+        }
+        .hero-section { padding: 150px 24px 80px; }
+        @media (max-width: 640px) {
+          .hero-section { padding: 104px 20px 56px; }
+        }
+
+        /* Intentional rhythm instead of uniform 80px everywhere: bigger
+           sections (features, pricing) get more room to breathe, quick
+           interstitials (waitlist banner, social proof) get less. */
+        .pad-lg { padding: 88px 24px; }
+        .pad-md { padding: 72px 24px; }
+        .pad-sm { padding: 56px 24px; }
+        @media (max-width: 640px) {
+          .pad-lg { padding: 56px 20px; }
+          .pad-md { padding: 48px 20px; }
+          .pad-sm { padding: 40px 20px; }
+        }
       `}</style>
 
       {/* ─── Nav ─── */}
       <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-        padding: "14px 32px",
+        padding: "14px 20px",
         background: scrolled ? "#f7f5f2" : "transparent",
         borderBottom: scrolled ? "1px solid #e0d8d0" : "1px solid transparent",
         transition: "all 0.25s ease",
@@ -153,23 +204,25 @@ export default function LandingPage() {
           </span>
           <span style={{ fontSize: "0.6rem", border: "1px solid #0d6e64", color: "#0d6e64", padding: "1px 8px", borderRadius: "3px", fontWeight: 700, letterSpacing: "0.05em" }}>BETA</span>
         </div>
-        <div style={{ display: "flex", gap: "28px", alignItems: "center" }}>
-          {["Neden Farklı#neden", "Özellikler#features", "Fiyat#pricing", "İletişim#contact"].map((item) => {
-            const [label, href] = item.split("#");
-            return (
-              <a key={href} href={`#${href}`} className="nav-link" style={{ textDecoration: "none", color: "#57534e", fontWeight: 600, fontSize: "0.85rem" }}>
-                {label}
-              </a>
-            );
-          })}
-          <Link href="/app" className="nav-link" style={{ textDecoration: "none", color: "#57534e", fontWeight: 700, fontSize: "0.85rem" }}>
+        <div className="nav-links">
+          <div className="nav-anchor-links">
+            {["Neden Farklı#neden", "Özellikler#features", "Fiyat#pricing", "İletişim#contact"].map((item) => {
+              const [label, href] = item.split("#");
+              return (
+                <a key={href} href={`#${href}`} className="nav-link" style={{ textDecoration: "none", color: "#57534e", fontWeight: 600, fontSize: "0.85rem", whiteSpace: "nowrap" }}>
+                  {label}
+                </a>
+              );
+            })}
+          </div>
+          <Link href="/app" className="nav-link" style={{ textDecoration: "none", color: "#57534e", fontWeight: 700, fontSize: "0.85rem", whiteSpace: "nowrap" }}>
             Demo
           </Link>
           <Link href="/login" className="btn-flat" style={{
             textDecoration: "none",
             background: "#0d6e64",
-            color: "white", padding: "8px 20px", borderRadius: "6px",
-            fontWeight: 700, fontSize: "0.85rem",
+            color: "white", padding: "8px 18px", borderRadius: "6px",
+            fontWeight: 700, fontSize: "0.85rem", whiteSpace: "nowrap",
           }}>
             Giriş Yap
           </Link>
@@ -177,13 +230,12 @@ export default function LandingPage() {
       </nav>
 
       {/* ─── HERO ─── */}
-      <section style={{
+      <section className="hero-section" style={{
         display: "flex", flexDirection: "column",
         justifyContent: "center",
-        padding: "150px 24px 80px",
         background: "#1a1715",
       }}>
-        <div style={{ maxWidth: "1080px", margin: "0 auto", width: "100%", display: "grid", gridTemplateColumns: "1.15fr 0.85fr", gap: "56px", alignItems: "center" }}>
+        <div className="hero-grid" style={{ maxWidth: "1080px", margin: "0 auto", width: "100%" }}>
           <div>
             <div style={{
               display: "inline-block",
@@ -234,12 +286,15 @@ export default function LandingPage() {
 
           <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "10px", padding: "18px" }}>
             <ProductDiagram />
+            <p style={{ margin: "12px 0 0", fontSize: "0.7rem", color: "rgba(247,245,242,0.4)", lineHeight: 1.5 }}>
+              Solda: "Mehmet ile Can yan yana otursun" kuralı uygulanmış bir sınıf. Sağda: aynı sınıfın kelebek sınav düzeni.
+            </p>
           </div>
         </div>
       </section>
 
       {/* ─── DIFFERENTIATION: "K12 / Okulyo var, buna ne gerek?" ─── */}
-      <section id="neden" style={{ padding: "80px 24px", maxWidth: "980px", margin: "0 auto" }}>
+      <section id="neden" className="pad-md" style={{ maxWidth: "980px", margin: "0 auto" }}>
         <Reveal>
           <h2 className="font-display" style={{ fontSize: "clamp(1.7rem, 3.4vw, 2.3rem)", fontWeight: 600, letterSpacing: "-0.01em", marginBottom: "18px" }}>
             "Okulumun zaten K12 / Okulyo gibi bir sistemi var — buna ne gerek?"
@@ -249,7 +304,10 @@ export default function LandingPage() {
           </p>
         </Reveal>
         <Reveal delay={80}>
-          <div style={{ overflowX: "auto" }}>
+          {/* Table on wider screens; stacked cards on phones (a 3-column
+              table just wraps mid-word at narrow widths — see .compare-table
+              / .compare-cards media query above). Same data, two renderings. */}
+          <div className="compare-table" style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.88rem" }}>
               <thead>
                 <tr style={{ borderBottom: "2px solid #1a1715" }}>
@@ -259,11 +317,7 @@ export default function LandingPage() {
                 </tr>
               </thead>
               <tbody>
-                {[
-                  ["K12NET", "Kurum çapında sınav oturma sihirbazı, tam MIS", "Öğretmenin kendi sınıfı için, IT olmadan, 2 dakikada"],
-                  ["Okulyo", "Yoklama, turnike, veli bildirim — kampüs operasyonu", "Sınıf pedagojisi: kim kimle otursun, biz buna bakarız"],
-                  ["ETED (TED)", "Kuruma özel yerleşik sistem", "Yerini almaya çalışmıyoruz — hâlâ Excel'e dönen öğretmen için tamamlayıcı"],
-                ].map((row) => (
+                {COMPARISON_ROWS.map((row) => (
                   <tr key={row[0]} style={{ borderBottom: "1px solid #e0d8d0" }}>
                     <td style={{ padding: "12px", fontWeight: 700 }}>{row[0]}</td>
                     <td style={{ padding: "12px", color: "#57534e" }}>{row[1]}</td>
@@ -273,11 +327,20 @@ export default function LandingPage() {
               </tbody>
             </table>
           </div>
+          <div className="compare-cards" style={{ flexDirection: "column", gap: "12px" }}>
+            {COMPARISON_ROWS.map((row) => (
+              <div key={row[0]} style={{ border: "1px solid #e0d8d0", borderRadius: "8px", padding: "14px 16px", background: "white" }}>
+                <div style={{ fontWeight: 800, fontSize: "0.92rem", marginBottom: "6px" }}>{row[0]}</div>
+                <div style={{ color: "#57534e", fontSize: "0.82rem", marginBottom: "8px" }}>{row[1]}</div>
+                <div style={{ color: "#0d6e64", fontWeight: 600, fontSize: "0.82rem" }}>{row[2]}</div>
+              </div>
+            ))}
+          </div>
         </Reveal>
       </section>
 
       {/* ─── WAITLIST ─── */}
-      <section id="waitlist" style={{ padding: "64px 24px", background: "#fdf8ee", borderTop: "1px solid #f0d98a", borderBottom: "1px solid #f0d98a" }}>
+      <section id="waitlist" className="pad-sm" style={{ background: "#fdf8ee", borderTop: "1px solid #f0d98a", borderBottom: "1px solid #f0d98a" }}>
         <Reveal>
           <div style={{ maxWidth: "560px", margin: "0 auto", textAlign: "center" }}>
             <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#92400e", marginBottom: "14px", letterSpacing: "0.02em" }}>
@@ -311,7 +374,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── PROBLEM ─── */}
-      <section style={{ padding: "80px 24px", maxWidth: "1040px", margin: "0 auto" }}>
+      <section className="pad-md" style={{ maxWidth: "1040px", margin: "0 auto" }}>
         <Reveal>
           <h2 className="font-display" style={{ fontSize: "clamp(1.6rem, 3.4vw, 2.2rem)", fontWeight: 600, letterSpacing: "-0.01em", marginBottom: "14px" }}>Öğretmenler bugün ne yapıyor?</h2>
           <p style={{ color: "#57534e", fontSize: "1rem", maxWidth: "560px", marginBottom: "44px" }}>Çoğu öğretmen hâlâ kağıt ve Excel ile sınıf yönetiyor — kurumsal sistem varsa bile.</p>
@@ -333,7 +396,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── FEATURES ─── */}
-      <section id="features" style={{ padding: "80px 24px", background: "#f0ece7" }}>
+      <section id="features" className="pad-lg" style={{ background: "#f0ece7" }}>
         <div style={{ maxWidth: "1040px", margin: "0 auto" }}>
           <Reveal>
             <h2 className="font-display" style={{ fontSize: "clamp(1.6rem, 3.4vw, 2.2rem)", fontWeight: 600, letterSpacing: "-0.01em", marginBottom: "44px" }}>Ne yapar</h2>
@@ -353,7 +416,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── HOW IT WORKS ─── */}
-      <section style={{ padding: "80px 24px", maxWidth: "820px", margin: "0 auto" }}>
+      <section className="pad-md" style={{ maxWidth: "820px", margin: "0 auto" }}>
         <Reveal>
           <h2 className="font-display" style={{ fontSize: "clamp(1.6rem, 3.4vw, 2.2rem)", fontWeight: 600, letterSpacing: "-0.01em", marginBottom: "44px" }}>3 adımda çalışır</h2>
         </Reveal>
@@ -378,7 +441,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── SOCIAL PROOF (real only) ─── */}
-      <section style={{ padding: "72px 24px", background: "#1a1715" }}>
+      <section className="pad-sm" style={{ background: "#1a1715" }}>
         <div style={{ maxWidth: "680px", margin: "0 auto", textAlign: "center" }}>
           <Reveal>
             <h2 className="font-display" style={{ fontSize: "clamp(1.4rem, 3vw, 1.8rem)", fontWeight: 600, color: "#f7f5f2", marginBottom: "14px" }}>Kanıtlanmış demo</h2>
@@ -393,7 +456,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── PRICING ─── */}
-      <section id="pricing" style={{ padding: "80px 24px", maxWidth: "780px", margin: "0 auto" }}>
+      <section id="pricing" className="pad-lg" style={{ maxWidth: "780px", margin: "0 auto" }}>
         <Reveal>
           <h2 className="font-display" style={{ fontSize: "clamp(1.6rem, 3.4vw, 2rem)", fontWeight: 600, letterSpacing: "-0.01em", marginBottom: "12px" }}>Sade ve şeffaf fiyatlandırma</h2>
           <p style={{ color: "#57534e", fontSize: "0.95rem", marginBottom: "44px" }}>Başvuru kartı yok, kredi kartı yok. Sadece ihtiyacınız kadar.</p>
@@ -434,7 +497,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── CONTACT ─── */}
-      <section id="contact" style={{ padding: "80px 24px", maxWidth: "980px", margin: "0 auto" }}>
+      <section id="contact" className="pad-md" style={{ maxWidth: "980px", margin: "0 auto" }}>
         <Reveal>
           <h2 className="font-display" style={{ fontSize: "clamp(1.6rem, 3.4vw, 2rem)", fontWeight: 600, letterSpacing: "-0.01em", marginBottom: "12px" }}>İletişime geçin</h2>
           <p style={{ color: "#57534e", fontSize: "0.95rem", maxWidth: "500px", marginBottom: "40px" }}>Okul veya kurum olarak pilot kullanım, iş birliği ya da demo talebi için ulaşın.</p>
@@ -467,7 +530,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── FINAL CTA ─── */}
-      <section style={{ padding: "80px 24px", textAlign: "center", background: "#0d6e64" }}>
+      <section className="pad-md" style={{ textAlign: "center", background: "#0d6e64" }}>
         <Reveal>
           <h2 className="font-display" style={{ fontSize: "clamp(1.6rem, 3.4vw, 2.2rem)", fontWeight: 600, color: "white", marginBottom: "14px" }}>
             Sınıfınızı tanımaya hazır mısınız?

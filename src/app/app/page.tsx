@@ -1180,7 +1180,7 @@ export default function Dashboard() {
             ) : (
               <div className="empty-state">
                 <LayoutGrid className="icon" size={40} strokeWidth={1.5} />
-                <p>Öğrenci bilgilerini girin ve <strong>Düzeni Optimize Et</strong> butonuna tıklayarak yapay zeka destekli oturma planını görün.</p>
+                <p>Henüz bir düzen yok. Öğrencilerinizi ekleyin, <strong>Düzeni Optimize Et</strong>'e basın — gerisini biz hallederiz.</p>
                 {students.length === 0 && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', marginTop: '16px' }}>
                     <button

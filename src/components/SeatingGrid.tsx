@@ -477,23 +477,26 @@ export const SeatingGrid: React.FC<SeatingGridProps> = ({
 
             {/* Legend */}
             <div style={{
-                marginTop: '14px', paddingTop: '10px',
+                marginTop: '14px', paddingTop: '12px',
                 borderTop: '1px solid var(--border-light)',
-                display: 'flex', flexWrap: 'wrap', gap: '10px',
-                fontSize: '0.65rem', color: 'var(--text-muted)', alignItems: 'center',
+                display: 'flex', flexDirection: 'column', gap: '8px',
             }}>
-                <span style={{ fontWeight: 600 }}>Davranış:</span>
-                <span><span style={{ color: '#7c3aed', fontWeight: 700 }}>Ld</span> Lider</span>
-                <span><span style={{ color: '#15803d', fontWeight: 700 }}>Ss</span> Sessiz</span>
-                <span><span style={{ color: '#dc2626', fontWeight: 700 }}>Dd</span> D.Dağıtıcı</span>
-                <span><span style={{ color: '#0369a1', fontWeight: 700 }}>Ak</span> Aktif</span>
-                <span style={{ opacity: 0.3 }}>|</span>
-                <span><span style={{ color: '#0d6e64' }}>▲</span> Yüksek <span style={{ color: '#d97706' }}>▽</span> Düşük</span>
-                <span style={{ opacity: 0.3 }}>|</span>
-                <span><span style={{ color: '#dc2626', fontWeight: 700 }}>+</span> Özel</span>
-                <span style={{ opacity: 0.3 }}>|</span>
-                <span style={{ color: 'var(--text-secondary)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}><Lightbulb size={12} strokeWidth={2} /> İpuçları:</span>
-                <span style={{ fontSize: '0.65rem' }}>Yer değiştirmek için öğrenciyi <strong>SÜRÜKLE BIRAK</strong>. Yoklama için <strong>SAĞ TIKLA</strong>.</span>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 16px', alignItems: 'center', fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                    <span style={{ fontWeight: 700, color: 'var(--text-secondary)' }}>Davranış:</span>
+                    <span><span style={{ color: '#7c3aed', fontWeight: 700 }}>Ld</span> Lider</span>
+                    <span><span style={{ color: '#15803d', fontWeight: 700 }}>Ss</span> Sessiz</span>
+                    <span><span style={{ color: '#dc2626', fontWeight: 700 }}>Dd</span> D.Dağıtıcı</span>
+                    <span><span style={{ color: '#0369a1', fontWeight: 700 }}>Ak</span> Aktif</span>
+                    <span style={{ marginLeft: 'auto', display: 'flex', gap: '16px' }}>
+                        <span><span style={{ color: '#0d6e64' }}>▲</span> Yüksek not</span>
+                        <span><span style={{ color: '#d97706' }}>▽</span> Düşük not</span>
+                        <span><span style={{ color: '#dc2626', fontWeight: 700 }}>+</span> Özel ihtiyaç</span>
+                    </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
+                    <Lightbulb size={13} strokeWidth={2} />
+                    Öğrenciyi <strong>sürükle bırak</strong> ile taşıyın, <strong>sağ tıkla</strong> ile yoklama alın.
+                </div>
             </div>
 
             {/* Context Menu */}

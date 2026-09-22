@@ -86,7 +86,7 @@ export const TeamBuilder: React.FC<TeamBuilderProps> = ({ students }) => {
         <div className="empty-state">
             <Users className="icon" size={40} strokeWidth={1.5} />
             <p>
-                Takım oluşturmak için önce <strong>Sınıf Düzeni</strong> sekmesinden öğrencileri yükleyin.
+                Takım kurmak için önce <strong>Sınıf Düzeni</strong> sekmesinden öğrencilerinizi ekleyin.
             </p>
         </div>
     );
@@ -170,7 +170,7 @@ export const TeamBuilder: React.FC<TeamBuilderProps> = ({ students }) => {
         {teams.length === 0 ? (
           <div className="empty-state">
             <Handshake className="icon" size={40} strokeWidth={1.5} />
-            <p>Sol taraftan kuralları belirleyip takım oluşturabilirsiniz.</p>
+            <p>Soldan kuralları belirleyin, takımlar burada görünecek.</p>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px' }}>
