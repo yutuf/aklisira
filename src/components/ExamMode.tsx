@@ -406,10 +406,9 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
           <div className="empty-state">
             <Shuffle className="icon" size={40} strokeWidth={1.5} />
             <p>
-              En az <strong>2 sınıf</strong> ekleyin ve <strong>Kelebek Düzeni Oluştur</strong> butonuna tıklayın.
+              En az <strong>2 sınıf</strong> ekleyin, sonra <strong>Kelebek Düzeni Oluştur</strong>'a basın.
               <br /><br />
-              Öğrenciler farklı sınıflardan gelen kişilerle karıştırılarak sınav salonlarına dağıtılacak.
-              Aynı sınıftan iki öğrenci yan yana oturmayacak.
+              Farklı sınıflardan öğrenciler karıştırılıp salonlara dağıtılır — aynı sınıftan iki kişi yan yana oturmaz.
             </p>
           </div>
         ) : (
