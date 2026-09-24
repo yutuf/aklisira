@@ -467,12 +467,18 @@ export const SeatingGrid: React.FC<SeatingGridProps> = ({
                 </div>
             </div>
 
-            {/* Teacher desk */}
-            <div className="teacher-desk" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}><School size={16} strokeWidth={1.75} /> Öğretmen Masası</div>
+            {/* Horizontally-scrollable on phones instead of forcing the whole
+                page wider — a 6-column grid at 80px/col is already 480px,
+                past a 390px screen. Desktop is unaffected (no overflow to
+                trigger scroll there). */}
+            <div className="seating-grid-scroll">
+                {/* Teacher desk */}
+                <div className="teacher-desk" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}><School size={16} strokeWidth={1.75} /> Öğretmen Masası</div>
 
-            {/* Grid Content */}
-            <div style={{ marginTop: '12px' }}>
-                {renderLayout()}
+                {/* Grid Content */}
+                <div style={{ marginTop: '12px' }}>
+                    {renderLayout()}
+                </div>
             </div>
 
             {/* Legend */}

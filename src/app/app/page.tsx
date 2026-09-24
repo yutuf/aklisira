@@ -653,44 +653,49 @@ export default function Dashboard() {
           <span className="mobile-topbar-title">AklıSıra</span>
         </div>
         
-        {/* Class Selector Bar (Top Bar) */}
-        <div style={{ background: 'var(--bg-card)', padding: '12px 24px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '12px', overflowX: 'auto', marginBottom: '24px', boxShadow: 'var(--shadow-sm)' }}>
-          <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 800, whiteSpace: 'nowrap' }}>SINIF SEÇİMİ:</span>
-          {classes.length === 0 && <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Henüz sınıf yok</span>}
-          {classes.map(cls => (
+        {/* Class Selector Bar (Top Bar) — two rows on mobile so the
+            privacy/demo controls stay visible instead of scrolling
+            off with the class chips (see .class-selector-bar in
+            globals.css). */}
+        <div className="class-selector-bar" style={{ background: 'var(--bg-card)', padding: '12px 24px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', marginBottom: '24px', boxShadow: 'var(--shadow-sm)' }}>
+          <div className="class-selector-chips" style={{ display: 'flex', alignItems: 'center', gap: '12px', overflowX: 'auto' }}>
+            <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 800, whiteSpace: 'nowrap' }}>SINIF SEÇİMİ:</span>
+            {classes.length === 0 && <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>Henüz sınıf yok</span>}
+            {classes.map(cls => (
+              <button
+                key={cls.id}
+                onClick={() => setActiveClassId(cls.id)}
+                style={{
+                  padding: '6px 14px', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer', border: 'none', transition: 'all 0.2s ease', whiteSpace: 'nowrap',
+                  background: activeClassId === cls.id ? 'var(--primary-gradient)' : 'var(--bg-muted)',
+                  color: activeClassId === cls.id ? 'white' : 'var(--text-secondary)',
+                  boxShadow: activeClassId === cls.id ? '0 4px 12px rgba(13, 110, 100, 0.3)' : 'none'
+                }}
+              >
+                {cls.name} ({cls.grade}. Sınıf)
+              </button>
+            ))}
             <button
-              key={cls.id}
-              onClick={() => setActiveClassId(cls.id)}
-              style={{
-                padding: '6px 14px', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer', border: 'none', transition: 'all 0.2s ease',
-                background: activeClassId === cls.id ? 'var(--primary-gradient)' : 'var(--bg-muted)',
-                color: activeClassId === cls.id ? 'white' : 'var(--text-secondary)',
-                boxShadow: activeClassId === cls.id ? '0 4px 12px rgba(13, 110, 100, 0.3)' : 'none'
-              }}
+              onClick={() => setShowNewClassModal(true)}
+              style={{ padding: '6px 14px', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer', border: '1.5px dashed var(--border)', background: 'transparent', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}
             >
-              {cls.name} ({cls.grade}. Sınıf)
+              + Yeni Sınıf
             </button>
-          ))}
-          <button 
-            onClick={() => setShowNewClassModal(true)} 
-            style={{ padding: '6px 14px', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer', border: '1.5px dashed var(--border)', background: 'transparent', color: 'var(--text-secondary)' }}
-          >
-            + Yeni Sınıf
-          </button>
-          <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <button 
+          </div>
+          <div className="class-selector-actions" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <button
               onClick={() => setIsPrivacyMode(!isPrivacyMode)}
-              style={{ 
-                padding: '6px 12px', borderRadius: '50px', fontSize: '0.75rem', fontWeight: 700, 
-                border: '1.5px solid var(--border)', background: isPrivacyMode ? 'var(--primary-pale)' : 'white', 
+              style={{
+                padding: '6px 12px', borderRadius: '50px', fontSize: '0.75rem', fontWeight: 700,
+                border: '1.5px solid var(--border)', background: isPrivacyMode ? 'var(--primary-pale)' : 'white',
                 color: isPrivacyMode ? 'var(--primary)' : 'var(--text-secondary)',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px'
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap'
               }}
             >
               {isPrivacyMode ? <Eye size={14} strokeWidth={2} /> : <EyeOff size={14} strokeWidth={2} />}
               {isPrivacyMode ? 'Gizlilik: Açık' : 'Gizlilik: Kapalı'}
             </button>
-            <button onClick={loadDemoData} style={{ padding: '6px 12px', borderRadius: '50px', fontSize: '0.75rem', fontWeight: 700, border: 'none', background: 'var(--accent-pale)', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <button onClick={loadDemoData} style={{ padding: '6px 12px', borderRadius: '50px', fontSize: '0.75rem', fontWeight: 700, border: 'none', background: 'var(--accent-pale)', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
               <Gift size={14} strokeWidth={2} /> Demo Yükle
             </button>
           </div>
@@ -716,7 +721,7 @@ export default function Dashboard() {
         
         {activeTab === 'dashboard' ? (
           <div className="animate-fade-in" style={{ maxWidth: '1000px', margin: '0 auto' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+            <div className="dashboard-greeting-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
               <div>
                 <h1 className="font-display" style={{ fontSize: '2.1rem', fontWeight: 600, color: 'var(--text)', margin: 0 }}>
                   Günaydın{user ? `, ${user.user_metadata?.full_name?.split(' ')[0] || 'Hocam'}` : ' Hocam'}
@@ -725,9 +730,9 @@ export default function Dashboard() {
                   AklıSıra asistanınız bugün için hazır.
                 </p>
               </div>
-              
+
               {/* AI Power-Up Bar (Gamification) */}
-              <div style={{ background: 'var(--bg-card)', padding: '16px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)', minWidth: '240px' }}>
+              <div className="ai-power-bar" style={{ background: 'var(--bg-card)', padding: '16px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)', minWidth: '240px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', alignItems: 'center' }}>
                   <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--primary)' }}>GÜNLÜK ANALİZ HEDEFİ</span>
                   <span style={{ fontSize: '0.85rem', fontWeight: 900 }}>{aiUsage}/{aiLimit}</span>
