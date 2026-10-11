@@ -19,7 +19,7 @@ const getBehaviorLabel = (type: string) => {
         case 'disruptive': return { color: '#dc2626', label: 'Dd', text: 'D. Dağıtıcı' };
         case 'active': return { color: '#0369a1', label: 'Ak', text: 'Aktif' };
         case 'follower': return { color: '#737373', label: 'Tk', text: 'Takipçi' };
-        default: return { color: '#a8a29e', label: '', text: '' };
+        default: return { color: '#7d7368', label: '', text: '' };
     }
 };
 
@@ -29,7 +29,7 @@ const getAcademicLabel = (level: string) => {
         case 'above_average': return { color: '#14b8a6', label: '△', text: 'Ort. Üstü' };
         case 'struggling': return { color: '#d97706', label: '▽', text: 'Zorlanıyor' };
         case 'below_average': return { color: '#ea580c', label: '▼', text: 'Ort. Altı' };
-        default: return { color: '#a8a29e', label: '—', text: 'Ortalama' };
+        default: return { color: '#7d7368', label: '—', text: 'Ortalama' };
     }
 };
 

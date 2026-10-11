@@ -93,7 +93,7 @@ export const TeamBuilder: React.FC<TeamBuilderProps> = ({ students }) => {
   }
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '24px', alignItems: 'start' }}>
+    <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '24px', alignItems: 'start' }}>
       
       {/* ═══ Left Sidebar ═══ */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>

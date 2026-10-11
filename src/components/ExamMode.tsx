@@ -208,7 +208,7 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
   });
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: '24px', alignItems: 'start' }}>
+    <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: '24px', alignItems: 'start' }}>
       {/* ═══ Left Panel ═══ */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
@@ -277,10 +277,15 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
                       ({c.students.length} kişi)
                     </span>
                   </div>
-                  <button onClick={() => removeClass(c.id)} style={{
-                    background: 'none', border: 'none', color: '#ef4444',
-                    cursor: 'pointer', display: 'flex', alignItems: 'center',
-                  }}><X size={14} strokeWidth={2} /></button>
+                  <button
+                    onClick={() => removeClass(c.id)}
+                    aria-label={`${c.name} sınıfını kaldır`}
+                    style={{
+                      background: 'none', border: 'none', color: '#ef4444',
+                      cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      width: '44px', height: '44px', margin: '-10px -10px -10px 0', flexShrink: 0,
+                    }}
+                  ><X size={14} strokeWidth={2} /></button>
                 </div>
               ))}
             </div>
@@ -310,11 +315,11 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
                     setRooms(updated);
                   }}
                   style={{
-                    flex: 1, border: 'none', background: 'transparent',
+                    flex: 1, minWidth: 0, border: 'none', background: 'transparent',
                     fontWeight: 700, fontSize: '0.82rem', color: 'var(--text)',
                   }}
                 />
-                <div style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '0.7rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '0.7rem', flexShrink: 0 }}>
                   <button className="btn-stepper" onClick={() => {
                     const updated = [...rooms];
                     updated[idx] = { ...room, rows: Math.max(2, room.rows - 1), capacity: Math.max(2, room.rows - 1) * room.cols };
@@ -339,10 +344,16 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
                     setRooms(updated);
                   }}>+</button>
                 </div>
-                <button onClick={() => removeRoom(room.id)} style={{
-                  background: 'none', border: 'none', color: '#ef4444',
-                  cursor: 'pointer', display: 'flex', alignItems: 'center',
-                }} disabled={rooms.length <= 1}><X size={14} strokeWidth={2} /></button>
+                <button
+                  onClick={() => removeRoom(room.id)}
+                  aria-label={`${room.name} salonunu kaldır`}
+                  style={{
+                    background: 'none', border: 'none', color: '#ef4444',
+                    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    width: '44px', height: '44px', margin: '-10px -10px -10px 0', flexShrink: 0,
+                  }}
+                  disabled={rooms.length <= 1}
+                ><X size={14} strokeWidth={2} /></button>
               </div>
             ))}
           </div>
@@ -413,8 +424,10 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
           </div>
         ) : (
           <div>
-            {/* Room Tabs */}
-            <div style={{ display: 'flex', gap: '6px', marginBottom: '16px' }}>
+            {/* Room Tabs — can exceed phone width with several rooms;
+                scrolls within its own row instead of forcing the page
+                wider (matches .seating-grid-scroll's pattern). */}
+            <div className="room-tabs-scroll" style={{ display: 'flex', gap: '6px', marginBottom: '16px', overflowX: 'auto' }}>
               {results.map((ra, idx) => (
                 <button
                   key={ra.room.id}
@@ -423,7 +436,7 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
                     padding: '8px 16px', borderRadius: 'var(--radius-sm)',
                     border: selectedRoom === idx ? '2px solid var(--primary)' : '1.5px solid var(--border)',
                     background: selectedRoom === idx ? 'var(--primary-light)' : 'var(--bg-elevated)',
-                    fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer',
+                    fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
                     color: selectedRoom === idx ? 'var(--primary-dark)' : 'var(--text-muted)',
                   }}
                 >
@@ -477,34 +490,39 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
                   ))}
                 </div>
 
-                {/* Teacher desk */}
-                <div className="teacher-desk" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}><School size={16} strokeWidth={1.75} /> Gözetmen Masası</div>
+                {/* Horizontally-scrollable on phones, same pattern (and
+                    same underlying bug) as the seating screen's
+                    .seating-grid-scroll — a wide fixed-column grid needs
+                    its own scroll container, not the whole page's. */}
+                <div className="seating-grid-scroll">
+                  {/* Teacher desk */}
+                  <div className="teacher-desk" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}><School size={16} strokeWidth={1.75} /> Gözetmen Masası</div>
 
-                {/* Grid */}
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: `repeat(${results[selectedRoom].room.cols}, minmax(80px, 1fr))`,
-                  gap: '6px', marginTop: '12px',
-                }}>
-                  {Array.from({ length: results[selectedRoom].room.rows }).map((_, rIdx) =>
-                    Array.from({ length: results[selectedRoom].room.cols }).map((_, cIdx) => {
-                      const seat = results[selectedRoom].seats.find(s => s.row === rIdx && s.col === cIdx);
-                      const version = getExamVersion(rIdx, cIdx, pattern);
-                      const vc = examVersionColors[version];
+                  {/* Grid */}
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: `repeat(${results[selectedRoom].room.cols}, minmax(80px, 1fr))`,
+                    gap: '6px', marginTop: '12px',
+                  }}>
+                    {Array.from({ length: results[selectedRoom].room.rows }).map((_, rIdx) =>
+                      Array.from({ length: results[selectedRoom].room.cols }).map((_, cIdx) => {
+                        const seat = results[selectedRoom].seats.find(s => s.row === rIdx && s.col === cIdx);
+                        const version = getExamVersion(rIdx, cIdx, pattern);
+                        const vc = examVersionColors[version];
 
-                      if (!seat) {
+                        if (!seat) {
+                          return (
+                            <div key={`${rIdx}-${cIdx}`} style={{
+                              padding: '8px', borderRadius: 'var(--radius-sm)',
+                              border: `1.5px solid ${vc.border}`, background: vc.bg,
+                              opacity: 0.2, minHeight: '55px', textAlign: 'center',
+                            }}>
+                              <span style={{ fontSize: '0.6rem', fontWeight: 700, color: vc.text }}>{version}</span>
+                            </div>
+                          );
+                        }
+
                         return (
-                          <div key={`${rIdx}-${cIdx}`} style={{
-                            padding: '8px', borderRadius: 'var(--radius-sm)',
-                            border: `1.5px solid ${vc.border}`, background: vc.bg,
-                            opacity: 0.2, minHeight: '55px', textAlign: 'center',
-                          }}>
-                            <span style={{ fontSize: '0.6rem', fontWeight: 700, color: vc.text }}>{version}</span>
-                          </div>
-                        );
-                      }
-
-                      return (
                         <div key={`${rIdx}-${cIdx}`} 
                           draggable
                           onDragStart={(e) => {
@@ -574,6 +592,7 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
                       );
                     })
                   )}
+                  </div>
                 </div>
 
                 {/* Stats */}
