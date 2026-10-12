@@ -29,29 +29,42 @@ export const MeetingManager: React.FC<MeetingManagerProps> = ({
   const activeStudent = students.find(s => s.id === activeMeeting?.studentId);
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: activeMeeting ? '300px 1fr' : '1fr', gap: '24px' }}>
+    <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: activeMeeting ? '300px 1fr' : '1fr', gap: '24px' }}>
       
       {/* ─── Meeting List ─── */}
       <div className="card animate-fade-in" style={{ padding: '20px' }}>
         <div className="card-header" style={{ marginBottom: '16px' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CalendarDays size={18} strokeWidth={1.75} /> Veli Görüşmeleri</span>
-          <button className="btn-primary" onClick={() => setShowAddModal(true)} style={{ padding: '6px 12px', fontSize: '0.75rem' }}>+ Yeni Randevu</button>
+          <button
+            className="btn-primary"
+            onClick={() => setShowAddModal(true)}
+            disabled={students.length === 0}
+            title={students.length === 0 ? 'Önce Sınıf Düzeni sekmesinden öğrenci ekleyin.' : undefined}
+            style={{ padding: '6px 12px', fontSize: '0.75rem' }}
+          >+ Yeni Randevu</button>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {meetings.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
               <Handshake size={32} strokeWidth={1.5} style={{ marginBottom: '8px' }} />
-              <p style={{ fontSize: '0.85rem' }}>Henüz planlanmış bir görüşme yok.</p>
+              <p style={{ fontSize: '0.85rem' }}>
+                {students.length === 0
+                  ? <>Randevu planlamak için önce <strong>Sınıf Düzeni</strong> sekmesinden öğrenci ekleyin.</>
+                  : <>Henüz planlanmış bir görüşme yok. Üstteki <strong>+ Yeni Randevu</strong> ile ekleyin.</>}
+              </p>
             </div>
           ) : (
             meetings.sort((a,b) => a.date.localeCompare(b.date)).map(m => {
               const student = students.find(s => s.id === m.studentId);
               return (
-                <div 
-                  key={m.id} 
+                <div
+                  key={m.id}
                   onClick={() => setActiveMeetingId(m.id)}
-                  style={{ 
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveMeetingId(m.id); } }}
+                  style={{
                     padding: '12px', borderRadius: '12px', border: `2px solid ${activeMeetingId === m.id ? 'var(--primary)' : 'var(--border-light)'}`,
                     background: activeMeetingId === m.id ? 'var(--primary-pale)' : 'white',
                     cursor: 'pointer', transition: 'all 0.2s'
