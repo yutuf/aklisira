@@ -666,7 +666,7 @@ export default function Dashboard() {
                 key={cls.id}
                 onClick={() => setActiveClassId(cls.id)}
                 style={{
-                  padding: '6px 14px', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer', border: 'none', transition: 'all 0.2s ease', whiteSpace: 'nowrap',
+                  padding: '6px 14px', minHeight: '44px', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer', border: 'none', transition: 'all 0.2s ease', whiteSpace: 'nowrap',
                   background: activeClassId === cls.id ? 'var(--primary-gradient)' : 'var(--bg-muted)',
                   color: activeClassId === cls.id ? 'white' : 'var(--text-secondary)',
                   boxShadow: activeClassId === cls.id ? '0 4px 12px rgba(13, 110, 100, 0.3)' : 'none'
@@ -677,7 +677,7 @@ export default function Dashboard() {
             ))}
             <button
               onClick={() => setShowNewClassModal(true)}
-              style={{ padding: '6px 14px', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer', border: '1.5px dashed var(--border)', background: 'transparent', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}
+              style={{ padding: '6px 14px', minHeight: '44px', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer', border: '1.5px dashed var(--border)', background: 'transparent', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}
             >
               + Yeni Sınıf
             </button>
@@ -686,16 +686,16 @@ export default function Dashboard() {
             <button
               onClick={() => setIsPrivacyMode(!isPrivacyMode)}
               style={{
-                padding: '6px 12px', borderRadius: '50px', fontSize: '0.75rem', fontWeight: 700,
+                padding: '6px 12px', minHeight: '44px', borderRadius: '50px', fontSize: '0.75rem', fontWeight: 700,
                 border: '1.5px solid var(--border)', background: isPrivacyMode ? 'var(--primary-pale)' : 'white',
                 color: isPrivacyMode ? 'var(--primary)' : 'var(--text-secondary)',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap'
+                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap'
               }}
             >
               {isPrivacyMode ? <Eye size={14} strokeWidth={2} /> : <EyeOff size={14} strokeWidth={2} />}
               {isPrivacyMode ? 'Gizlilik: Açık' : 'Gizlilik: Kapalı'}
             </button>
-            <button onClick={loadDemoData} style={{ padding: '6px 12px', borderRadius: '50px', fontSize: '0.75rem', fontWeight: 700, border: 'none', background: 'var(--accent-pale)', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+            <button onClick={loadDemoData} style={{ padding: '6px 12px', minHeight: '44px', borderRadius: '50px', fontSize: '0.75rem', fontWeight: 700, border: 'none', background: 'var(--accent-pale)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
               <Gift size={14} strokeWidth={2} /> Demo Yükle
             </button>
           </div>
@@ -759,14 +759,14 @@ export default function Dashboard() {
                     <button
                       type="button"
                       onClick={loadDemoData}
-                      style={{ padding: '10px 18px', borderRadius: '10px', border: 'none', background: 'var(--accent)', color: 'white', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}
+                      style={{ padding: '10px 18px', minHeight: '44px', borderRadius: '10px', border: 'none', background: 'var(--accent)', color: 'white', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}
                     >
                       Demo Yükle
                     </button>
                     <button
                       type="button"
                       onClick={() => setShowNewClassModal(true)}
-                      style={{ padding: '10px 18px', borderRadius: '10px', border: '1.5px solid var(--primary)', background: 'white', color: 'var(--primary)', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}
+                      style={{ padding: '10px 18px', minHeight: '44px', borderRadius: '10px', border: '1.5px solid var(--primary)', background: 'white', color: 'var(--primary)', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}
                     >
                       + Yeni sınıf
                     </button>
@@ -798,7 +798,7 @@ export default function Dashboard() {
                       }
                       goTab('attendance');
                     }}
-                    style={{ padding: '6px 12px', borderRadius: '8px', border: 'none', background: 'var(--primary)', color: 'white', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                    style={{ padding: '6px 12px', minHeight: '44px', borderRadius: '8px', border: 'none', background: 'var(--primary)', color: 'white', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
                   >
                     Başlat
                   </button>
@@ -813,7 +813,7 @@ export default function Dashboard() {
                     <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800 }}>Gözlem Notları</h4>
                     <p style={{ margin: '2px 0 0', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Kritik öğrencileri incele.</p>
                   </div>
-                  <button onClick={() => setShowQuickNote(true)} style={{ padding: '6px 12px', borderRadius: '8px', border: 'none', background: 'var(--accent)', color: 'white', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}>Hızlı Not</button>
+                  <button onClick={() => setShowQuickNote(true)} style={{ padding: '6px 12px', minHeight: '44px', borderRadius: '8px', border: 'none', background: 'var(--accent)', color: 'white', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}>Hızlı Not</button>
                 </div>
 
                 {/* Task 3: Next Lesson */}
@@ -926,7 +926,7 @@ export default function Dashboard() {
                   <h4 style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '8px' }}>Toplu Öğrenci Yükle (CSV)</h4>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     <input type="file" accept=".csv" onChange={handleFileUpload} />
-                    <a href="/template.csv" download style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 700, textDecoration: 'underline' }}>Şablon İndir</a>
+                    <a href="/template.csv" download className="tap-link-ghost" style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 700, textDecoration: 'underline' }}>Şablon İndir</a>
                   </div>
                 </div>
               </div>
@@ -1034,7 +1034,8 @@ export default function Dashboard() {
                   <input type="file" accept=".csv" onChange={handleFileUpload} />
                   <div style={{ marginTop: '4px' }}>
                     <a href="data:text/csv;charset=utf-8,Ad Soyad,Akademik Ba%C5%9Far%C4%B1,Davran%C4%B1%C5%9F,Boy,G%C3%B6rme Durumu,%C3%96%C4%9Frenme Stili,Yan%C4%B1na Oturmak %C4%B0stedi%C4%9Fi,Uzak Durmak %C4%B0stedi%C4%9Fi"
-                       download="aklisira_sablon.csv" 
+                       download="aklisira_sablon.csv"
+                       className="tap-link-ghost"
                        style={{ fontSize: '0.72rem', color: 'var(--primary)', textDecoration: 'none', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
                       <Download size={13} strokeWidth={2} /> Örnek Şablon İndir
                     </a>
@@ -1133,6 +1134,7 @@ export default function Dashboard() {
                     key={lt.id}
                     onClick={() => setLayoutType(lt.id)}
                     className={`layout-type-btn ${layoutType === lt.id ? 'active' : ''}`}
+                    style={{ minHeight: '44px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px' }}
                   >
                     <span style={{ fontSize: '1.2rem' }}>{lt.icon}</span>
                     <span style={{ fontSize: '0.65rem' }}>{lt.label}</span>
@@ -1191,14 +1193,14 @@ export default function Dashboard() {
                     <button
                       type="button"
                       onClick={loadDemoData}
-                      style={{ padding: '10px 16px', borderRadius: '10px', border: 'none', background: 'var(--accent)', color: 'white', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}
+                      style={{ padding: '10px 16px', minHeight: '44px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: '10px', border: 'none', background: 'var(--accent)', color: 'white', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}
                     >
                       Demo Yükle
                     </button>
                     <button
                       type="button"
                       onClick={() => goTab('students')}
-                      style={{ padding: '10px 16px', borderRadius: '10px', border: '1.5px solid var(--primary)', background: 'white', color: 'var(--primary)', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}
+                      style={{ padding: '10px 16px', minHeight: '44px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: '10px', border: '1.5px solid var(--primary)', background: 'white', color: 'var(--primary)', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}
                     >
                       Öğrenci ekle
                     </button>

@@ -83,6 +83,7 @@ export function PrivacyNoticeLink({ style, children }: { style?: React.CSSProper
     <button
       type="button"
       onClick={() => window.dispatchEvent(new Event(OPEN_PRIVACY_NOTICE_EVENT))}
+      className="tap-link-ghost"
       style={{
         background: 'none', border: 'none', padding: 0, margin: 0,
         font: 'inherit', color: 'inherit', cursor: 'pointer', textDecoration: 'underline',

@@ -358,7 +358,8 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
             ))}
           </div>
           <button onClick={addRoom} style={{
-            width: '100%', marginTop: '8px', padding: '6px',
+            width: '100%', marginTop: '8px', padding: '6px', minHeight: '44px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
             border: '1.5px dashed var(--border)', borderRadius: 'var(--radius-sm)',
             background: 'transparent', color: 'var(--text-muted)',
             cursor: 'pointer', fontSize: '0.72rem', fontWeight: 600,
@@ -373,13 +374,13 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
             <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><FileEdit size={16} strokeWidth={1.75} /> Sınav Tipi</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <button onClick={() => setPattern('kelebek')} style={{ padding: '8px', borderRadius: '6px', border: pattern === 'kelebek' ? '1.5px solid var(--primary)' : '1px solid var(--border)', background: pattern === 'kelebek' ? 'var(--primary-pale)' : 'white', cursor: 'pointer', textAlign: 'left', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button onClick={() => setPattern('kelebek')} style={{ padding: '8px', minHeight: '44px', borderRadius: '6px', border: pattern === 'kelebek' ? '1.5px solid var(--primary)' : '1px solid var(--border)', background: pattern === 'kelebek' ? 'var(--primary-pale)' : 'white', cursor: 'pointer', textAlign: 'left', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Shuffle size={15} strokeWidth={1.75} /> Kelebek (A, B, C, D)
             </button>
-            <button onClick={() => setPattern('col-ab')} style={{ padding: '8px', borderRadius: '6px', border: pattern === 'col-ab' ? '1.5px solid var(--primary)' : '1px solid var(--border)', background: pattern === 'col-ab' ? 'var(--primary-pale)' : 'white', cursor: 'pointer', textAlign: 'left', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button onClick={() => setPattern('col-ab')} style={{ padding: '8px', minHeight: '44px', borderRadius: '6px', border: pattern === 'col-ab' ? '1.5px solid var(--primary)' : '1px solid var(--border)', background: pattern === 'col-ab' ? 'var(--primary-pale)' : 'white', cursor: 'pointer', textAlign: 'left', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Columns3 size={15} strokeWidth={1.75} /> Sütun A / B
             </button>
-            <button onClick={() => setPattern('row-ab')} style={{ padding: '8px', borderRadius: '6px', border: pattern === 'row-ab' ? '1.5px solid var(--primary)' : '1px solid var(--border)', background: pattern === 'row-ab' ? 'var(--primary-pale)' : 'white', cursor: 'pointer', textAlign: 'left', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button onClick={() => setPattern('row-ab')} style={{ padding: '8px', minHeight: '44px', borderRadius: '6px', border: pattern === 'row-ab' ? '1.5px solid var(--primary)' : '1px solid var(--border)', background: pattern === 'row-ab' ? 'var(--primary-pale)' : 'white', cursor: 'pointer', textAlign: 'left', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Rows3 size={15} strokeWidth={1.75} /> Satır A / B
             </button>
           </div>

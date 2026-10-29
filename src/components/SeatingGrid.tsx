@@ -460,7 +460,7 @@ export const SeatingGrid: React.FC<SeatingGridProps> = ({
                             navigator.clipboard.writeText(text);
                             alert("Yoklama raporu kopyalandı!");
                         }}
-                        style={{ background: 'var(--bg-muted)', border: '1px solid var(--border)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '5px' }}
+                        style={{ background: 'var(--bg-muted)', border: '1px solid var(--border)', borderRadius: '4px', padding: '2px 8px', minHeight: '44px', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '5px' }}
                     >
                         <Copy size={12} strokeWidth={2} /> Yoklama Fişini Kopyala
                     </button>
