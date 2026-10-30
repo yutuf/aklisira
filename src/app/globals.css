@@ -1104,8 +1104,8 @@ input[type="file"]::file-selector-button:hover {
   }
 
   .mobile-menu-btn {
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
     border-radius: 10px;
     border: 1px solid var(--border);
     background: var(--bg-card);
@@ -1223,5 +1223,51 @@ input[type="file"]::file-selector-button:hover {
 @media (max-width: 640px) {
   .room-tabs-scroll {
     -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ===========================
+   Tap targets (mobile) — follow-up to #8's note that the shared
+   /app pill/text buttons sit under the 44px bar. Scoped to mobile
+   only so the already-fine desktop density is untouched. Real height
+   wherever the control has vertical room to grow (every case here —
+   none of these sit in a row tight enough that height growth would
+   cause the horizontal overflow #7/#8 already fixed); the ghost
+   ::before technique is reserved for small inline text-style links
+   where visually growing the box would look wrong (PrivacyNotice's
+   footer link, the CSV template download links) — same pattern as
+   .btn-stepper in #8.
+   ========================= */
+@media (max-width: 640px) {
+  .toggle-btn {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .btn-secondary {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .btn-primary {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Ghost hit-area: for small inline text links (footer "Veri & gizlilik",
+     CSV template download links) where growing the visible box would look
+     wrong. Same ::before technique as .btn-stepper in #8 — invisible,
+     doesn't affect layout flow or visual size. */
+  .tap-link-ghost {
+    position: relative;
+  }
+  .tap-link-ghost::before {
+    content: '';
+    position: absolute;
+    inset: -14px;
   }
 }
