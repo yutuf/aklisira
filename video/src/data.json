@@ -1,0 +1,1197 @@
+{
+  "students": [
+    {
+      "id": "d1",
+      "name": "Ali",
+      "academicLevel": "high",
+      "behaviorType": "leader",
+      "height": "tall",
+      "vision": false,
+      "hearing": false,
+      "specialNeeds": "none",
+      "friends": [
+        "Mehmet"
+      ],
+      "avoid": [
+        "Burak"
+      ]
+    },
+    {
+      "id": "d2",
+      "name": "Elif",
+      "academicLevel": "high",
+      "behaviorType": "quiet",
+      "height": "short",
+      "vision": false,
+      "hearing": false,
+      "specialNeeds": "none",
+      "friends": [
+        "Zeynep"
+      ],
+      "avoid": []
+    },
+    {
+      "id": "d3",
+      "name": "Mehmet",
+      "academicLevel": "above_average",
+      "behaviorType": "active",
+      "height": "average",
+      "vision": false,
+      "hearing": false,
+      "specialNeeds": "adhd",
+      "friends": [
+        "Ali"
+      ],
+      "avoid": []
+    },
+    {
+      "id": "d4",
+      "name": "Ayşe",
+      "academicLevel": "average",
+      "behaviorType": "quiet",
+      "height": "average",
+      "vision": false,
+      "hearing": false,
+      "specialNeeds": "anxiety",
+      "friends": [
+        "Fatma"
+      ],
+      "avoid": [
+        "Burak"
+      ]
+    },
+    {
+      "id": "d5",
+      "name": "Zeynep",
+      "academicLevel": "struggling",
+      "behaviorType": "quiet",
+      "height": "short",
+      "vision": true,
+      "hearing": false,
+      "specialNeeds": "none",
+      "friends": [
+        "Elif"
+      ],
+      "avoid": []
+    },
+    {
+      "id": "d6",
+      "name": "Can",
+      "academicLevel": "above_average",
+      "behaviorType": "active",
+      "height": "tall",
+      "vision": false,
+      "hearing": false,
+      "specialNeeds": "none",
+      "friends": [
+        "Burak"
+      ],
+      "avoid": []
+    },
+    {
+      "id": "d7",
+      "name": "Fatma",
+      "academicLevel": "average",
+      "behaviorType": "follower",
+      "height": "average",
+      "vision": false,
+      "hearing": false,
+      "specialNeeds": "none",
+      "friends": [
+        "Ayşe"
+      ],
+      "avoid": []
+    },
+    {
+      "id": "d8",
+      "name": "Ahmet",
+      "academicLevel": "below_average",
+      "behaviorType": "disruptive",
+      "height": "tall",
+      "vision": false,
+      "hearing": false,
+      "specialNeeds": "none",
+      "friends": [],
+      "avoid": [
+        "Burak"
+      ]
+    },
+    {
+      "id": "d9",
+      "name": "Selin",
+      "academicLevel": "high",
+      "behaviorType": "leader",
+      "height": "average",
+      "vision": false,
+      "hearing": false,
+      "specialNeeds": "none",
+      "friends": [
+        "Defne"
+      ],
+      "avoid": []
+    },
+    {
+      "id": "d10",
+      "name": "Burak",
+      "academicLevel": "below_average",
+      "behaviorType": "disruptive",
+      "height": "average",
+      "vision": false,
+      "hearing": false,
+      "specialNeeds": "none",
+      "friends": [
+        "Can"
+      ],
+      "avoid": [
+        "Ali",
+        "Ahmet"
+      ]
+    },
+    {
+      "id": "d11",
+      "name": "Defne",
+      "academicLevel": "above_average",
+      "behaviorType": "active",
+      "height": "short",
+      "vision": false,
+      "hearing": false,
+      "specialNeeds": "none",
+      "friends": [
+        "Selin"
+      ],
+      "avoid": []
+    },
+    {
+      "id": "d12",
+      "name": "Emre",
+      "academicLevel": "struggling",
+      "behaviorType": "quiet",
+      "height": "short",
+      "vision": true,
+      "hearing": false,
+      "specialNeeds": "vision",
+      "friends": [],
+      "avoid": []
+    },
+    {
+      "id": "d13",
+      "name": "Yağmur",
+      "academicLevel": "average",
+      "behaviorType": "follower",
+      "height": "average",
+      "vision": false,
+      "hearing": false,
+      "specialNeeds": "none",
+      "friends": [
+        "Fatma"
+      ],
+      "avoid": []
+    },
+    {
+      "id": "d14",
+      "name": "Kerem",
+      "academicLevel": "average",
+      "behaviorType": "active",
+      "height": "average",
+      "vision": false,
+      "hearing": true,
+      "specialNeeds": "none",
+      "friends": [
+        "Can"
+      ],
+      "avoid": []
+    },
+    {
+      "id": "d15",
+      "name": "Nil",
+      "academicLevel": "high",
+      "behaviorType": "quiet",
+      "height": "short",
+      "vision": false,
+      "hearing": false,
+      "specialNeeds": "none",
+      "friends": [
+        "Elif",
+        "Zeynep"
+      ],
+      "avoid": []
+    }
+  ],
+  "seating": {
+    "rows": 3,
+    "cols": 6,
+    "naive": [
+      {
+        "id": "d1",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "id": "d2",
+        "row": 0,
+        "col": 1
+      },
+      {
+        "id": "d3",
+        "row": 0,
+        "col": 2
+      },
+      {
+        "id": "d4",
+        "row": 0,
+        "col": 3
+      },
+      {
+        "id": "d5",
+        "row": 0,
+        "col": 4
+      },
+      {
+        "id": "d6",
+        "row": 0,
+        "col": 5
+      },
+      {
+        "id": "d7",
+        "row": 1,
+        "col": 0
+      },
+      {
+        "id": "d8",
+        "row": 1,
+        "col": 1
+      },
+      {
+        "id": "d9",
+        "row": 1,
+        "col": 2
+      },
+      {
+        "id": "d10",
+        "row": 1,
+        "col": 3
+      },
+      {
+        "id": "d11",
+        "row": 1,
+        "col": 4
+      },
+      {
+        "id": "d12",
+        "row": 1,
+        "col": 5
+      },
+      {
+        "id": "d13",
+        "row": 2,
+        "col": 0
+      },
+      {
+        "id": "d14",
+        "row": 2,
+        "col": 1
+      },
+      {
+        "id": "d15",
+        "row": 2,
+        "col": 2
+      }
+    ],
+    "naiveMetrics": {
+      "academicBalance": 70,
+      "socialCompatibility": 0,
+      "behavioralHarmony": 16,
+      "physicalAccessibility": 84,
+      "overallScore": 43
+    },
+    "optimized": [
+      {
+        "id": "d5",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "id": "d10",
+        "row": 0,
+        "col": 1
+      },
+      {
+        "id": "d6",
+        "row": 0,
+        "col": 2
+      },
+      {
+        "id": "d14",
+        "row": 0,
+        "col": 3
+      },
+      {
+        "id": "d7",
+        "row": 0,
+        "col": 4
+      },
+      {
+        "id": "d13",
+        "row": 0,
+        "col": 5
+      },
+      {
+        "id": "d2",
+        "row": 1,
+        "col": 0
+      },
+      {
+        "id": "d15",
+        "row": 1,
+        "col": 1
+      },
+      {
+        "id": "d12",
+        "row": 1,
+        "col": 2
+      },
+      {
+        "id": "d4",
+        "row": 1,
+        "col": 3
+      },
+      {
+        "id": "d9",
+        "row": 1,
+        "col": 4
+      },
+      {
+        "id": "d11",
+        "row": 1,
+        "col": 5
+      },
+      {
+        "id": "d1",
+        "row": 2,
+        "col": 0
+      },
+      {
+        "id": "d3",
+        "row": 2,
+        "col": 1
+      },
+      {
+        "id": "d8",
+        "row": 2,
+        "col": 2
+      }
+    ],
+    "optimizedMetrics": {
+      "academicBalance": 75,
+      "socialCompatibility": 92,
+      "behavioralHarmony": 98,
+      "physicalAccessibility": 94,
+      "overallScore": 90
+    },
+    "history": [
+      81,
+      81,
+      81,
+      81,
+      81,
+      83,
+      83,
+      83,
+      84,
+      84,
+      84,
+      84,
+      84,
+      86,
+      86,
+      86,
+      86,
+      89,
+      89,
+      89,
+      89,
+      89,
+      89,
+      89,
+      89,
+      89,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90
+    ]
+  },
+  "exam": {
+    "classes": [
+      {
+        "name": "9-B",
+        "count": 20
+      },
+      {
+        "name": "10-A",
+        "count": 20
+      },
+      {
+        "name": "10-B",
+        "count": 20
+      }
+    ],
+    "rooms": [
+      {
+        "name": "Salon 1",
+        "rows": 5,
+        "cols": 6
+      },
+      {
+        "name": "Salon 2",
+        "rows": 5,
+        "cols": 6
+      }
+    ],
+    "room1Before": [
+      {
+        "studentName": "Eylül Bulut",
+        "className": "9-B",
+        "row": 0,
+        "col": 0,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Pelin Turan",
+        "className": "10-A",
+        "row": 0,
+        "col": 1,
+        "examVersion": "B"
+      },
+      {
+        "studentName": "Onur Erdoğan",
+        "className": "9-B",
+        "row": 0,
+        "col": 2,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Mert Şimşek",
+        "className": "9-B",
+        "row": 0,
+        "col": 3,
+        "examVersion": "B"
+      },
+      {
+        "studentName": "İrem Polat",
+        "className": "9-B",
+        "row": 0,
+        "col": 4,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Aras Bilgin",
+        "className": "10-A",
+        "row": 0,
+        "col": 5,
+        "examVersion": "B"
+      },
+      {
+        "studentName": "Rüya Ekin",
+        "className": "10-B",
+        "row": 1,
+        "col": 0,
+        "examVersion": "C"
+      },
+      {
+        "studentName": "Hakan Tunç",
+        "className": "10-B",
+        "row": 1,
+        "col": 1,
+        "examVersion": "D"
+      },
+      {
+        "studentName": "Mina Erol",
+        "className": "10-B",
+        "row": 1,
+        "col": 2,
+        "examVersion": "C"
+      },
+      {
+        "studentName": "Sarp Eren",
+        "className": "10-A",
+        "row": 1,
+        "col": 3,
+        "examVersion": "D"
+      },
+      {
+        "studentName": "Su Güneş",
+        "className": "9-B",
+        "row": 1,
+        "col": 4,
+        "examVersion": "C"
+      },
+      {
+        "studentName": "Leyla Aral",
+        "className": "10-B",
+        "row": 1,
+        "col": 5,
+        "examVersion": "D"
+      },
+      {
+        "studentName": "Koray Süer",
+        "className": "10-B",
+        "row": 2,
+        "col": 0,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Ada Yurt",
+        "className": "9-B",
+        "row": 2,
+        "col": 1,
+        "examVersion": "B"
+      },
+      {
+        "studentName": "Alp Ünal",
+        "className": "10-A",
+        "row": 2,
+        "col": 2,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Derin Sel",
+        "className": "10-A",
+        "row": 2,
+        "col": 3,
+        "examVersion": "B"
+      },
+      {
+        "studentName": "Efe Bozkurt",
+        "className": "10-A",
+        "row": 2,
+        "col": 4,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Barış Uslu",
+        "className": "10-B",
+        "row": 2,
+        "col": 5,
+        "examVersion": "B"
+      },
+      {
+        "studentName": "Esra Gök",
+        "className": "10-B",
+        "row": 3,
+        "col": 0,
+        "examVersion": "C"
+      },
+      {
+        "studentName": "Oğuz Peker",
+        "className": "10-B",
+        "row": 3,
+        "col": 1,
+        "examVersion": "D"
+      },
+      {
+        "studentName": "Lina Er",
+        "className": "9-B",
+        "row": 3,
+        "col": 2,
+        "examVersion": "C"
+      },
+      {
+        "studentName": "Rüzgar Ak",
+        "className": "9-B",
+        "row": 3,
+        "col": 3,
+        "examVersion": "D"
+      },
+      {
+        "studentName": "Nil Koç",
+        "className": "9-B",
+        "row": 3,
+        "col": 4,
+        "examVersion": "C"
+      },
+      {
+        "studentName": "Ayla Nur",
+        "className": "10-B",
+        "row": 3,
+        "col": 5,
+        "examVersion": "D"
+      },
+      {
+        "studentName": "Berk Kurt",
+        "className": "9-B",
+        "row": 4,
+        "col": 0,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Deniz Akın",
+        "className": "9-B",
+        "row": 4,
+        "col": 1,
+        "examVersion": "B"
+      },
+      {
+        "studentName": "Beren Kaya",
+        "className": "10-A",
+        "row": 4,
+        "col": 2,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Ela Kır",
+        "className": "10-A",
+        "row": 4,
+        "col": 3,
+        "examVersion": "B"
+      },
+      {
+        "studentName": "Furkan Oral",
+        "className": "10-B",
+        "row": 4,
+        "col": 4,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Işıl Duman",
+        "className": "10-B",
+        "row": 4,
+        "col": 5,
+        "examVersion": "B"
+      }
+    ],
+    "room1": [
+      {
+        "studentName": "Eylül Bulut",
+        "className": "9-B",
+        "row": 0,
+        "col": 0,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Pelin Turan",
+        "className": "10-A",
+        "row": 0,
+        "col": 1,
+        "examVersion": "B"
+      },
+      {
+        "studentName": "Onur Erdoğan",
+        "className": "9-B",
+        "row": 0,
+        "col": 2,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Mert Şimşek",
+        "className": "9-B",
+        "row": 0,
+        "col": 3,
+        "examVersion": "B"
+      },
+      {
+        "studentName": "İrem Polat",
+        "className": "9-B",
+        "row": 0,
+        "col": 4,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Aras Bilgin",
+        "className": "10-A",
+        "row": 0,
+        "col": 5,
+        "examVersion": "B"
+      },
+      {
+        "studentName": "Rüya Ekin",
+        "className": "10-B",
+        "row": 1,
+        "col": 0,
+        "examVersion": "C"
+      },
+      {
+        "studentName": "Hakan Tunç",
+        "className": "10-B",
+        "row": 1,
+        "col": 1,
+        "examVersion": "D"
+      },
+      {
+        "studentName": "Mina Erol",
+        "className": "10-B",
+        "row": 1,
+        "col": 2,
+        "examVersion": "C"
+      },
+      {
+        "studentName": "Sarp Eren",
+        "className": "10-A",
+        "row": 1,
+        "col": 3,
+        "examVersion": "D"
+      },
+      {
+        "studentName": "Su Güneş",
+        "className": "9-B",
+        "row": 1,
+        "col": 4,
+        "examVersion": "C"
+      },
+      {
+        "studentName": "Leyla Aral",
+        "className": "10-B",
+        "row": 1,
+        "col": 5,
+        "examVersion": "D"
+      },
+      {
+        "studentName": "Koray Süer",
+        "className": "10-B",
+        "row": 2,
+        "col": 0,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Ada Yurt",
+        "className": "9-B",
+        "row": 2,
+        "col": 1,
+        "examVersion": "B"
+      },
+      {
+        "studentName": "Alp Ünal",
+        "className": "10-A",
+        "row": 2,
+        "col": 2,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Derin Sel",
+        "className": "10-A",
+        "row": 2,
+        "col": 3,
+        "examVersion": "B"
+      },
+      {
+        "studentName": "Efe Bozkurt",
+        "className": "10-A",
+        "row": 2,
+        "col": 4,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Barış Uslu",
+        "className": "10-B",
+        "row": 2,
+        "col": 5,
+        "examVersion": "B"
+      },
+      {
+        "studentName": "Esra Gök",
+        "className": "10-B",
+        "row": 3,
+        "col": 0,
+        "examVersion": "C"
+      },
+      {
+        "studentName": "Oğuz Peker",
+        "className": "10-B",
+        "row": 3,
+        "col": 1,
+        "examVersion": "D"
+      },
+      {
+        "studentName": "Lina Er",
+        "className": "9-B",
+        "row": 3,
+        "col": 2,
+        "examVersion": "C"
+      },
+      {
+        "studentName": "Rüzgar Ak",
+        "className": "9-B",
+        "row": 3,
+        "col": 3,
+        "examVersion": "D"
+      },
+      {
+        "studentName": "Nil Koç",
+        "className": "9-B",
+        "row": 3,
+        "col": 4,
+        "examVersion": "C"
+      },
+      {
+        "studentName": "Ayla Nur",
+        "className": "10-B",
+        "row": 3,
+        "col": 5,
+        "examVersion": "D"
+      },
+      {
+        "studentName": "Berk Kurt",
+        "className": "9-B",
+        "row": 4,
+        "col": 0,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Deniz Akın",
+        "className": "9-B",
+        "row": 4,
+        "col": 1,
+        "examVersion": "B"
+      },
+      {
+        "studentName": "Beren Kaya",
+        "className": "10-A",
+        "row": 4,
+        "col": 2,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Furkan Oral",
+        "className": "10-B",
+        "row": 4,
+        "col": 3,
+        "examVersion": "B"
+      },
+      {
+        "studentName": "Ela Kır",
+        "className": "10-A",
+        "row": 4,
+        "col": 4,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Işıl Duman",
+        "className": "10-B",
+        "row": 4,
+        "col": 5,
+        "examVersion": "B"
+      }
+    ],
+    "room2": [
+      {
+        "studentName": "Çağan Uz",
+        "className": "10-A",
+        "row": 0,
+        "col": 0,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Nazlı Çınar",
+        "className": "10-B",
+        "row": 0,
+        "col": 1,
+        "examVersion": "B"
+      },
+      {
+        "studentName": "Bora Çakır",
+        "className": "10-A",
+        "row": 0,
+        "col": 2,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Sena Oral",
+        "className": "9-B",
+        "row": 0,
+        "col": 3,
+        "examVersion": "B"
+      },
+      {
+        "studentName": "Yaren Su",
+        "className": "10-B",
+        "row": 0,
+        "col": 4,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Melis Yavuz",
+        "className": "9-B",
+        "row": 0,
+        "col": 5,
+        "examVersion": "B"
+      },
+      {
+        "studentName": "Arda Tekin",
+        "className": "9-B",
+        "row": 1,
+        "col": 0,
+        "examVersion": "C"
+      },
+      {
+        "studentName": "Selim Ay",
+        "className": "10-B",
+        "row": 1,
+        "col": 1,
+        "examVersion": "D"
+      },
+      {
+        "studentName": "Tuna Uçar",
+        "className": "9-B",
+        "row": 1,
+        "col": 2,
+        "examVersion": "C"
+      },
+      {
+        "studentName": "Zafer Kaan",
+        "className": "10-B",
+        "row": 1,
+        "col": 3,
+        "examVersion": "D"
+      },
+      {
+        "studentName": "Ece Özdemir",
+        "className": "9-B",
+        "row": 1,
+        "col": 4,
+        "examVersion": "C"
+      },
+      {
+        "studentName": "Ozan Kalkan",
+        "className": "10-A",
+        "row": 1,
+        "col": 5,
+        "examVersion": "D"
+      },
+      {
+        "studentName": "Doruk Er",
+        "className": "10-B",
+        "row": 2,
+        "col": 0,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Lara Keskin",
+        "className": "10-A",
+        "row": 2,
+        "col": 1,
+        "examVersion": "B"
+      },
+      {
+        "studentName": "Yağmur Çetin",
+        "className": "9-B",
+        "row": 2,
+        "col": 2,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Ege Tan",
+        "className": "9-B",
+        "row": 2,
+        "col": 3,
+        "examVersion": "B"
+      },
+      {
+        "studentName": "Duru Kaplan",
+        "className": "10-A",
+        "row": 2,
+        "col": 4,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Gizem Sevim",
+        "className": "10-B",
+        "row": 2,
+        "col": 5,
+        "examVersion": "B"
+      },
+      {
+        "studentName": "Kaan Ateş",
+        "className": "9-B",
+        "row": 3,
+        "col": 0,
+        "examVersion": "C"
+      },
+      {
+        "studentName": "İpek Coşkun",
+        "className": "10-A",
+        "row": 3,
+        "col": 1,
+        "examVersion": "D"
+      },
+      {
+        "studentName": "Cansu Kaya",
+        "className": "10-B",
+        "row": 3,
+        "col": 2,
+        "examVersion": "C"
+      },
+      {
+        "studentName": "Cem Yalçın",
+        "className": "10-A",
+        "row": 3,
+        "col": 3,
+        "examVersion": "D"
+      },
+      {
+        "studentName": "Umut Tan",
+        "className": "10-A",
+        "row": 3,
+        "col": 4,
+        "examVersion": "C"
+      },
+      {
+        "studentName": "Nehir Sarı",
+        "className": "10-A",
+        "row": 3,
+        "col": 5,
+        "examVersion": "D"
+      },
+      {
+        "studentName": "Bulut Eke",
+        "className": "10-B",
+        "row": 4,
+        "col": 0,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Eda Aksoy",
+        "className": "10-A",
+        "row": 4,
+        "col": 1,
+        "examVersion": "B"
+      },
+      {
+        "studentName": "Asya Korkmaz",
+        "className": "10-A",
+        "row": 4,
+        "col": 2,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Tuba Işık",
+        "className": "10-A",
+        "row": 4,
+        "col": 3,
+        "examVersion": "B"
+      },
+      {
+        "studentName": "Taylan Ok",
+        "className": "10-B",
+        "row": 4,
+        "col": 4,
+        "examVersion": "A"
+      },
+      {
+        "studentName": "Kerem Kara",
+        "className": "9-B",
+        "row": 4,
+        "col": 5,
+        "examVersion": "B"
+      }
+    ],
+    "conflictsBefore": 26,
+    "conflictsAfter": 23
+  },
+  "teams": {
+    "mixed": [
+      {
+        "ids": [
+          "d1",
+          "d4",
+          "d7"
+        ],
+        "avg": 3.67
+      },
+      {
+        "ids": [
+          "d2",
+          "d11",
+          "d13",
+          "d12"
+        ],
+        "avg": 3.25
+      },
+      {
+        "ids": [
+          "d9",
+          "d6",
+          "d14",
+          "d5"
+        ],
+        "avg": 3.25
+      },
+      {
+        "ids": [
+          "d15",
+          "d3",
+          "d8",
+          "d10"
+        ],
+        "avg": 3.25
+      }
+    ],
+    "similar": [
+      {
+        "ids": [
+          "d1",
+          "d2",
+          "d9"
+        ],
+        "avg": 5
+      },
+      {
+        "ids": [
+          "d15",
+          "d3",
+          "d6",
+          "d11"
+        ],
+        "avg": 4.25
+      },
+      {
+        "ids": [
+          "d4",
+          "d7",
+          "d13",
+          "d14"
+        ],
+        "avg": 3
+      },
+      {
+        "ids": [
+          "d8",
+          "d10",
+          "d5",
+          "d12"
+        ],
+        "avg": 1.5
+      }
+    ]
+  }
+}
