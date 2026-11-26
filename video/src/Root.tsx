@@ -1,7 +1,10 @@
 import React from 'react';
-import { Composition, staticFile, continueRender, delayRender } from 'remotion';
+import { Composition, Still, staticFile, continueRender, delayRender } from 'remotion';
 import { loadFont } from '@remotion/fonts';
 import { Main, TOTAL } from './Main';
+import { Pro } from './v2/Pro';
+import { Thumbnail } from './v2/Thumbnail';
+import { TOTAL_V2 } from './v2/timeline';
 
 // Fraunces + Nunito (variable), latin + latin-ext so Turkish glyphs render.
 const fonts = [
@@ -18,5 +21,8 @@ Promise.all(
 export const Root: React.FC = () => (
   <>
     <Composition id="AklisiraDemo" component={Main} durationInFrames={TOTAL} fps={30} width={1920} height={1080} />
+    <Composition id="AklisiraPro" component={Pro} durationInFrames={TOTAL_V2} fps={30} width={1920} height={1080} />
+    <Composition id="AklisiraProVertical" component={Pro} durationInFrames={TOTAL_V2} fps={30} width={1080} height={1920} />
+    <Still id="AklisiraThumbnail" component={Thumbnail} width={1920} height={1080} />
   </>
 );
