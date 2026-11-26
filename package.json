@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "benchmark": "tsx scripts/run-benchmark.ts",
-    "test": "tsx --test src/utils/scoring-utils.test.ts"
+    "test": "tsx --test src/utils/scoring-utils.test.ts src/utils/exam-seating.test.ts",
+    "test:exam-seating": "node --experimental-strip-types --no-warnings=ExperimentalWarning scripts/exam-seating-report.mts"
   },
   "dependencies": {
     "@fal-ai/client": "^1.10.0",

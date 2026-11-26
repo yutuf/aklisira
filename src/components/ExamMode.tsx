@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { School, Plus, ClipboardList, X, DoorOpen, FileEdit, Shuffle, AlertTriangle, CheckCircle2, Columns3, Rows3 } from 'lucide-react';
+import { assignExamSeats, countConflicts } from '@/utils/exam-seating';
 
 interface ExamClass {
   id: string;
@@ -110,88 +111,15 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
   };
 
   // ─── KELEBEK ALGORITHM ───
+  // Classes are interleaved across rooms, then each room is arranged so that no
+  // two students of the same class sit left/right/front/back of each other
+  // (see utils/exam-seating). Exam versions still follow the seat position.
   const runKelebek = () => {
-    // Flatten ALL students with their class info
-    const allStudents = classes.flatMap(c =>
-      c.students.map(s => ({ name: s, className: c.name }))
-    );
-
-    // Shuffle randomly
-    const shuffled = [...allStudents].sort(() => Math.random() - 0.5);
-
-    // Distribute across rooms, maximizing class separation
-    const roomAssignments: RoomAssignment[] = rooms.map(room => ({
+    const placed = assignExamSeats(classes, rooms);
+    const roomAssignments: RoomAssignment[] = rooms.map((room, i) => ({
       room,
-      seats: [],
+      seats: placed[i].map(s => ({ ...s, examVersion: getExamVersion(s.row, s.col, pattern) })),
     }));
-
-    let studentIdx = 0;
-    for (const ra of roomAssignments) {
-      const { room } = ra;
-      const seats: ExamSeat[] = [];
-
-      for (let r = 0; r < room.rows && studentIdx < shuffled.length; r++) {
-        for (let c = 0; c < room.cols && studentIdx < shuffled.length; c++) {
-          seats.push({
-            studentName: shuffled[studentIdx].name,
-            className: shuffled[studentIdx].className,
-            row: r,
-            col: c,
-            examVersion: getExamVersion(r, c, pattern),
-          });
-          studentIdx++;
-        }
-      }
-      ra.seats = seats;
-    }
-
-    // Post-process: swap students to minimize same-class adjacency
-    for (const ra of roomAssignments) {
-      for (let pass = 0; pass < 50; pass++) {
-        for (let i = 0; i < ra.seats.length; i++) {
-          const s1 = ra.seats[i];
-          // Check if any neighbor is from same class
-          const hasConflict = ra.seats.some(s2 => {
-            if (s1 === s2) return false;
-            const dr = Math.abs(s1.row - s2.row);
-            const dc = Math.abs(s1.col - s2.col);
-            return dr <= 1 && dc <= 1 && s1.className === s2.className;
-          });
-
-          if (hasConflict) {
-            // Find a non-conflicting swap partner
-            const swapIdx = ra.seats.findIndex((s2, j) => {
-              if (j === i) return false;
-              // Would s2 at position of s1 cause conflict?
-              const s2AtS1Conflict = ra.seats.some(s3 => {
-                if (s3 === s1 || s3 === s2) return false;
-                const dr = Math.abs(s1.row - s3.row);
-                const dc = Math.abs(s1.col - s3.col);
-                return dr <= 1 && dc <= 1 && s2.className === s3.className;
-              });
-              // Would s1 at position of s2 cause conflict?
-              const s1AtS2Conflict = ra.seats.some(s3 => {
-                if (s3 === s1 || s3 === s2) return false;
-                const dr = Math.abs(s2.row - s3.row);
-                const dc = Math.abs(s2.col - s3.col);
-                return dr <= 1 && dc <= 1 && s1.className === s3.className;
-              });
-              return !s2AtS1Conflict && !s1AtS2Conflict;
-            });
-
-            if (swapIdx !== -1) {
-              // Swap student info but keep positions
-              const tempName = s1.studentName;
-              const tempClass = s1.className;
-              s1.studentName = ra.seats[swapIdx].studentName;
-              s1.className = ra.seats[swapIdx].className;
-              ra.seats[swapIdx].studentName = tempName;
-              ra.seats[swapIdx].className = tempClass;
-            }
-          }
-        }
-      }
-    }
 
     setResults(roomAssignments);
     setSelectedRoom(0);
@@ -613,20 +541,12 @@ export const ExamMode: React.FC<ExamModeProps> = ({ activeClass }) => {
                   <div>
                     <span style={{ fontWeight: 700 }}>Çakışma: </span>
                     {(() => {
-                      let conflicts = 0;
-                      const seats = results[selectedRoom].seats;
-                      seats.forEach(s1 => {
-                        seats.forEach(s2 => {
-                          if (s1 === s2) return;
-                          const dr = Math.abs(s1.row - s2.row);
-                          const dc = Math.abs(s1.col - s2.col);
-                          if (dr <= 1 && dc <= 1 && s1.className === s2.className) conflicts++;
-                        });
-                      });
-                      conflicts = conflicts / 2; // each pair counted twice
-                      return conflicts === 0
-                        ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><CheckCircle2 size={12} strokeWidth={2} /> Yok — mükemmel dağılım!</span>
-                        : <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><AlertTriangle size={12} strokeWidth={2} /> {conflicts} aynı sınıf komşuluğu</span>;
+                      // Diagonal pairs cannot all be avoided with 3+ classes, so the
+                      // verdict is based on left/right/front/back neighbours.
+                      const { orthogonal, diagonal } = countConflicts(results[selectedRoom].seats);
+                      return orthogonal === 0
+                        ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><CheckCircle2 size={12} strokeWidth={2} /> Yan/ön/arka yok{diagonal > 0 ? ` · ${diagonal} çapraz` : ' — mükemmel dağılım!'}</span>
+                        : <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><AlertTriangle size={12} strokeWidth={2} /> {orthogonal} yan/ön/arka aynı sınıf komşuluğu{diagonal > 0 ? ` · ${diagonal} çapraz` : ''}</span>;
                     })()}
                   </div>
                 </div>
