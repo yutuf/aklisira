@@ -1,0 +1,31 @@
+{
+  "name": "aklisira-demo-video",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Remotion promo/demo video for AklıSıra",
+  "scripts": {
+    "data": "tsx scripts/gen-data.ts",
+    "audio": "tsx scripts/gen-audio.ts && tsx scripts/gen-audio-v2.ts",
+    "prerender": "npm run audio",
+    "studio": "remotion studio",
+    "render": "remotion render AklisiraDemo out/aklisira-demo.mp4 --codec=h264 --crf=18",
+    "render:pro": "npm run audio && remotion render AklisiraPro out/aklisira-pro-16x9.mp4 --codec=h264 --crf=18 && remotion render AklisiraProVertical out/aklisira-pro-9x16.mp4 --codec=h264 --crf=18 && remotion still AklisiraThumbnail out/aklisira-thumbnail.png"
+  },
+  "dependencies": {
+    "@fontsource-variable/fraunces": "5.3.0",
+    "@fontsource-variable/nunito": "5.3.0",
+    "@remotion/cli": "4.0.547",
+    "@remotion/fonts": "4.0.547",
+    "@remotion/paths": "4.0.547",
+    "@remotion/transitions": "4.0.547",
+    "lucide-react": "1.47.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.547"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.3",
+    "tsx": "4.20.3",
+    "typescript": "5.9.3"
+  }
+}
